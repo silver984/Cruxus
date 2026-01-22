@@ -13,11 +13,11 @@ namespace slv
 #ifdef _WIN32
     namespace win32
     {
-        void create_console(std::string_view title_prefix)
+        bool create_console(std::string_view title_prefix)
         {
             if (GetConsoleWindow())
             {
-                return;
+                return true;
             }
 
             AllocConsole();
@@ -34,13 +34,13 @@ namespace slv
             HANDLE h_out = GetStdHandle(STD_OUTPUT_HANDLE);
             if (h_out == INVALID_HANDLE_VALUE)
             {
-                return;
+                return false;
             }
 
             DWORD mode = 0;
             if (!GetConsoleMode(h_out, &mode))
             {
-                return;
+                return false;
             }
 
             mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
@@ -48,6 +48,8 @@ namespace slv
             SetConsoleMode(h_out, mode);
 
             slv::is_console_active = true;
+
+            return true;
         }
 
         void destroy_console()

@@ -11,8 +11,13 @@ namespace slv
 			return true;
 		}
 
+		SetTraceLogCallback([](int, const char*, va_list) {});
+
 #if defined(SLV_DEBUG) && defined(_WIN32)
-		slv::win32::create_console(window_title);
+		if (slv::win32::create_console(window_title))
+		{
+			slv::debug_log(slv::LOG_INFO, m_class_name, "Console initialized");
+		}
 #endif
 
 		int flags = 0;
@@ -38,13 +43,24 @@ namespace slv
 		m_win_title = window_title;
 		m_fps = fps;
 
-		SetTargetFPS(m_fps);
 		InitWindow(m_original_win_size.width, m_original_win_size.height, std::string(m_win_title).c_str());
+
+		if (!IsWindowReady())
+		{
+			slv::debug_log(slv::LOG_ERROR, m_class_name, "Failed to initialize window");
+			return false;
+		}
+
+		SetWindowMinSize(800, 600);
+		SetWindowMaxSize(get_monitor_size().width, get_monitor_size().height);
+		
+		SetTargetFPS(m_fps);
+		
 		SetExitKey(KEY_NULL);
 
 		m_is_init = true;
 
-		slv::console_log(slv::LVL_INFO, "Window initialized", m_class_name);
+		slv::debug_log(slv::LOG_INFO, m_class_name, "Window initialized");
 
 		return true;
 	}
@@ -69,14 +85,23 @@ namespace slv
 
 		m_current_win_size = slv::size_uint
 		{
-			static_cast<unsigned int>(GetRenderWidth()),
-			static_cast<unsigned int>(GetRenderHeight())
+			static_cast<unsigned int>(GetScreenWidth()),
+			static_cast<unsigned int>(GetScreenHeight())
 		};
 
-		if (IsWindowResized())
+		if (IsKeyPressed(KEY_F11))
 		{
-			slv::console_log(slv::LVL_INFO, "Window resized", m_class_name);
-			on_resized();
+			if (!IsWindowFullscreen()) // going fullscreen
+			{
+				m_last_win_size = m_current_win_size;
+				SetWindowSize(get_monitor_size().width, get_monitor_size().height);
+			}
+			else // leaving fullscreen
+			{
+				SetWindowSize(m_last_win_size.width, m_last_win_size.height);
+			}
+		
+			ToggleFullscreen();
 		}
 	}
 
@@ -104,35 +129,7 @@ namespace slv
 		}
 	}
 
-	void WindowHandler::on_resized() const
-	{
-		if (!m_is_init)
-		{
-			return;
-		}
-
-		float ideal_ratio = static_cast<float>(m_original_win_size.width) / m_original_win_size.height;
-		float current_ratio = static_cast<float>(m_current_win_size.width) / m_current_win_size.height;
-
-		slv::size_uint win_size{};
-
-		if (current_ratio > ideal_ratio)
-		{
-			slv::console_log(slv::LVL_INFO, "1", m_class_name);
-			win_size.height = m_current_win_size.height;
-			win_size.width = static_cast<int>(win_size.height * ideal_ratio);
-		}
-		else
-		{
-			slv::console_log(slv::LVL_INFO, "2", m_class_name);
-			win_size.width = m_current_win_size.width;
-			win_size.height = static_cast<int>(win_size.width / ideal_ratio);
-		}
-
-		SetWindowSize(win_size.width, win_size.height);
-	}
-
-	bool WindowHandler::should_close()
+	bool WindowHandler::should_close() const
 	{
 		return WindowShouldClose();
 	}
@@ -162,5 +159,21 @@ namespace slv
 			m_fps = fps;
 			SetTargetFPS(m_fps);
 		}
+	}
+
+	const slv::size_uint WindowHandler::get_monitor_size() const
+	{
+		if (m_is_init)
+		{
+			int monitor = GetCurrentMonitor();
+
+			return slv::size_uint
+			{
+				static_cast<unsigned int>(GetMonitorWidth(monitor)),
+				static_cast<unsigned int>(GetMonitorHeight(monitor)),
+			};
+		}
+
+		return slv::size_uint{};
 	}
 }

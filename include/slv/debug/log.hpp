@@ -6,7 +6,6 @@
 #include <ctime>
 #include <string>
 #include <string_view>
-#include <optional>
 #include <slv/backend/debug_console/data.hpp>
 
 namespace slv
@@ -18,10 +17,10 @@ namespace slv
 		Error
 	};
 
-	inline constexpr LogLevel LVL_INFO = LogLevel::Info;
-	inline constexpr LogLevel LVL_WARNING = LogLevel::Warning;
-	inline constexpr LogLevel LVL_ERROR = LogLevel::Error;
-	inline constexpr std::optional<std::string_view> NO_OWNER = std::nullopt;
+	inline constexpr LogLevel LOG_INFO = LogLevel::Info;
+	inline constexpr LogLevel LOG_WARNING = LogLevel::Warning;
+	inline constexpr LogLevel LOG_ERROR = LogLevel::Error;
+	inline constexpr const char* LOG_NO_OWNER = nullptr;
 
 	namespace log_impl
 	{
@@ -72,7 +71,7 @@ namespace slv
 	}
 
 	template<typename... Args>
-	inline void console_log(LogLevel level, std::string_view message, std::optional<std::string_view> owner = std::nullopt, Args&&... args)
+	inline void debug_log(LogLevel level, const char* owner = LOG_NO_OWNER, std::string_view message = "?", Args&&... args)
 	{
 		if (!slv::is_console_active)
 		{
@@ -80,7 +79,7 @@ namespace slv
 		}
 
 		const std::string time = log_impl::get_time();
-		const std::string message_owner = owner.has_value() && !owner->empty() ? std::string(*owner) : "?";
+		const std::string message_owner = owner != LOG_NO_OWNER ? owner : "?";
 		const std::string stitched_message = fmt::format(fmt::runtime(message), std::forward<Args>(args)...);
 
 		fmt::print(fmt::fg(fmt::color::dim_gray), "{:<10} ", time);

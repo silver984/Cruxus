@@ -131,6 +131,16 @@ namespace slv
             height -= other.height;
             return *this;
         }
+
+        bool operator != (const size_uint& other)
+        {
+            if (width != other.width || height != other.height)
+            {
+                return false;
+            }
+
+            return true;
+        }
     };
 
     // Rectangle with integer coordinates and dimensions

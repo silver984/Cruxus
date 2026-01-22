@@ -7,7 +7,7 @@ namespace slv
 #ifdef _WIN32
 	namespace win32
 	{
-		void create_console(std::string_view title_prefix);
+		bool create_console(std::string_view title_prefix);
 		void destroy_console();
 	}
 #endif
