@@ -20,19 +20,20 @@ namespace slv
 		}
 		
 		m_is_init = true;
+
 		return true;
 	}
 
-	void Vessel::base_update(float dt, const slv::transform& parent_transform)
+	void Vessel::base_update(float dt)
 	{
 		if (!m_is_init || !is_active)
 		{
 			return;
 		}
 
-		m_world_transform = slv::math::combine_transform(parent_transform, transform);
-		
-		update(dt);
+		float mod_dt = dt * time_scale;
+
+		update(mod_dt);
 
 		for (const auto& v : m_vessels)
 		{
@@ -41,7 +42,7 @@ namespace slv
 				continue;
 			}
 			
-			v->base_update(dt, m_world_transform);
+			v->base_update(mod_dt);
 		}
 
 		// clean up null children

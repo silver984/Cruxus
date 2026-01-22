@@ -176,4 +176,9 @@ namespace slv
 
 		return slv::size_uint{};
 	}
+
+	const float WindowHandler::get_delta_time() const
+	{
+		return GetFrameTime();
+	}
 }

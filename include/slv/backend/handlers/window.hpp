@@ -73,6 +73,8 @@ namespace slv
 
         const slv::size_uint get_monitor_size() const;
 
+        const float get_delta_time() const;
+
     private:
         static constexpr const char* m_class_name = "WindowHandler";
         bool m_is_init = false;

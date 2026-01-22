@@ -12,7 +12,6 @@ namespace slv
 	{
 	public:
 		virtual ~Vessel() = default;
-		virtual bool init() = 0;
 		virtual void update(float dt) = 0;
 
 		// Subclasses of Vessel must use the world transform instead of the local transform
@@ -24,7 +23,6 @@ namespace slv
 		}
 
 		slv::transform transform;
-		slv::size dimensions; // Width and height of this vessel
 
 		// Color of this vessel [0, 1]
 		// Not including the alpha channel
@@ -36,21 +34,20 @@ namespace slv
 		// If turned false, this vessel will stop updating and drawing
 		bool is_active = true;
 
-	protected:
-		const slv::transform& get_world_transform() const
-		{
-			return m_world_transform;
-		}
+		float time_scale = 1.f;
 
+	protected:
+		virtual bool init() = 0;
 		bool base_init();
-		void base_update(float dt, const slv::transform& parent_transform);
+		void base_update(float dt);
 		void base_draw();
 
+		slv::size dimensions; // Width and height of this vessel
+	
 	private:
 #ifdef SLV_DEBUG
 		static constexpr const char* m_class_name = "Vessel";
 #endif
-		slv::transform m_world_transform;
 		std::vector<std::shared_ptr<Vessel>> m_vessels;
 		bool m_is_init = false;
 	};

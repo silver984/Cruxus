@@ -33,18 +33,43 @@ namespace slv
 		while (!win_handler.should_close())
 		{
 			win_handler.update();
-			///////////////////////// UPDATE HERE //////////////////////////
-			
+			// -------------------- UPDATE HERE -------------------- //
 
+			if (m_pending_scene)
+			{
+				m_current_scene = std::move(m_pending_scene);
+				m_current_scene->m_game = this;
+			}
 
-			////////////////////////////////////////////////////////////////
+			float dt = win_handler.get_delta_time();
+
+			if (m_current_scene)
+			{
+				m_current_scene->base_update(dt);
+			}
+
+			// ----------------------------------------------------- //
 			win_handler.start_draw();
-			////////////////////////// DRAW HERE //////////////////////////
+			// --------------------- DRAW HERE --------------------- //
 
+			if (m_current_scene)
+			{
+				m_current_scene->base_draw();
+			}
 
-
-			////////////////////////////////////////////////////////////////
+			// ----------------------------------------------------- //
 			win_handler.end_draw();
 		}
+	}
+
+	void Game::change_scene(std::unique_ptr<Scene> new_scene)
+	{
+		if (!new_scene)
+		{
+			slv::debug_log(slv::LOG_ERROR, m_class_name, "The scene the game tried to change into is NULL");
+			return;
+		}
+
+		m_pending_scene = std::move(new_scene);
 	}
 }
