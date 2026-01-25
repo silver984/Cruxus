@@ -1,9 +1,26 @@
 #include <slv/backend/handlers/window.hpp>
 #include <slv/debug/log.hpp>
+#include <slv/backend/debug/console/data.hpp>
+#ifdef _WIN32
+#include <slv/backend/debug/console/windows.hpp>
+#include <slv/backend/debug/memory/windows.hpp>
+#endif
 #include <raylib.h>
+#include <cmath>
 
 namespace slv
 {
+	WindowHandler::~WindowHandler()
+	{
+		if (slv::is_console_active)
+		{
+			slv::debug_log(slv::LOG_INFO, m_class_name, "Destroying console...");
+#ifdef _WIN32
+			slv::win32::destroy_console();
+#endif
+		}
+	}
+
 	bool WindowHandler::init(std::string_view window_title, const slv::size_uint& window_size, unsigned int fps, bool has_vsync, bool is_resizable, bool start_fullscreen)
 	{
 		if (m_is_init)
@@ -72,7 +89,10 @@ namespace slv
 			return;
 		}
 
+		slv::debug_log(slv::LOG_INFO, m_class_name, "Destroying window...");
+		
 		m_is_init = false;
+		
 		CloseWindow();
 	}
 	
@@ -115,18 +135,33 @@ namespace slv
 		BeginDrawing();
 		ClearBackground(BLACK);
 		BeginScissorMode(0, 0, m_current_win_size.width, m_current_win_size.height);
-#ifdef SLV_DEBUG
-		DrawFPS(5, 5);
-#endif
 	}
 
 	void WindowHandler::end_draw() const
 	{
-		if (m_is_init)
+		if (!m_is_init)
 		{
-			EndScissorMode();
-			EndDrawing();
+			return;
 		}
+
+#ifdef SLV_DEBUG
+		int fps = static_cast<int>(ceil(1.f / get_delta_time()));
+		float memory_usage = 0.f;
+#ifdef _WIN32
+		memory_usage = slv::win32::get_memory_mb();
+#endif
+
+		int text_size = 10;
+		int text_padding = text_size / 2;
+		DrawText(fmt::format("FPS: {}", fps).c_str(), text_padding, text_padding, text_size, WHITE);
+
+		if (memory_usage != 0.f)
+		{
+			DrawText(fmt::format("MEM: {:.2f}MB", memory_usage).c_str(), text_padding, (text_padding * 2) + text_padding, text_size, WHITE);
+		}
+#endif
+		EndScissorMode();
+		EndDrawing();
 	}
 
 	bool WindowHandler::should_close() const
@@ -148,7 +183,13 @@ namespace slv
 		if (m_is_init)
 		{
 			m_win_title = title;
+			
 			SetWindowTitle(m_win_title.c_str());
+			
+			if (slv::is_console_active)
+			{
+				slv::win32::rename_console(m_win_title);
+			}
 		}
 	}
 
@@ -180,5 +221,24 @@ namespace slv
 	const float WindowHandler::get_delta_time() const
 	{
 		return GetFrameTime();
+	}
+
+	const slv::vec_2 WindowHandler::get_mouse_pos() const
+	{
+		Vector2 pos = GetMousePosition();
+		return slv::vec_2{ pos.x, pos.y };
+	}
+
+	const slv::vec_2 WindowHandler::get_mouse_delta() const
+	{
+		Vector2 dt = GetMouseDelta();
+		return slv::vec_2{ dt.x, dt.y };
+	}
+
+	float WindowHandler::get_ui_scale() const
+	{
+		float ratio_width = static_cast<float>(m_current_win_size.width) / m_original_win_size.width;
+		float ratio_height = static_cast<float>(m_current_win_size.height) / m_original_win_size.height;
+		return std::min(ratio_width, ratio_height);
 	}
 }

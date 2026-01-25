@@ -1,5 +1,5 @@
-#include <slv/backend/debug_console/windows.hpp>
-#include <slv/backend/debug_console/data.hpp>
+#include <slv/backend/debug/console/windows.hpp>
+#include <slv/backend/debug/console/data.hpp>
 #ifdef _WIN32
 #include <windows.h>
 #include <io.h>
@@ -21,8 +21,7 @@ namespace slv
             }
 
             AllocConsole();
-            std::string title = "'" + std::string(title_prefix) + "' Debug Console";
-            SetConsoleTitleA(title.c_str());
+            slv::win32::rename_console(title_prefix);
 
             FILE* fp;
             freopen_s(&fp, "CONOUT$", "w", stdout);
@@ -58,6 +57,15 @@ namespace slv
             {
                 slv::is_console_active = false;
                 FreeConsole();
+            }
+        }
+
+        void rename_console(std::string_view title_prefix)
+        {
+            if (GetConsoleWindow() && slv::is_console_active)
+            {
+                std::string title = "'" + std::string(title_prefix) + "' Debug Console";
+                SetConsoleTitleA(title.c_str());
             }
         }
     }

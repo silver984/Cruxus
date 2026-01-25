@@ -7,18 +7,16 @@ namespace slv
 {
 	class Game; // forward declare
 
-	class Scene : public Vessel
+	class Scene : public slv::Vessel
 	{
 	public:
-		virtual ~Scene() = default;
-
-		template<typename T, typename... Args>
-		static std::unique_ptr<Scene> create(Args&&... args)
+		template<typename Derived>
+		static inline std::unique_ptr<Scene> create()
 		{
-			static_assert(std::is_base_of_v<Scene, T>, "Must inherit from Scene");
+			static_assert(std::is_base_of_v<Scene, Derived>, "Scene must derive from slv::Scene");
 			
-			auto scene = std::make_unique<T>();
-			if (scene->base_init(std::forward<Args>(args)...))
+			auto scene = std::make_unique<Derived>();
+			if (scene->base_init())
 			{
 				return scene;
 			}

@@ -1,8 +1,6 @@
 #include <slv/vessel.hpp>
 #include <slv/math.hpp>
-#ifdef SLV_DEBUG
-#include <slv/debug/log.hpp>
-#endif
+#include <slv/backend/handlers/window.hpp>
 #include <algorithm>
 
 namespace slv
@@ -31,9 +29,13 @@ namespace slv
 			return;
 		}
 
-		float mod_dt = dt * time_scale;
+		Vessel* parent = get_parent();
+		slv::vec_2 parent_local_scale = parent ? parent->local_scale_ : slv::vec_2{ 1.f, 1.f };
+		local_scale_ = scale * parent_local_scale * slv::WindowHandler::get().get_ui_scale();
 
-		update(mod_dt);
+		float local_dt = dt * time_scale;
+
+		update(local_dt);
 
 		for (const auto& v : m_vessels)
 		{
@@ -42,7 +44,7 @@ namespace slv
 				continue;
 			}
 			
-			v->base_update(mod_dt);
+			v->base_update(local_dt);
 		}
 
 		// clean up null children
@@ -54,9 +56,9 @@ namespace slv
 						m_vessels.end());
 	}
 
-	void Vessel::base_draw()
+	void Vessel::base_draw() const
 	{
-		if (!m_is_init || !is_active || !is_visible)
+		if (!m_is_init || !is_active || !is_visible || alpha == 0.f)
 		{
 			return;
 		}
@@ -72,13 +74,5 @@ namespace slv
 
 			v->base_draw();
 		}
-
-		// clean up null children
-		m_vessels.erase(std::remove_if(m_vessels.begin(), m_vessels.end(),
-						[](const auto& v)
-						{
-							return !v;
-						}),
-						m_vessels.end());
 	}
 }

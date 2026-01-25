@@ -1,10 +1,6 @@
 #pragma once
 
 #include <slv/types.hpp>
-#include <slv/backend/debug_console/data.hpp>
-#ifdef _WIN32
-#include <slv/backend/debug_console/windows.hpp>
-#endif
 #include <string>
 #include <string_view>
 
@@ -14,20 +10,10 @@ namespace slv
 	{
     private:
         WindowHandler() = default;
-        ~WindowHandler()
-        {
-            if (slv::is_console_active)
-            {
-#ifdef _WIN32
-                slv::win32::destroy_console();
-#endif
-            }
-
-            uninit();
-        }
+        ~WindowHandler();
 
     public:
-        static WindowHandler& get()
+        static inline WindowHandler& get()
         {
             static WindowHandler instance;
             return instance;
@@ -45,35 +31,37 @@ namespace slv
         void end_draw() const;
         bool should_close() const;
         
-        const slv::size_uint& get_window_size() const
+        inline const slv::size_uint& get_window_size() const
         {
             return m_current_win_size;
         }
 
         void set_window_size(const slv::size_uint& size);
 
-        const std::string& get_window_title() const
+        inline const std::string& get_window_title() const
         {
             return m_win_title;
         }
 
         void set_window_title(std::string_view title);
 
-        unsigned int get_fps() const
+        inline unsigned int get_fps() const
         {
             return m_fps;
         }
 
         void set_fps(unsigned int fps);
 
-        const bool is_active() const
+        inline const bool is_active() const
         {
             return m_is_init;
         }
 
         const slv::size_uint get_monitor_size() const;
-
         const float get_delta_time() const;
+        const slv::vec_2 get_mouse_pos() const;
+        const slv::vec_2 get_mouse_delta() const;
+        float get_ui_scale() const;
 
     private:
         static constexpr const char* m_class_name = "WindowHandler";

@@ -2,14 +2,8 @@
 
 #include <cstdint>
 
-struct Texture;
-struct Font;
-
 namespace slv
 {
-    using rl_texture = Texture;
-    using rl_font = Font;
-
     // 2D size with floating-point values
     struct size
     {
@@ -118,6 +112,11 @@ namespace slv
             return { width / scalar, height / scalar };
         }
 
+        size_uint operator / (size_uint other) const
+        {
+            return { width / other.width, height / other.height };
+        }
+
         size_uint& operator += (const size_uint& other)
         {
             width += other.width;
@@ -217,23 +216,6 @@ namespace slv
         */
     };
 
-    // Color with floating-point components, including the alpha component [0, 1]
-    struct rgba_f
-    {
-        float r{}; // Red component
-        float g{}; // Green component
-        float b{}; // Blue component
-        float a{ 1.f }; // Alpha (opacity), default fully opaque
-    };
-
-    // Color with floating-point components [0, 1]
-    struct rgb_f
-    {
-        float r{}; // Red component
-        float g{}; // Green component
-        float b{}; // Blue component
-    };
-
     // 2D vector
     struct vec_2
     {
@@ -253,6 +235,11 @@ namespace slv
         vec_2 operator * (const vec_2& scalar) const
         {
             return vec_2{ x * scalar.x, y * scalar.y };
+        }
+
+        vec_2 operator * (float scalar) const
+        {
+            return vec_2{ x * scalar, y * scalar };
         }
 
         vec_2 operator / (const vec_2& scalar) const
@@ -290,15 +277,6 @@ namespace slv
         float y{}; // Y component
         float z{}; // Z component
         float w{}; // W component
-    };
-
-    // Color with 8-bit components, including the alpha component [0, 255]
-    struct rgba_8
-    {
-        uint8_t r{}; // Red component
-        uint8_t g{}; // Green component
-        uint8_t b{}; // Blue component
-        uint8_t a{ 255u }; // Alpha (opacity), default fully opaque
     };
 
     // Color with 8-bit components [0, 255]

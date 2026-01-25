@@ -14,40 +14,70 @@ namespace slv
 		virtual ~Vessel() = default;
 		virtual void update(float dt) = 0;
 
-		// Subclasses of Vessel must use the world transform instead of the local transform
-		virtual void draw() const = 0;
-
-		void add_child(std::shared_ptr<Vessel> vessel)
+		inline void add_vessel(std::shared_ptr<Vessel> vessel)
 		{
-			m_vessels.push_back(vessel);
+			if (vessel)
+			{
+				vessel->m_parent = this;
+				m_vessels.push_back(vessel);
+			}
 		}
 
-		slv::transform transform;
+		inline const slv::size get_size() const
+		{
+			return size_;
+		}
 
-		// Color of this vessel [0, 1]
+		inline Vessel* get_parent() const
+		{
+			return m_parent;
+		}
+
+		slv::vec_2 pos{}; // Position on the screen
+		
+		slv::vec_2 anchor{ 0.5f, 0.5f }; // Anchor point [0, 1]
+		
+		// Scale
+		// (1, 1) on default
+		slv::vec_2 scale{ 1.f, 1.f };
+		
+		float rotation = 0.f; // Rotation in degrees
+		
+		float alpha = 1.f; // Opacity [0, 1]
+
+		// Color of this vessel [0, 255]
 		// Not including the alpha channel
-		slv::rgb_f color;
+		slv::rgb_8 color;
 
-		bool is_visible = true; // Visibility toggle for this vessel
+		// Visibility toggle
+		// If turned false, this vessel will stop drawing but will keep updating
+		bool is_visible = true;
 
-		// Active toggle for this vessel
+		// Active toggle
 		// If turned false, this vessel will stop updating and drawing
 		bool is_active = true;
 
 		float time_scale = 1.f;
 
 	protected:
-		virtual bool init() = 0;
+		virtual bool init()
+		{
+			return true;
+		};
+
+		virtual void draw() const = 0;
 		bool base_init();
 		void base_update(float dt);
-		void base_draw();
+		void base_draw() const;
 
-		slv::size dimensions; // Width and height of this vessel
-	
+		slv::size size_; // Width and height of this vessel
+
+		// Local scale of this vessel
+		// Use this instead of the public scale
+		slv::vec_2 local_scale_{ 1.f, 1.f };
+
 	private:
-#ifdef SLV_DEBUG
-		static constexpr const char* m_class_name = "Vessel";
-#endif
+		Vessel* m_parent = nullptr;
 		std::vector<std::shared_ptr<Vessel>> m_vessels;
 		bool m_is_init = false;
 	};

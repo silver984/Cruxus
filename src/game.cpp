@@ -62,7 +62,7 @@ namespace slv
 		}
 	}
 
-	void Game::change_scene(std::unique_ptr<Scene> new_scene)
+	void Game::change_scene(std::unique_ptr<slv::Scene> new_scene)
 	{
 		if (!new_scene)
 		{

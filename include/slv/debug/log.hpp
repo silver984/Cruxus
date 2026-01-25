@@ -6,7 +6,7 @@
 #include <ctime>
 #include <string>
 #include <string_view>
-#include <slv/backend/debug_console/data.hpp>
+#include <slv/backend/debug/console/data.hpp>
 
 namespace slv
 {
