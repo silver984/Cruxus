@@ -29,13 +29,29 @@ namespace slv
 			return;
 		}
 
-		Vessel* parent = get_parent();
-		slv::vec_2 parent_local_scale = parent ? parent->local_scale_ : slv::vec_2{ 1.f, 1.f };
-		local_scale_ = scale * parent_local_scale * slv::WindowHandler::get().get_ui_scale();
+		// to do world transform
 
-		float local_dt = dt * time_scale;
+		slv::vec_2 parent_world_scale = m_parent ? m_parent->world_scale_ : slv::vec_2{ 1.f, 1.f };
+		slv::vec_2 parent_world_pos = m_parent ? m_parent->world_pos_ : slv::vec_2{};
+		float parent_world_rotation = m_parent ? m_parent->world_rotation_ : 0.f;
+		float parent_world_alpha = m_parent ? m_parent->world_alpha_ : 1.f;
 
-		update(local_dt);
+		if (!m_parent)
+		{
+			world_scale_ = scale * slv::WindowHandler::get().get_ui_scale();
+		}
+		else
+		{
+			world_scale_ = scale * parent_world_scale;
+		}
+
+		world_pos_ = parent_world_pos + (pos * parent_world_scale);
+		world_rotation_ = rotation + parent_world_rotation;
+		world_alpha_ = alpha * parent_world_alpha;
+
+		float world_dt = dt * time_scale;
+
+		update(world_dt);
 
 		for (const auto& v : m_vessels)
 		{
@@ -44,7 +60,7 @@ namespace slv
 				continue;
 			}
 			
-			v->base_update(local_dt);
+			v->base_update(world_dt);
 		}
 
 		// clean up null children

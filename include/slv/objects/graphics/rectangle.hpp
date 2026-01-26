@@ -10,8 +10,9 @@ namespace slv
 	class Rectangle : public slv::Vessel
 	{
 	public:
-		Rectangle(const slv::rect& rect, const slv::rgb_8& color) : m_rect(rect)
+		Rectangle(const slv::rect& rect, const slv::rgb_8& color)
 		{
+			m_rect = rect;
 			pos = slv::vec_2{ rect.x, rect.y };
 			size_ = slv::size{ rect.width, rect.height };
 			this->color = color;

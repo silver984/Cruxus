@@ -1,6 +1,7 @@
 #pragma once
 
 #include <slv/types.hpp>
+#include <slv/colors.hpp>
 #include <vector>
 #include <string>
 #include <string_view>
@@ -28,6 +29,11 @@ namespace slv
 			return size_;
 		}
 
+		inline const slv::size get_scaled_size() const
+		{
+			return slv::size{ size_.width * world_scale_.x, size_.height * world_scale_.y };
+		}
+
 		inline Vessel* get_parent() const
 		{
 			return m_parent;
@@ -47,7 +53,8 @@ namespace slv
 
 		// Color of this vessel [0, 255]
 		// Not including the alpha channel
-		slv::rgb_8 color;
+		// White by default
+		slv::rgb_8 color = slv::WHITE;
 
 		// Visibility toggle
 		// If turned false, this vessel will stop drawing but will keep updating
@@ -71,10 +78,10 @@ namespace slv
 		void base_draw() const;
 
 		slv::size size_; // Width and height of this vessel
-
-		// Local scale of this vessel
-		// Use this instead of the public scale
-		slv::vec_2 local_scale_{ 1.f, 1.f };
+		slv::vec_2 world_scale_{ 1.f, 1.f };
+		slv::vec_2 world_pos_{};
+		float world_rotation_ = 0.f;
+		float world_alpha_ = 1.f;
 
 	private:
 		Vessel* m_parent = nullptr;

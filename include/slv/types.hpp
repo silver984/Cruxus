@@ -4,6 +4,17 @@
 
 namespace slv
 {
+    struct texture
+    {
+        unsigned int id{};
+        int width{};
+        int height{};
+        int mipmaps{};
+        int format{};
+        texture() = default;
+        ~texture();
+    };
+
     // 2D size with floating-point values
     struct size
     {
@@ -232,6 +243,11 @@ namespace slv
             return vec_2{ x - other.x, y - other.y };
         }
 
+        vec_2 operator - (float other) const
+        {
+            return vec_2{ x - other, y - other };
+        }
+
         vec_2 operator * (const vec_2& scalar) const
         {
             return vec_2{ x * scalar.x, y * scalar.y };
@@ -245,6 +261,11 @@ namespace slv
         vec_2 operator / (const vec_2& scalar) const
         {
             return vec_2{ x / scalar.x, y / scalar.y };
+        }
+
+        vec_2 operator / (float scalar) const
+        {
+            return vec_2{ x / scalar, y / scalar };
         }
 
         vec_2& operator += (const vec_2& other)

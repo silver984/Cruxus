@@ -31,9 +31,14 @@ namespace slv
         void end_draw() const;
         bool should_close() const;
         
-        inline const slv::size_uint& get_window_size() const
+        inline const slv::size_uint& get_current_window_size() const
         {
             return m_current_win_size;
+        }
+        
+        inline const slv::size_uint& get_window_size() const
+        {
+            return m_original_win_size;
         }
 
         void set_window_size(const slv::size_uint& size);
@@ -64,7 +69,7 @@ namespace slv
         float get_ui_scale() const;
 
     private:
-        static constexpr const char* m_class_name = "WindowHandler";
+        static constexpr const char* M_CLASS_NAME = "WindowHandler";
         bool m_is_init = false;
         slv::size_uint m_original_win_size{};
         slv::size_uint m_current_win_size{};

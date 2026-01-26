@@ -14,7 +14,7 @@ namespace slv
 	{
 		if (slv::is_console_active)
 		{
-			slv::debug_log(slv::LOG_INFO, m_class_name, "Destroying console...");
+			slv::debug_log(slv::LOG_INFO, M_CLASS_NAME, "Destroying console...");
 #ifdef _WIN32
 			slv::win32::destroy_console();
 #endif
@@ -33,7 +33,7 @@ namespace slv
 #if defined(SLV_DEBUG) && defined(_WIN32)
 		if (slv::win32::create_console(window_title))
 		{
-			slv::debug_log(slv::LOG_INFO, m_class_name, "Console initialized");
+			slv::debug_log(slv::LOG_INFO, M_CLASS_NAME, "Console initialized");
 		}
 #endif
 
@@ -64,7 +64,7 @@ namespace slv
 
 		if (!IsWindowReady())
 		{
-			slv::debug_log(slv::LOG_ERROR, m_class_name, "Failed to initialize window");
+			slv::debug_log(slv::LOG_ERROR, M_CLASS_NAME, "Failed to initialize window");
 			return false;
 		}
 
@@ -77,7 +77,7 @@ namespace slv
 
 		m_is_init = true;
 
-		slv::debug_log(slv::LOG_INFO, m_class_name, "Window initialized");
+		slv::debug_log(slv::LOG_INFO, M_CLASS_NAME, "Window initialized");
 
 		return true;
 	}
@@ -89,7 +89,7 @@ namespace slv
 			return;
 		}
 
-		slv::debug_log(slv::LOG_INFO, m_class_name, "Destroying window...");
+		slv::debug_log(slv::LOG_INFO, M_CLASS_NAME, "Destroying window...");
 		
 		m_is_init = false;
 		
@@ -105,8 +105,8 @@ namespace slv
 
 		m_current_win_size = slv::size_uint
 		{
-			static_cast<unsigned int>(GetScreenWidth()),
-			static_cast<unsigned int>(GetScreenHeight())
+			static_cast<unsigned int>(GetRenderWidth()),
+			static_cast<unsigned int>(GetRenderHeight())
 		};
 
 		if (IsKeyPressed(KEY_F11))
@@ -153,11 +153,12 @@ namespace slv
 
 		int text_size = 10;
 		int text_padding = text_size / 2;
-		DrawText(fmt::format("FPS: {}", fps).c_str(), text_padding, text_padding, text_size, WHITE);
+		int text_border_padding = 5;
+		DrawText(fmt::format("FPS: {}", fps).c_str(), text_border_padding, text_border_padding, text_size, WHITE);
 
 		if (memory_usage != 0.f)
 		{
-			DrawText(fmt::format("MEM: {:.2f}MB", memory_usage).c_str(), text_padding, (text_padding * 2) + text_padding, text_size, WHITE);
+			DrawText(fmt::format("MEM: {:.2f}MB", memory_usage).c_str(), text_border_padding, text_border_padding + (text_padding * 2), text_size, WHITE);
 		}
 #endif
 		EndScissorMode();
@@ -226,7 +227,8 @@ namespace slv
 	const slv::vec_2 WindowHandler::get_mouse_pos() const
 	{
 		Vector2 pos = GetMousePosition();
-		return slv::vec_2{ pos.x, pos.y };
+		float ui_scale = get_ui_scale();
+		return slv::vec_2{ pos.x / ui_scale, pos.y / ui_scale };
 	}
 
 	const slv::vec_2 WindowHandler::get_mouse_delta() const

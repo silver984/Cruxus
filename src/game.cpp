@@ -66,7 +66,7 @@ namespace slv
 	{
 		if (!new_scene)
 		{
-			slv::debug_log(slv::LOG_ERROR, m_class_name, "The scene the game tried to change into is NULL");
+			slv::debug_log(slv::LOG_ERROR, M_CLASS_NAME, "The scene the game tried to change into is NULL");
 			return;
 		}
 

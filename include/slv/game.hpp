@@ -19,7 +19,7 @@ namespace slv
 		void change_scene(std::unique_ptr<slv::Scene> new_scene);
 
 	private:
-		static constexpr const char* m_class_name = "Game";
+		static constexpr const char* M_CLASS_NAME = "Game";
 		std::unique_ptr<slv::Scene> m_current_scene = nullptr;
 		std::unique_ptr<slv::Scene> m_pending_scene = nullptr;
 		bool m_is_init = false;
