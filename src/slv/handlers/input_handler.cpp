@@ -79,34 +79,32 @@ namespace slv
 
 	bool InputHandler::is_bind_down(const std::string& name) const
 	{
-		auto bind = get_bind(name);
+		auto bind = slv::InputHandler::get().get_bind(name);
 		if (bind)
 		{
-			return is_key_down(bind.get()->key);
+			return is_key_down(bind->key);
 		}
 
-		slv::console_log(slv::LOG_WARNING, M_CLASS_NAME, "Bind \"{}\" not found", name);
 		return false;
 	}
 
 	bool InputHandler::is_bind_pressed(const std::string& name) const
 	{
-		auto bind = get_bind(name);
+		auto bind = slv::InputHandler::get().get_bind(name);
 		if (bind)
 		{
-			return is_key_pressed(bind.get()->key);
+			return is_key_pressed(bind->key);
 		}
 
-		slv::console_log(slv::LOG_WARNING, M_CLASS_NAME, "Bind \"{}\" not found", name);
 		return false;
 	}
 
 	bool InputHandler::is_bind_released(const std::string& name) const
 	{
-		auto bind = get_bind(name);
+		auto bind = slv::InputHandler::get().get_bind(name);
 		if (bind)
 		{
-			return is_key_released(bind.get()->key);
+			return is_key_released(bind->key);
 		}
 
 		return false;
@@ -114,13 +112,10 @@ namespace slv
 
 	void InputHandler::invoke_bind(const std::string& name)
 	{
-		auto bind = get_bind(name);
+		auto bind = slv::InputHandler::get().get_bind(name);
 		if (bind)
 		{
-			invoke_key(bind.get()->key);
-			return;
+			invoke_key(bind->key);
 		}
-
-		slv::console_log(slv::LOG_WARNING, M_CLASS_NAME, "Bind \"{}\" not found", name);
 	}
 }
