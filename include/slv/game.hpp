@@ -1,9 +1,9 @@
 #pragma once
 
-#include <slv/types.hpp>
+#include <slv/core/types.hpp>
+#include <slv/core/colors.hpp>
 #include <slv/scene.hpp>
 #include <string>
-#include <string_view>
 #include <memory>
 
 namespace slv
@@ -14,7 +14,8 @@ namespace slv
 		Game() = default;
 		~Game();
 
-		bool init(std::string_view window_title, const slv::size_uint& window_size, unsigned int window_fps, bool has_vsync = true, bool is_resizable = true, bool start_fullscreen = false);
+		bool init(const std::string& window_title, const slv::size<unsigned int>& window_size, unsigned int fps = 60u,
+				  bool has_vsync = true, bool is_resizable = true, bool start_fullscreen = false, bool is_borderless = false, bool is_transparent = false);
 		void run();
 		void change_scene(std::unique_ptr<slv::Scene> new_scene);
 

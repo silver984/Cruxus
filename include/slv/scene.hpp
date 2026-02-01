@@ -2,6 +2,7 @@
 
 #include <slv/vessel.hpp>
 #include <memory>
+#include <string>
 
 namespace slv
 {
@@ -22,6 +23,11 @@ namespace slv
 			}
 
 			return nullptr;
+		}
+
+		std::string get_type() const override
+		{
+			return "Scene";
 		}
 
 		friend class slv::Game;

@@ -5,11 +5,18 @@ project(slv VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
+file(GLOB_RECURSE SLV_SOURCES CONFIGURE_DEPENDS src/slv/*.cpp)
 
-add_library(${PROJECT_NAME} STATIC ${SOURCES})
+if (WIN32)
+    file(GLOB_RECURSE PLATFORM_SOURCES CONFIGURE_DEPENDS src/platform/windows/*.cpp)
+endif()
 
-target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:Debug>:SLV_DEBUG>)
+add_library(${PROJECT_NAME} STATIC ${SLV_SOURCES} ${PLATFORM_SOURCES})
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+    $<$<CONFIG:Debug>:SLV_DEBUG>
+    $<$<CONFIG:RelWithDebInfo>:SLV_RELWITHDEBINFO>
+)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
