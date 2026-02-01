@@ -15,12 +15,12 @@ namespace slv
 		virtual ~Vessel() = default;
 		virtual void update(float dt) = 0;
 
-		inline void add_vessel(std::shared_ptr<Vessel> vessel)
+		inline void add_vessel(const std::shared_ptr<Vessel>& vessel)
 		{
 			if (vessel)
 			{
 				vessel->m_parent = this;
-				m_vessels.push_back(vessel);
+				m_vessels.emplace_back(vessel);
 			}
 		}
 
@@ -56,15 +56,15 @@ namespace slv
 
 		slv::vec_2<float> pos{}; // Position on the screen
 		
-		slv::vec_2<float> anchor{ 0.5f, 0.5f }; // Anchor point [0, 1]
+		slv::vec_2<float> anchor{ 0.5F, 0.5F }; // Anchor point [0, 1]
 		
 		// Scale
 		// (1, 1) on default
-		slv::vec_2<float> scale{ 1.f, 1.f };
+		slv::vec_2<float> scale{ 1.0F, 1.0F };
 		
-		float rotation = 0.f; // Rotation in degrees
+		float rotation = 0.0F; // Rotation in degrees
 		
-		float alpha = 1.f; // Opacity [0, 1]
+		float alpha = 1.0F; // Opacity [0, 1]
 
 		// Color of this vessel [0, 255]
 		// Not including the alpha channel
@@ -93,10 +93,10 @@ namespace slv
 		void base_draw() const;
 
 		slv::size<float> size_; // Width and height of this vessel
-		slv::vec_2<float> world_scale_{ 1.f, 1.f };
+		slv::vec_2<float> world_scale_{ 1.0F, 1.0F };
 		slv::vec_2<float> world_pos_{};
-		float world_rotation_ = 0.f;
-		float world_alpha_ = 1.f;
+		float world_rotation_ = 0.0F;
+		float world_alpha_ = 1.0F;
 
 	private:
 		Vessel* m_parent = nullptr;

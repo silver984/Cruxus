@@ -31,7 +31,7 @@ namespace slv
 
 	private:
 		static constexpr inline const char* M_CLASS_NAME = "ResourceHandler";
-		static constexpr inline std::array<const char*, 3> M_SUPPORTED_IMG_FORMATS{ "png", "jpg", "jpeg" };
+		static constexpr inline std::array<const char*, 3Ui64> M_SUPPORTED_IMG_FORMATS{ "png", "jpg", "jpeg" };
 		std::unordered_map<std::string, std::shared_ptr<slv::texture>> m_cached_textures;
 	};
 }

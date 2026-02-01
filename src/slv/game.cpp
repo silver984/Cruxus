@@ -2,6 +2,7 @@
 #include <slv/handlers/window_handler.hpp>
 #include <slv/handlers/resource_handler.hpp>
 #include <slv/handlers/input_handler.hpp>
+#include <slv/handlers/crash_handler.hpp>
 #include <slv/core/console_log.hpp>
 
 namespace slv
@@ -22,6 +23,11 @@ namespace slv
 		if (!slv::WindowHandler::get().init(window_title, window_size, fps, has_vsync, is_resizable, start_fullscreen, is_borderless, is_transparent))
 		{
 			return false;
+		}
+
+		if (!slv::CrashHandler::get().init())
+		{
+			slv::console_log(slv::LOG_WARNING, M_CLASS_NAME, "SLV's crash handler failed or may not be available on this platform");
 		}
 
 		m_is_init = true;
@@ -46,6 +52,11 @@ namespace slv
 			{
 				m_current_scene = std::move(m_pending_scene);
 				m_current_scene->m_game = this;
+				auto& scene_name = m_current_scene.get()->get_name();
+				if (!scene_name.empty())
+				{
+					slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Current scene: {} | \"{}\"", m_current_scene.get()->get_type(), scene_name);
+				}
 			}
 
 			if (m_current_scene)

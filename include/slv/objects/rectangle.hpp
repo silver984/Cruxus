@@ -14,8 +14,8 @@ namespace slv
 		Rectangle(const slv::rect<float>& rect, const slv::rgb& color)
 		{
 			m_rect = rect;
-			pos = slv::vec_2<float>{ rect.x, rect.y };
-			size_ = slv::size<float>{ rect.width, rect.height };
+			pos = slv::vec_2<float>(rect.x, rect.y);
+			size_ = slv::size<float>(rect.width, rect.height);
 			this->color = color;
 		}
 

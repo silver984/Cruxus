@@ -27,7 +27,7 @@ namespace slv
         WindowHandler& operator = (const WindowHandler&) = delete;
         WindowHandler& operator = (WindowHandler&&) = delete;
 
-        bool init(const std::string& window_title, const slv::size<unsigned int>& window_size, unsigned int fps = 60u,
+        bool init(const std::string& window_title, const slv::size<unsigned int>& window_size, unsigned int fps = 60U,
                   bool has_vsync = true, bool is_resizable = true, bool start_fullscreen = false, bool is_borderless = false, bool is_transparent = false);
         void uninit();
         void update();
@@ -64,8 +64,8 @@ namespace slv
             float ui_scale = get_ui_scale();
             return
             {
-                (m_current_win_size.width / 2.f) / ui_scale,
-                (m_current_win_size.height / 2.f) / ui_scale
+                (m_current_win_size.width / 2.0F) / ui_scale,
+                (m_current_win_size.height / 2.0F) / ui_scale
             };
         }
 
@@ -105,7 +105,7 @@ namespace slv
         slv::render_texture m_target{};
         slv::render_buffers m_render_buffers{};
         std::string m_win_title;
-        unsigned int m_target_fps = 0u;
+        unsigned int m_target_fps = 0U;
         bool m_is_transparent = false;
         bool m_is_fullscreen = false;
 	};

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include <string>
 
 namespace slv
 {
@@ -16,8 +16,15 @@ namespace slv
     struct render_texture
     {
         unsigned int id{};
-        texture tex;
-        texture depth;
+        slv::texture tex;
+        slv::texture depth;
+    };
+
+    struct rgb
+    {
+        uint8_t r{};
+        uint8_t g{};
+        uint8_t b{};
     };
 
     template<typename T>
@@ -363,13 +370,6 @@ namespace slv
         }
     };
 
-    struct rgb
-    {
-        uint8_t r{};
-        uint8_t g{};
-        uint8_t b{};
-    };
-
     enum class key
     {
         NULL_KEY = 0, // NULL, used for no key pressed
@@ -489,7 +489,13 @@ namespace slv
         BACK = 4, // Android back button
         MENU = 5, // Android menu button
         VOLUME_UP = 24, // Android volume up button
-        VOLUME_DOWN = 25 // Android volume down button
+        VOLUME_DOWN = 25, // Android volume down button
+    };
+
+    struct action_bind
+    {
+        std::string name;
+        slv::key key = slv::key::NULL_KEY;
     };
 
     constexpr const key all_keys[] =

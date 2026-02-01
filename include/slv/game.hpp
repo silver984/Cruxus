@@ -14,7 +14,7 @@ namespace slv
 		Game() = default;
 		~Game();
 
-		bool init(const std::string& window_title, const slv::size<unsigned int>& window_size, unsigned int fps = 60u,
+		bool init(const std::string& window_title, const slv::size<unsigned int>& window_size, unsigned int fps = 60U,
 				  bool has_vsync = true, bool is_resizable = true, bool start_fullscreen = false, bool is_borderless = false, bool is_transparent = false);
 		void run();
 		void change_scene(std::unique_ptr<slv::Scene> new_scene);

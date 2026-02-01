@@ -72,7 +72,7 @@ namespace slv
         tex->format = texture_rl.format;
 
         m_cached_textures.emplace(abs_path, tex);
-        slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Successfully loaded and cached texture: \"{}\"", parsed.stitched.string());
+        slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Loaded texture: \"{}\"", parsed.stitched.string());
 
         return tex;
 	}

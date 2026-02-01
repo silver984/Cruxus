@@ -31,10 +31,10 @@ namespace slv
 
 		// to do world transform
 
-		slv::vec_2<float> parent_world_scale = m_parent ? m_parent->world_scale_ : slv::vec_2<float>(1.f, 1.f);
+		slv::vec_2<float> parent_world_scale = m_parent ? m_parent->world_scale_ : slv::vec_2<float>(1.0F, 1.0F);
 		slv::vec_2<float> parent_world_pos = m_parent ? m_parent->world_pos_ : slv::vec_2<float>();
-		float parent_world_rotation = m_parent ? m_parent->world_rotation_ : 0.f;
-		float parent_world_alpha = m_parent ? m_parent->world_alpha_ : 1.f;
+		float parent_world_rotation = m_parent ? m_parent->world_rotation_ : 0.0F;
+		float parent_world_alpha = m_parent ? m_parent->world_alpha_ : 1.0F;
 
 		if (!m_parent)
 		{
@@ -71,7 +71,7 @@ namespace slv
 
 	void Vessel::base_draw() const
 	{
-		if (!m_is_init || !is_active || !is_visible || alpha == 0.f)
+		if (!m_is_init || !is_active || !is_visible || alpha == 0.0F)
 		{
 			return;
 		}

@@ -15,7 +15,7 @@ namespace
             return static_cast<float>(pmc.WorkingSetSize) / divisor;
         }
 
-        return 0.f;
+        return 0.0F;
     }
 }
 
@@ -23,16 +23,16 @@ namespace slv::win32
 {
     float get_memory_kb()
     {
-        return get_memory(1024.f);
+        return get_memory(1024.0F);
     }
 
     float get_memory_mb()
     {
-        return get_memory(1024.f * 1024.f);
+        return get_memory(1024.0F * 1024.0F);
     }
 
     float get_memory_gb()
     {
-        return get_memory(1024.f * 1024.f * 1024.f);
+        return get_memory(1024.0F * 1024.0F * 1024.0F);
     }
 }

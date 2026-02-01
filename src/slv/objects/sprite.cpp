@@ -14,8 +14,8 @@ namespace slv
 		}
 
 		size_ = m_texture ? slv::size<float>(static_cast<float>(m_texture->width), static_cast<float>(m_texture->height)) : slv::size<float>();
-		m_source = slv::rect<float>(0.f, 0.f, size_.width, size_.height);
-		update(0.f);
+		m_source = slv::rect<float>(0.0F, 0.0F, size_.width, size_.height);
+		update(0.0F);
 
 		return true;
 	}

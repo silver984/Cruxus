@@ -35,8 +35,8 @@ namespace slv
 
 		slv::size<unsigned int> normalized_win_size = window_size;
 		// LOWEST MINIMUM SIZE
-		normalized_win_size.width = std::max(normalized_win_size.width, 100u);
-		normalized_win_size.height = std::max(normalized_win_size.height, 100u);
+		normalized_win_size.width = std::max(normalized_win_size.width, 100U);
+		normalized_win_size.height = std::max(normalized_win_size.height, 100U);
 		InitWindow(normalized_win_size.width, normalized_win_size.height, window_title.c_str());
 
 		bool window_failed = !IsWindowReady() || !GetWindowHandle();
@@ -59,8 +59,8 @@ namespace slv
 			slv::win32::init_layered_window(GetWindowHandle());
 		}
 
-		unsigned int min_width = std::min(static_cast<unsigned int>(m_default_win_size.width), 800u);
-		unsigned int min_height = std::min(static_cast<unsigned int>(m_default_win_size.height), 600u);
+		unsigned int min_width = std::min(static_cast<unsigned int>(m_default_win_size.width), 800U);
+		unsigned int min_height = std::min(static_cast<unsigned int>(m_default_win_size.height), 600U);
 		m_min_win_size = slv::size<unsigned int>(min_width, min_height);
 		SetWindowMinSize(m_min_win_size.width, m_min_win_size.height);
 		SetWindowMaxSize(get_monitor_size().width, get_monitor_size().height);

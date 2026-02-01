@@ -23,7 +23,7 @@ namespace slv::win32
         uint8_t* dst = buf.bgra_premult.data();
 
         const size_t pixels = static_cast<size_t>(buf.width) * buf.height;
-        size_t i = 0;
+        size_t i = 0Ui64;
 
         // process 4 pixels (16 bytes) per iteration
         for (; i + 3 < pixels; i += 4)
@@ -65,9 +65,9 @@ namespace slv::win32
             uint8_t b1 = src[2];
             uint8_t a1 = src[3];
             uint32_t ap = a1 + 1;
-            dst[0] = (b1 * a1) / 255;
-            dst[1] = (g1 * a1) / 255;
-            dst[2] = (r1 * a1) / 255;
+            dst[0] = (b1 * a1) / 255Ui8;
+            dst[1] = (g1 * a1) / 255Ui8;
+            dst[2] = (r1 * a1) / 255Ui8;
             dst[3] = a1;
             src += 4;
             dst += 4;
