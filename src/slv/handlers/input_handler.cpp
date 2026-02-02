@@ -4,6 +4,7 @@
 
 namespace slv
 {
+	// private
 	void InputHandler::update()
 	{
 		m_prev_down_keys = m_down_keys;

@@ -10,6 +10,8 @@ namespace slv
 
 	class Scene : public slv::Vessel
 	{
+		friend class slv::Game;
+
 	public:
 		template<typename Derived>
 		static inline std::unique_ptr<Scene> create()
@@ -29,8 +31,6 @@ namespace slv
 		{
 			return "Scene";
 		}
-
-		friend class slv::Game;
 
 	protected:
 		slv::Game* get_game()

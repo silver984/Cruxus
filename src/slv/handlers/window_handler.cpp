@@ -23,7 +23,7 @@ namespace slv
 	}
 
 	bool WindowHandler::init(const std::string& window_title, const slv::size<unsigned int>& window_size, unsigned int fps,
-							 bool has_vsync, bool is_resizable, bool start_fullscreen, bool is_borderless, bool is_transparent)
+							 bool window_has_vsync, bool is_window_resizable, bool window_starts_fullscreen, bool is_window_borderless, bool is_window_transparent)
 	{
 		if (m_is_init)
 		{
@@ -31,41 +31,35 @@ namespace slv
 		}
 
 		setup_console(window_title);
-		configure_flags(has_vsync, is_resizable, start_fullscreen, is_borderless, is_transparent);
+		configure_flags(window_has_vsync, is_window_resizable, window_starts_fullscreen, is_window_borderless, is_window_transparent);
 
-		slv::size<unsigned int> normalized_win_size = window_size;
-		// LOWEST MINIMUM SIZE
-		normalized_win_size.width = std::max(normalized_win_size.width, 100U);
-		normalized_win_size.height = std::max(normalized_win_size.height, 100U);
-		InitWindow(normalized_win_size.width, normalized_win_size.height, window_title.c_str());
+		m_default_window_size.width = std::max(M_LOWEST_WINDOW_SIZE_PX, window_size.width);
+		m_default_window_size.height = std::max(M_LOWEST_WINDOW_SIZE_PX, window_size.height);
+		InitWindow(m_default_window_size.width, m_default_window_size.height, window_title.c_str());
 
-		bool window_failed = !IsWindowReady() || !GetWindowHandle();
-		if (window_failed)
+		if (!IsWindowReady() || !GetWindowHandle())
 		{
 			slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Failed to initialize window");
+			m_default_window_size = slv::size<unsigned int>();
 			return false;
 		}
 	
-		m_default_win_size = normalized_win_size;
-		m_win_title = window_title;
-		m_target_fps = fps;
-		m_is_fullscreen = start_fullscreen;
-		m_is_transparent = is_transparent;
+		// set the minimum and maximum size of the window
+		reset_minimum_window_size();
+		SetExitKey(KEY_NULL); // disable closing the window when ESC is pressed
+		SetTargetFPS(fps);
 
+		m_target_fps = fps;
+		m_window_title = window_title;
+		m_is_window_fullscreen = window_starts_fullscreen;
+		m_is_window_transparent = is_window_transparent;
+		
 		// setup transparency
-		if (m_is_transparent)
+		if (m_is_window_transparent)
 		{
 			create_buffers();
 			slv::win32::init_layered_window(GetWindowHandle());
 		}
-
-		unsigned int min_width = std::min(static_cast<unsigned int>(m_default_win_size.width), 800U);
-		unsigned int min_height = std::min(static_cast<unsigned int>(m_default_win_size.height), 600U);
-		m_min_win_size = slv::size<unsigned int>(min_width, min_height);
-		SetWindowMinSize(m_min_win_size.width, m_min_win_size.height);
-		SetWindowMaxSize(get_monitor_size().width, get_monitor_size().height);
-		SetTargetFPS(m_target_fps);
-		SetExitKey(KEY_NULL); // disable closing the window when ESC is pressed
 
 		m_is_init = true;
 		update();
@@ -84,9 +78,9 @@ namespace slv
 
 		slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Destroying window...");
 
-		slv::raylib::unload_render_texture(m_target);
+		slv::raylib::unload_render_texture(m_view);
 
-		if (m_is_transparent)
+		if (m_is_window_transparent)
 		{
 #ifdef _WIN32
 			slv::win32::cleanup_layered_window();
@@ -98,6 +92,7 @@ namespace slv
 		CloseWindow();
 	}
 	
+	// private
 	void WindowHandler::update()
 	{
 		if (!m_is_init)
@@ -105,45 +100,46 @@ namespace slv
 			return;
 		}
 
-		m_current_win_size = slv::size<unsigned int>(static_cast<unsigned int>(GetRenderWidth()), static_cast<unsigned int>(GetRenderHeight()));
+		m_current_window_size = slv::size<unsigned int>(static_cast<unsigned int>(GetRenderWidth()), static_cast<unsigned int>(GetRenderHeight()));
 
-		if (m_is_transparent && m_current_win_size != m_last_current_win_size)
+		if (m_is_window_transparent && m_current_window_size != m_last_current_window_size)
 		{
 			create_buffers();
-			m_last_current_win_size = m_current_win_size;
+			m_last_current_window_size = m_current_window_size;
 		}
 
-		m_win_pos = slv::vec_2<int>(static_cast<int>(GetWindowPosition().x), static_cast<int>(GetWindowPosition().y));
+		m_window_pos = slv::vec_2<int>(static_cast<int>(GetWindowPosition().x), static_cast<int>(GetWindowPosition().y));
 
 #ifdef _WIN32
 		// windows automatically fullscreens the window when the size is the same as the monitor's and if the window position is (0, 0)
 		// this disables that in case if the window is not supposed to be fullscreen
-		if (!m_is_fullscreen && m_win_pos == slv::vec_2<int>(0, 0) && m_current_win_size == get_monitor_size())
+		if (!m_is_window_fullscreen && m_window_pos == slv::vec_2<int>(0, 0) && m_current_window_size == get_monitor_size())
 		{
-			set_pos(slv::vec_2<int>(0, -1));
+			set_window_pos(slv::vec_2<int>(0, -1));
 		}
 #endif
 
 		// update fullscreen
 		// transparent windows cannot be fullscreen
-		if (!m_is_transparent && IsKeyPressed(KEY_F11))
+		if (!m_is_window_transparent && IsKeyPressed(KEY_F11))
 		{
 			if (!IsWindowFullscreen()) // going fullscreen
 			{
-				m_unmaximized_win_size = m_current_win_size;
+				m_unmaximized_window_size = m_current_window_size;
 				SetWindowSize(get_monitor_size().width, get_monitor_size().height);
-				m_is_fullscreen = true;
+				m_is_window_fullscreen = true;
 			}
 			else // leaving fullscreen
 			{
-				SetWindowSize(m_unmaximized_win_size.width, m_unmaximized_win_size.height);
-				m_is_fullscreen = false;
+				SetWindowSize(m_unmaximized_window_size.width, m_unmaximized_window_size.height);
+				m_is_window_fullscreen = false;
 			}
 		
 			ToggleFullscreen();
 		}
 	}
 
+	// private
 	void WindowHandler::start_draw() const
 	{
 		if (!m_is_init)
@@ -152,11 +148,11 @@ namespace slv
 		}
 
 		BeginDrawing();
-		BeginScissorMode(0, 0, m_current_win_size.width, m_current_win_size.height);
+		BeginScissorMode(0, 0, m_current_window_size.width, m_current_window_size.height);
 
-		if (m_is_transparent)
+		if (m_is_window_transparent)
 		{
-			slv::raylib::begin_texture_mode(m_target);
+			slv::raylib::begin_texture_mode(m_view);
 			ClearBackground(BLANK);
 			return;
 		}
@@ -164,6 +160,7 @@ namespace slv
 		ClearBackground(BLACK);
 	}
 
+	// private
 	void WindowHandler::end_draw()
 	{
 		if (!m_is_init)
@@ -175,22 +172,22 @@ namespace slv
 		int text_size = 10;
 		int text_padding = text_size / 2;
 		int text_border_padding = 5;
-		DrawText(fmt::format("FPS: {}", get_fps()).c_str(), text_border_padding, text_border_padding, text_size, WHITE);
+		DrawText(fmt::format("FPS: {}", get_running_fps()).c_str(), text_border_padding, text_border_padding, text_size, WHITE);
 
-		float memory_usage = 0.f;
+		float memory_usage = 0.0F;
 #ifdef _WIN32
 		memory_usage = slv::win32::get_memory_mb();
 #endif
-		if (memory_usage != 0.f)
+		if (memory_usage != 0.0F)
 		{
 			DrawText(fmt::format("MEM: {:.2f}MB", memory_usage).c_str(), text_border_padding, text_border_padding + (text_padding * 2), text_size, WHITE);
 		}
 #endif
 
-		if (m_is_transparent)
+		if (m_is_window_transparent)
 		{
 			EndTextureMode();
-			Image img = LoadImageFromTexture(Texture(m_target.tex.id, m_target.tex.width, m_target.tex.height, m_target.tex.mipmaps, m_target.tex.format));
+			Image img = LoadImageFromTexture(Texture(m_view.tex.id, m_view.tex.width, m_view.tex.height, m_view.tex.mipmaps, m_view.tex.format));
 			std::memcpy(m_render_buffers.rgba.data(), img.data, static_cast<size_t>(img.width) * img.height * 4);
 			UnloadImage(img);
 #ifdef _WIN32
@@ -203,7 +200,7 @@ namespace slv
 		EndDrawing();
 	}
 
-	bool WindowHandler::is_open() const
+	bool WindowHandler::is_window_open() const
 	{
 		if (m_is_init)
 		{
@@ -213,61 +210,71 @@ namespace slv
 		return false;
 	}
 
-	void WindowHandler::set_size(const slv::size<unsigned int>& size)
+	void WindowHandler::set_window_size(const slv::size<unsigned int>& size, bool set_as_default)
 	{
-		set_width(size.width);
-		set_height(size.height);
+		set_window_width(size.width, set_as_default);
+		set_window_height(size.height, set_as_default);
 	}
 
-	void WindowHandler::set_width(unsigned int width)
-	{
-		if (!m_is_init)
-		{
-			return;
-		}
-
-		m_default_win_size.width = width;
-		if (m_min_win_size.width > m_default_win_size.width)
-		{
-			m_default_win_size.width = m_min_win_size.width;
-		}
-
-		SetWindowSize(m_default_win_size.width, m_default_win_size.height);
-	}
-
-	void WindowHandler::set_height(unsigned int height)
+	void WindowHandler::set_window_width(unsigned int width, bool set_as_default)
 	{
 		if (!m_is_init)
 		{
 			return;
 		}
 
-		m_default_win_size.height = height;
-		if (m_min_win_size.height > m_default_win_size.height)
+		if (set_as_default)
 		{
-			m_default_win_size.height = m_min_win_size.height;
+			m_default_window_size.width = std::max(M_LOWEST_WINDOW_SIZE_PX, width);
+		}
+		else
+		{
+			width = std::max(M_LOWEST_WINDOW_SIZE_PX, width);
 		}
 
-		SetWindowSize(m_default_win_size.width, m_default_win_size.height);
+		reset_minimum_window_size(); // reset minimum size of the window
+
+		SetWindowSize(set_as_default ? m_default_window_size.width : width, m_default_window_size.height);
 	}
 
-	void WindowHandler::set_title(std::string_view title)
+	void WindowHandler::set_window_height(unsigned int height, bool set_as_default)
+	{
+		if (!m_is_init)
+		{
+			return;
+		}
+
+		if (set_as_default)
+		{
+			m_default_window_size.height = std::max(M_LOWEST_WINDOW_SIZE_PX, height);
+		}
+		else
+		{
+			height = std::max(M_LOWEST_WINDOW_SIZE_PX, height);
+		}
+
+		reset_minimum_window_size(); // reset minimum size of the window
+
+		SetWindowSize(m_default_window_size.width, set_as_default ? m_default_window_size.height : height);
+	}
+
+	void WindowHandler::set_window_title(const std::string& title)
 	{
 		if (m_is_init)
 		{
-			m_win_title = title;
-			SetWindowTitle(m_win_title.c_str());
+			m_window_title = title;
+			SetWindowTitle(m_window_title.c_str());
 			
 #ifdef _WIN32
 			if (slv::win32::is_console_open())
 			{
-				slv::win32::rename_console(m_win_title);
+				slv::win32::rename_console(m_window_title);
 			}
 #endif
 		}
 	}
 
-	void WindowHandler::set_target_fps(unsigned int fps)
+	void WindowHandler::set_fps(unsigned int fps)
 	{
 		if (m_is_init)
 		{
@@ -281,14 +288,11 @@ namespace slv
 		if (m_is_init)
 		{
 			int monitor = GetCurrentMonitor();
-			return
-			{
-				static_cast<unsigned int>(GetMonitorWidth(monitor)),
-				static_cast<unsigned int>(GetMonitorHeight(monitor)),
-			};
+			return slv::size<unsigned int>(static_cast<unsigned int>(GetMonitorWidth(monitor)),
+										   static_cast<unsigned int>(GetMonitorHeight(monitor)));
 		}
 
-		return {};
+		return slv::size<unsigned int>();
 	}
 
 	float WindowHandler::get_delta_time() const
@@ -298,7 +302,7 @@ namespace slv
 			return GetFrameTime();
 		}
 
-		return 0.f;
+		return 0.0F;
 	}
 
 	slv::vec_2<float> WindowHandler::get_mouse_pos() const
@@ -306,11 +310,11 @@ namespace slv
 		if (m_is_init)
 		{
 			Vector2 pos = GetMousePosition();
-			float ui_scale = std::max(get_ui_scale(), 1e-6f);
+			float ui_scale = get_ui_scale();
 			return { pos.x / ui_scale, pos.y / ui_scale };
 		}
 
-		return {};
+		return slv::vec_2<float>();
 	}
 
 	slv::vec_2<float> WindowHandler::get_mouse_delta() const
@@ -321,46 +325,57 @@ namespace slv
 			return { dt.x, dt.y };
 		}
 
-		return {};
+		return slv::vec_2<float>();
 	}
 
 	float WindowHandler::get_ui_scale() const
 	{
-		float w = m_default_win_size.width > 0 ? static_cast<float>(m_current_win_size.width) / m_default_win_size.width : 1.f;
-		float h = m_default_win_size.height > 0 ? static_cast<float>(m_current_win_size.height) / m_default_win_size.height : 1.f;
+		float w = m_default_window_size.width > 0U ? static_cast<float>(m_current_window_size.width) / m_default_window_size.width : 1.0F;
+		float h = m_default_window_size.height > 0U ? static_cast<float>(m_current_window_size.height) / m_default_window_size.height : 1.0F;
 		return std::min(w, h);
 	}
 
-	int WindowHandler::get_fps() const
+	int WindowHandler::get_running_fps() const
 	{
 		float dt = get_delta_time();
-		if (dt != 0.f)
+		if (dt != 0.0F)
 		{
-			return static_cast<int>(round(1.f / dt));
+			return static_cast<int>(round(1.0F / dt));
 		}
 
 		return 0;
 	}
 
-	void WindowHandler::set_pos(const slv::vec_2<int>& pos)
+	void WindowHandler::set_window_pos(const slv::vec_2<int>& pos)
 	{
 		if (m_is_init && !IsWindowFullscreen())
 		{
-			m_win_pos = pos;
+			m_window_pos = pos;
 			SetWindowPosition(pos.x, pos.y);
 		}
 	}
 
-	void WindowHandler::set_pos_x(int x)
+	void WindowHandler::set_window_pos_x(int x)
 	{
-		set_pos(slv::vec_2<int>(x, m_win_pos.y));
+		set_window_pos(slv::vec_2<int>(x, m_window_pos.y));
 	}
 
-	void WindowHandler::set_pos_y(int y)
+	void WindowHandler::set_window_pos_y(int y)
 	{
-		set_pos(slv::vec_2<int>(m_win_pos.x, y));
+		set_window_pos(slv::vec_2<int>(m_window_pos.x, y));
 	}
 
+	bool WindowHandler::is_window_fullscreen() const
+	{
+		if (m_is_init)
+		{
+			return IsWindowFullscreen();
+		}
+
+		return false;
+	}
+
+	// private
 	void WindowHandler::setup_console(const std::string& window_title)
 	{
 		// disable raylib's console logs
@@ -378,39 +393,40 @@ namespace slv
 #endif
 	}
 
-	void WindowHandler::configure_flags(bool has_vsync, bool is_resizable, bool start_fullscreen, bool is_borderless, bool is_transparent)
+	// private
+	void WindowHandler::configure_flags(bool window_has_vsync, bool is_window_resizable, bool window_starts_fullscreen, bool is_window_borderless, bool is_window_transparent)
 	{
 #ifdef _WIN32
-		if (is_transparent)
+		if (is_window_transparent)
 		{
-			is_borderless = true;
-			is_resizable = false;
-			start_fullscreen = false; // transparent windows cannot be fullscreen
+			is_window_borderless = true;
+			is_window_resizable = false;
+			window_starts_fullscreen = false; // transparent windows cannot be fullscreen
 		}
 #else
-		is_transparent = false;
+		is_window_transparent = false;
 		slv::console_log(slv::LOG_WARNING, M_CLASS_NAME, "SLV's transparent window feature is not supported on this platform");
 #endif
 
 		int flags = 0;
 
-		if (has_vsync)
+		if (window_has_vsync)
 		{
 			flags |= FLAG_VSYNC_HINT;
 		}
 
-		if (is_borderless)
+		if (is_window_borderless)
 		{
-			is_resizable = false;
+			is_window_resizable = false;
 			flags |= FLAG_WINDOW_UNDECORATED;
 		}
 
-		if (is_resizable)
+		if (is_window_resizable)
 		{
 			flags |= FLAG_WINDOW_RESIZABLE;
 		}
 
-		if (start_fullscreen)
+		if (window_starts_fullscreen)
 		{
 			flags |= FLAG_FULLSCREEN_MODE;
 		}
@@ -418,16 +434,25 @@ namespace slv
 		SetConfigFlags(flags);
 	}
 
+	// private
 	void WindowHandler::create_buffers()
 	{
-		if (m_target.id != 0u)
+		if (m_view.id != 0u)
 		{
-			slv::raylib::unload_render_texture(m_target);
+			slv::raylib::unload_render_texture(m_view);
 		}
 
-		m_target = slv::raylib::load_render_texture(m_current_win_size.width, m_current_win_size.height);
+		m_view = slv::raylib::load_render_texture(m_current_window_size.width, m_current_window_size.height);
 #ifdef _WIN32
-		m_render_buffers = slv::win32::create_render_buffers(m_current_win_size.width, m_current_win_size.height);
+		m_render_buffers = slv::win32::create_render_buffers(m_current_window_size.width, m_current_window_size.height);
 #endif
+	}
+
+	// private
+	void WindowHandler::reset_minimum_window_size()
+	{
+		m_minimum_window_size.width = std::min(m_default_window_size.width, M_LOW_WINDOW_SIZE.width);
+		m_minimum_window_size.height = std::min(m_default_window_size.height, M_LOW_WINDOW_SIZE.height);
+		SetWindowMinSize(m_minimum_window_size.width, m_minimum_window_size.height);
 	}
 }

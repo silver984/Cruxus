@@ -13,14 +13,14 @@ namespace slv
 	}
 
 	bool Game::init(const std::string& window_title, const slv::size<unsigned int>& window_size, unsigned int fps,
-					bool has_vsync, bool is_resizable, bool start_fullscreen, bool is_borderless, bool is_transparent)
+					bool window_has_vsync, bool is_window_resizable, bool window_starts_fullscreen, bool is_window_borderless, bool is_window_transparent)
 	{
 		if (m_is_init)
 		{
 			return true;
 		}
 
-		if (!slv::WindowHandler::get().init(window_title, window_size, fps, has_vsync, is_resizable, start_fullscreen, is_borderless, is_transparent))
+		if (!slv::WindowHandler::get().init(window_title, window_size, fps, window_has_vsync, is_window_resizable, window_starts_fullscreen, is_window_borderless, is_window_transparent))
 		{
 			return false;
 		}
@@ -41,7 +41,7 @@ namespace slv
 		slv::ResourceHandler& rsrc_handler = slv::ResourceHandler::get();
 		slv::InputHandler& input_handler = slv::InputHandler::get();
 
-		while (win_handler.is_open())
+		while (win_handler.is_window_open())
 		{
 			win_handler.update();
 			input_handler.update();
@@ -52,11 +52,6 @@ namespace slv
 			{
 				m_current_scene = std::move(m_pending_scene);
 				m_current_scene->m_game = this;
-				auto& scene_name = m_current_scene.get()->get_name();
-				if (!scene_name.empty())
-				{
-					slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Current scene: {} | \"{}\"", m_current_scene.get()->get_type(), scene_name);
-				}
 			}
 
 			if (m_current_scene)

@@ -9,8 +9,12 @@
 
 namespace slv
 {
+    class Game; // forward declare
+
 	class WindowHandler
 	{
+        friend class slv::Game;
+
     private:
         WindowHandler() = default;
         ~WindowHandler();
@@ -28,55 +32,50 @@ namespace slv
         WindowHandler& operator = (WindowHandler&&) = delete;
 
         bool init(const std::string& window_title, const slv::size<unsigned int>& window_size, unsigned int fps = 60U,
-                  bool has_vsync = true, bool is_resizable = true, bool start_fullscreen = false, bool is_borderless = false, bool is_transparent = false);
+                  bool window_has_vsync = true, bool is_window_resizable = true, bool window_starts_fullscreen = false, bool is_window_borderless = false, bool is_window_transparent = false);
         void uninit();
-        void update();
-        void start_draw() const;
-        void end_draw();
-        bool is_open() const;
+        bool is_window_open() const;
         slv::size<unsigned int> get_monitor_size() const;
         slv::vec_2<float> get_mouse_pos() const;
         slv::vec_2<float> get_mouse_delta() const;
-        int get_fps() const;
+        int get_running_fps() const;
         float get_delta_time() const;
         float get_ui_scale() const;
-        void set_size(const slv::size<unsigned int>& size);
-        void set_width(unsigned int width);
-        void set_height(unsigned int height);
-        void set_target_fps(unsigned int fps);
-        void set_title(std::string_view title);
-        void set_pos(const slv::vec_2<int>& pos);
-        void set_pos_x(int x);
-        void set_pos_y(int y);
+        void set_window_size(const slv::size<unsigned int>& size, bool set_as_default = true);
+        void set_window_width(unsigned int width, bool set_as_default = true);
+        void set_window_height(unsigned int height, bool set_as_default = true);
+        void set_fps(unsigned int fps);
+        void set_window_title(const std::string& title);
+        void set_window_pos(const slv::vec_2<int>& pos);
+        void set_window_pos_x(int x);
+        void set_window_pos_y(int y);
+        bool is_window_fullscreen() const;
 
-        inline const slv::size<unsigned int>& get_size() const
+        inline slv::size<unsigned int> get_window_size() const
         {
-            return m_current_win_size;
+            return m_current_window_size;
         }
 
-        inline const slv::size<unsigned int>& get_min_size() const
+        inline slv::size<unsigned int> get_window_minimum_size() const
         {
-            return m_min_win_size;
+            return m_minimum_window_size;
         }
-        
-        inline slv::vec_2<float> get_center() const
+
+        inline slv::vec_2<float> get_screen_center() const
         {
             float ui_scale = get_ui_scale();
-            return
-            {
-                (m_current_win_size.width / 2.0F) / ui_scale,
-                (m_current_win_size.height / 2.0F) / ui_scale
-            };
+            return slv::vec_2<float>((m_current_window_size.width / 2.0F) / ui_scale,
+                                     (m_current_window_size.height / 2.0F) / ui_scale);
         }
 
-        inline const slv::size<unsigned int>& get_def_size() const
+        inline slv::size<unsigned int> get_window_default_size() const
         {
-            return m_default_win_size;
+            return m_default_window_size;
         }
 
-        inline const std::string& get_title() const
+        inline std::string get_window_title() const
         {
-            return m_win_title;
+            return m_window_title;
         }
 
         inline unsigned int get_target_fps() const
@@ -84,29 +83,35 @@ namespace slv
             return m_target_fps;
         }
 
-        inline const slv::vec_2<int>& get_pos() const
+        inline slv::vec_2<int> get_window_pos() const
         {
-            return m_win_pos;
+            return m_window_pos;
         }
 
     private:
+        void update();
+        void start_draw() const;
+        void end_draw();
         void setup_console(const std::string& window_title);
-        void configure_flags(bool has_vsync, bool is_resizable, bool start_fullscreen, bool is_borderless, bool is_transparent);
+        void configure_flags(bool window_has_vsync, bool is_window_resizable, bool window_starts_fullscreen, bool is_window_borderless, bool is_window_transparent);
         void create_buffers();
+        void reset_minimum_window_size();
 
         static constexpr inline const char* M_CLASS_NAME = "WindowHandler";
+        static constexpr inline unsigned int M_LOWEST_WINDOW_SIZE_PX = 100U;
+        static constexpr inline slv::size<unsigned int> M_LOW_WINDOW_SIZE{ 800U, 600U };
         bool m_is_init = false;
-        slv::vec_2<int> m_win_pos{};
-        slv::size<unsigned int> m_default_win_size{};
-        slv::size<unsigned int> m_current_win_size{};
-        slv::size<unsigned int> m_min_win_size{};
-        slv::size<unsigned int> m_last_current_win_size{};
-        slv::size<unsigned int> m_unmaximized_win_size{};
-        slv::render_texture m_target{};
+        slv::vec_2<int> m_window_pos{};
+        slv::size<unsigned int> m_default_window_size{};
+        slv::size<unsigned int> m_current_window_size{};
+        slv::size<unsigned int> m_minimum_window_size{};
+        slv::size<unsigned int> m_last_current_window_size{};
+        slv::size<unsigned int> m_unmaximized_window_size{};
+        slv::render_texture m_view{};
         slv::render_buffers m_render_buffers{};
-        std::string m_win_title;
+        std::string m_window_title;
         unsigned int m_target_fps = 0U;
-        bool m_is_transparent = false;
-        bool m_is_fullscreen = false;
+        bool m_is_window_transparent = false;
+        bool m_is_window_fullscreen = false;
 	};
 }

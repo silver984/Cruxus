@@ -7,8 +7,12 @@
 
 namespace slv
 {
+	class Game; // forward declare
+
 	class InputHandler
 	{
+		friend class slv::Game;
+
 	private:
 		InputHandler() = default;
 		~InputHandler() = default;
@@ -25,7 +29,6 @@ namespace slv
 		InputHandler& operator = (const InputHandler&) = delete;
 		InputHandler& operator = (InputHandler&&) = delete;
 
-		void update();
 		bool is_key_down(slv::key key) const;
 		bool is_key_pressed(slv::key key) const;
 		bool is_key_released(slv::key key) const;
@@ -37,6 +40,8 @@ namespace slv
 		void invoke_bind(const std::string& name);
 
 	private:
+		void update();
+
 		inline std::shared_ptr<slv::action_bind> get_bind(const std::string& name) const
 		{
 			for (const auto& bind : m_binds)

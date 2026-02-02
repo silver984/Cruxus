@@ -77,6 +77,7 @@ namespace slv
         return tex;
 	}
 
+    // private
     void ResourceHandler::update()
     {
         // clean up textures
@@ -85,11 +86,11 @@ namespace slv
             if (it->second.use_count() <= 1)
             {
                 std::string key = it->first;
-                slv::texture* val = it->second.get();
+                auto& ptr = it->second;
 
-                if (val)
+                if (ptr)
                 {
-                    UnloadTexture(Texture(val->id, val->width, val->height, val->mipmaps, val->format));
+                    UnloadTexture(Texture(ptr->id, ptr->width, ptr->height, ptr->mipmaps, ptr->format));
                     slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Unloaded texture: \"{}\"", key);
                 }
 

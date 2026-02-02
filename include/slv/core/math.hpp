@@ -32,13 +32,13 @@ namespace slv::math
     }
 
     /**
-        * @brief Clamps a float between a minimum and maximum value.
-        *
-        * @param v Value to clamp.
-        * @param min_val Minimum value.
-        * @param max_val Maximum value.
-        * @return Clamped value.
-        */
+    * @brief Clamps a float between a minimum and maximum value.
+    *
+    * @param v Value to clamp.
+    * @param min_val Minimum value.
+    * @param max_val Maximum value.
+    * @return Clamped value.
+    */
     inline float clamp(float v, float min_val, float max_val)
     {
         return std::max(min_val, std::min(v, max_val));

@@ -5,6 +5,7 @@
 
 namespace slv
 {
+	// private
 	bool CrashHandler::init()
 	{
 		if (m_is_init)

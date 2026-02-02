@@ -2,13 +2,16 @@
 
 namespace slv
 {
+	class Game; // forward declare
+
 	class CrashHandler
 	{
+		friend class slv::Game;
+
 	private:
 		CrashHandler() = default;
 		~CrashHandler() = default;
 
-	public:
 		static inline CrashHandler& get()
 		{
 			static CrashHandler instance;
@@ -22,7 +25,6 @@ namespace slv
 
 		bool init();
 
-	private:
 		bool m_is_init = false;
 	};
 }

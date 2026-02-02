@@ -8,8 +8,12 @@
 
 namespace slv
 {
+	class Game; // forward declare
+
 	class ResourceHandler
 	{
+		friend class slv::Game;
+
 	private:
 		ResourceHandler() = default;
 		~ResourceHandler() = default;
@@ -27,9 +31,10 @@ namespace slv
         ResourceHandler& operator = (ResourceHandler&&) = delete;
 
 		std::shared_ptr<slv::texture> load_texture(const std::string& file_path);
-		void update();
 
 	private:
+		void update();
+
 		static constexpr inline const char* M_CLASS_NAME = "ResourceHandler";
 		static constexpr inline std::array<const char*, 3Ui64> M_SUPPORTED_IMG_FORMATS{ "png", "jpg", "jpeg" };
 		std::unordered_map<std::string, std::shared_ptr<slv::texture>> m_cached_textures;
