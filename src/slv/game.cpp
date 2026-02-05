@@ -45,7 +45,10 @@ namespace slv
 		{
 			win_handler.update();
 			input_handler.update();
-			rsrc_handler.update();
+		
+			float dt = win_handler.get_delta_time();
+			
+			rsrc_handler.update(dt);
 			// -------------------- UPDATE HERE -------------------- //
 
 			if (m_pending_scene)
@@ -56,7 +59,7 @@ namespace slv
 
 			if (m_current_scene)
 			{
-				m_current_scene->base_update(win_handler.get_delta_time());
+				m_current_scene->base_update(dt);
 			}
 
 			// ----------------------------------------------------- //

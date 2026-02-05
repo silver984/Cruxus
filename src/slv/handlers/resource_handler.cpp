@@ -1,85 +1,19 @@
 #include <slv/handlers/resource_handler.hpp>
 #include <slv/core/console_log.hpp>
 #include <raylib.h>
-#include <filesystem>
-
-namespace
-{
-    struct parsed_path
-    {
-        std::filesystem::path stitched{};
-        std::filesystem::path directory{};
-        std::string file_name{};
-        std::string extension{};
-    };
-
-    parsed_path get_parsed_path(const std::string& file_path)
-    {
-        std::filesystem::path abs = std::filesystem::absolute(file_path);
-        
-        std::string ext = abs.extension().string();
-        if (!ext.empty() && ext[0] == '.')
-        {
-            ext.erase(0, 1); // remove the dot
-        }
-
-        std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-
-        return parsed_path
-        {
-            abs, // stitched
-            abs.parent_path(), // directory
-            abs.stem().string(), // file_name
-            ext // extension
-        };
-    }
-}
+#include <tinyxml2.h>
 
 namespace slv
 {
-	std::shared_ptr<slv::texture> ResourceHandler::load_texture(const std::string& file_path)
-	{
-        parsed_path parsed = get_parsed_path(file_path);
-        const std::string& ext = parsed.extension;
-        bool is_format_supported = std::any_of(M_SUPPORTED_IMG_FORMATS.begin(), M_SUPPORTED_IMG_FORMATS.end(),
-                                               [&](auto e) { return ext == e; });
-        if (!is_format_supported)
-        {
-            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Can't load texture with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched.string());
-            return nullptr;
-        }
-
-        std::string abs_path = parsed.stitched.string();
-
-        if (auto it = m_cached_textures.find(abs_path); it != m_cached_textures.end())
-        {
-            return it->second;
-        }
-
-        Texture2D texture_rl = LoadTexture(abs_path.c_str());
-
-        if (texture_rl.id == 0u)
-        {
-            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Failed to load texture: \"{}\"", parsed.stitched.string());
-            return nullptr;
-        }
-
-        std::shared_ptr<slv::texture> tex = std::make_shared<slv::texture>();
-        tex->id = texture_rl.id;
-        tex->width = texture_rl.width;
-        tex->height = texture_rl.height;
-        tex->mipmaps = texture_rl.mipmaps;
-        tex->format = texture_rl.format;
-
-        m_cached_textures.emplace(abs_path, tex);
-        slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Loaded texture: \"{}\"", parsed.stitched.string());
-
-        return tex;
-	}
-
     // private
-    void ResourceHandler::update()
+    void ResourceHandler::update(float dt)
     {
+        m_since_cleanup += dt;
+        if (m_since_cleanup < M_CLEANUP_INTERVAL)
+        {
+            return;
+        }
+
         // clean up textures
         for (auto it = m_cached_textures.begin(); it != m_cached_textures.end(); /**/)
         {
@@ -101,5 +35,187 @@ namespace slv
                 ++it;
             }
         }
+
+        // clean up atlases
+        for (auto it = m_cached_atlas_datas.begin(); it != m_cached_atlas_datas.end(); /**/)
+        {
+            if (it->second.use_count() <= 1)
+            {
+                std::string key = it->first;
+                it = m_cached_atlas_datas.erase(it);
+                slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Unloaded atlas data: \"{}\"", key);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+    }
+    
+    // private
+    ResourceHandler::parsed_path ResourceHandler::get_parsed_path(const std::string& file_path) const
+    {
+        std::filesystem::path abs = std::filesystem::absolute(file_path);
+        
+        std::string ext = abs.extension().string();
+        if (!ext.empty() && ext[0] == '.')
+        {
+            ext.erase(0, 1); // remove the dot
+        }
+
+        std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+
+        return parsed_path(abs, // stitched
+                           abs.parent_path(), // directory
+                           abs.stem().string(), // file_name
+                           ext // extension
+        );
+    }
+
+    std::shared_ptr<slv::texture> ResourceHandler::load_texture(const std::string& file_path)
+	{
+        parsed_path parsed = get_parsed_path(file_path);
+        const std::string& ext = parsed.extension;
+        bool is_format_supported = std::any_of(M_SUPPORTED_IMG_FORMATS.begin(), M_SUPPORTED_IMG_FORMATS.end(),
+                                               [&](auto e) { return ext == e; });
+        std::string abs_path = parsed.stitched.string();
+        if (!is_format_supported)
+        {
+            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Can't load texture with unsupported format: \"{}\" | file_path: \"{}\"", ext, abs_path);
+            return nullptr;
+        }
+
+        if (auto it = m_cached_textures.find(abs_path); it != m_cached_textures.end())
+        {
+            return it->second;
+        }
+
+        Texture2D texture_rl = LoadTexture(abs_path.c_str());
+
+        if (texture_rl.id == 0U)
+        {
+            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Failed to load texture: \"{}\"", abs_path);
+            return nullptr;
+        }
+
+        std::shared_ptr<slv::texture> tex = std::make_shared<slv::texture>(texture_rl.id,
+                                                                           texture_rl.width,
+                                                                           texture_rl.height,
+                                                                           texture_rl.mipmaps,
+                                                                           texture_rl.format);
+        m_cached_textures.emplace(abs_path, tex);
+        slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Loaded texture: \"{}\"", abs_path);
+
+        return tex;
+	}
+
+    std::shared_ptr<slv::sprite::atlas_data> ResourceHandler::load_atlas_data(const std::string& file_path)
+    {
+        parsed_path parsed = get_parsed_path(file_path);
+        const std::string& ext = parsed.extension;
+        bool is_format_supported = std::any_of(M_SUPPORTED_DATA_FORMATS.begin(), M_SUPPORTED_DATA_FORMATS.end(),
+                                               [&](auto e) { return ext == e; });
+        std::string abs_path = parsed.stitched.string();
+        if (!is_format_supported)
+        {
+            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Can't load atlas data with unsupported format: \"{}\" | file_path: \"{}\"", ext, abs_path);
+            return nullptr;
+        }
+
+        if (auto it = m_cached_atlas_datas.find(abs_path); it != m_cached_atlas_datas.end())
+        {
+            return it->second;
+        }
+
+        auto err = [&parsed, &abs_path]() { slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Failed to load atlas data: \"{}\"", abs_path); };
+
+        tinyxml2::XMLDocument doc;
+        tinyxml2::XMLError result = doc.LoadFile(abs_path.c_str());
+
+        if (result != tinyxml2::XML_SUCCESS)
+        {
+            err();
+            return nullptr;
+        }
+
+        tinyxml2::XMLElement* root = doc.RootElement();
+
+        if (!root)
+        {
+            err();
+            return nullptr;
+        }
+
+        std::shared_ptr<slv::sprite::atlas_data> atlas_data = std::make_shared<slv::sprite::atlas_data>();
+
+        if (std::string(root->Name()) == "TextureAtlas") // Adobe Animate or Flash
+        {
+            atlas_data->format = slv::sprite::atlas_format::flash_xml;
+        }
+        else
+        {
+            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Can't load atlas data with unsupported data. | file_path: \"{}\"", abs_path);
+            return nullptr;
+        }
+
+        switch (atlas_data->format)
+        {
+            using enum slv::sprite::atlas_format;
+        case flash_xml:
+            for (tinyxml2::XMLElement* elem = root->FirstChildElement("SubTexture"); elem != nullptr; elem = elem->NextSiblingElement("SubTexture"))
+            {
+                if (!elem->Attribute("name"))
+                {
+                    continue;
+                }
+
+                std::string full_name = elem->Attribute("name");
+                std::string name = full_name.substr(0, full_name.find_last_not_of("0123456789") + 1);
+                size_t frame_index = std::stoull(full_name.substr(full_name.size() - 4));
+
+                slv::sprite::atlas_frame frame;
+
+                elem->QueryIntAttribute("x", &frame.pos_on_sheet.x);
+                elem->QueryIntAttribute("y", &frame.pos_on_sheet.y);
+                elem->QueryIntAttribute("width", &frame.size_on_sheet.width);
+                elem->QueryIntAttribute("height", &frame.size_on_sheet.height);
+
+                if (frame.size_on_sheet.width == 0 || frame.size_on_sheet.height == 0)
+                {
+                    continue;
+                }
+
+                elem->QueryIntAttribute("frameX", &frame.offsets.x);
+                elem->QueryIntAttribute("frameY", &frame.offsets.y);
+                elem->QueryBoolAttribute("rotated", &frame.is_rotated);
+                
+                auto& current_frames = atlas_data->frames[name];
+
+                if (current_frames.size() <= frame_index)
+                {
+                    current_frames.resize(frame_index + 1);
+                }
+
+                current_frames[frame_index] = frame;
+                current_frames[frame_index].is_valid = true;
+            }
+
+            for (auto& [name, frames] : atlas_data->frames)
+            {
+                // remove empty spots in vector
+                frames.erase(std::remove_if(frames.begin(), frames.end(),
+                             [](const auto& frame) { return !frame.is_valid; }),
+                             frames.end());
+            }
+
+            break;
+        default:
+            return nullptr;
+        }
+
+        m_cached_atlas_datas.emplace(abs_path, atlas_data);
+        slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Loaded atlas data: \"{}\"", abs_path);
+
+        return atlas_data;
     }
 }

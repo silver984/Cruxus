@@ -108,7 +108,9 @@ namespace slv
         slv::size<unsigned int> m_last_current_window_size{};
         slv::size<unsigned int> m_unmaximized_window_size{};
         slv::render_texture m_view{};
+#ifdef _WIN32
         slv::render_buffers m_render_buffers{};
+#endif
         std::string m_window_title;
         unsigned int m_target_fps = 0U;
         bool m_is_window_transparent = false;

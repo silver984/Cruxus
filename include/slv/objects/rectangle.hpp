@@ -31,8 +31,6 @@ namespace slv
 			return nullptr;
 		}
 
-		void update(float dt) override;
-
 		std::string get_type() const override
 		{
 			return "Rectangle";
@@ -54,6 +52,7 @@ namespace slv
 		}
 
 	protected:
+		void update(float dt) override;
 		void draw() const override;
 
 	private:

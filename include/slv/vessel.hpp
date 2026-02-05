@@ -13,7 +13,6 @@ namespace slv
 	{
 	public:
 		virtual ~Vessel() = default;
-		virtual void update(float dt) = 0;
 
 		inline void add_vessel(const std::shared_ptr<Vessel>& vessel)
 		{
@@ -87,6 +86,7 @@ namespace slv
 			return true;
 		};
 
+		virtual void update(float dt) = 0;
 		virtual void draw() const = 0;
 		bool base_init();
 		void base_update(float dt);

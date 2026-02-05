@@ -3,7 +3,6 @@
 #include <slv/vessel.hpp>
 #include <slv/core/types.hpp>
 #include <string>
-#include <string_view>
 #include <memory>
 
 namespace slv
@@ -11,12 +10,12 @@ namespace slv
 	class Sprite : public slv::Vessel
 	{
 	public:
-		Sprite(std::string_view file_path)
+		Sprite(const std::string& file_path)
 		{
 			m_file_path = file_path;
 		}
 
-		static inline std::shared_ptr<Sprite> create(std::string_view file_path)
+		static inline std::shared_ptr<Sprite> create(const std::string& file_path)
 		{
 			std::shared_ptr<Sprite> spr = std::make_shared<Sprite>(file_path);
 
@@ -28,8 +27,6 @@ namespace slv
 			return nullptr;
 		}
 
-		void update(float dt) override;
-
 		std::string get_type() const override
 		{
 			return "Sprite";
@@ -38,6 +35,7 @@ namespace slv
 		bool is_antialiasing = true;
 
 	protected:
+		void update(float dt) override;
 		bool init() override;
 		void draw() const override;
 

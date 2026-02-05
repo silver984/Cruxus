@@ -188,7 +188,9 @@ namespace slv
 		{
 			EndTextureMode();
 			Image img = LoadImageFromTexture(Texture(m_view.tex.id, m_view.tex.width, m_view.tex.height, m_view.tex.mipmaps, m_view.tex.format));
+#ifdef _WIN32
 			std::memcpy(m_render_buffers.rgba.data(), img.data, static_cast<size_t>(img.width) * img.height * 4);
+#endif
 			UnloadImage(img);
 #ifdef _WIN32
 			slv::win32::convert_rgba_to_bgra(m_render_buffers);

@@ -5,6 +5,7 @@
 
 namespace slv
 {
+	// protected
 	bool Vessel::base_init()
 	{
 		if (m_is_init)
@@ -22,6 +23,7 @@ namespace slv
 		return true;
 	}
 
+	// protected
 	void Vessel::base_update(float dt)
 	{
 		if (!m_is_init || !is_active)
@@ -69,6 +71,7 @@ namespace slv
 		}
 	}
 
+	// protected
 	void Vessel::base_draw() const
 	{
 		if (!m_is_init || !is_active || !is_visible || alpha == 0.0F)

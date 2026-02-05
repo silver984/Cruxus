@@ -22,9 +22,9 @@ namespace slv
 
     struct rgb
     {
-        uint8_t r{};
-        uint8_t g{};
-        uint8_t b{};
+        unsigned char r{};
+        unsigned char g{};
+        unsigned char b{};
     };
 
     template<typename T>

@@ -10,7 +10,7 @@ namespace
 
 	Color rl_color(const slv::rgb& color, float alpha)
 	{
-		return { color.r, color.g, color.b, static_cast<uint8_t>(255.f * alpha) };
+		return { color.r, color.g, color.b, static_cast<unsigned char>(255.f * alpha) };
 	}
 
 	Texture rl_texture(const slv::texture& texture)

@@ -5,6 +5,7 @@
 
 namespace slv
 {
+#ifdef _WIN32
     struct render_buffers
     {
         int width{};
@@ -12,6 +13,7 @@ namespace slv
         std::vector<uint8_t> rgba;
         std::vector<uint8_t> bgra_premult;
     };
+#endif
 
     namespace win32
     {
