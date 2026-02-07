@@ -52,6 +52,12 @@ namespace slv
 		}
 
 	protected:
+		inline bool init() override
+		{
+			update(0.0F);
+			return true;
+		}
+
 		void update(float dt) override;
 		void draw() const override;
 

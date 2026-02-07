@@ -14,6 +14,6 @@ namespace slv
 	// protected
 	void Rectangle::draw() const
 	{
-		slv::raylib::draw_rectangle(m_rect, this->anchor, this->color, this->world_alpha_, this->world_rotation_);
+		slv::raylib::draw_rectangle(m_rect, this->world_anchor_, this->color, this->world_alpha_, this->world_rotation_);
 	}
 }

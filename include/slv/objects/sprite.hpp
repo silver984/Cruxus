@@ -27,7 +27,7 @@ namespace slv
 			return nullptr;
 		}
 
-		std::string get_type() const override
+		inline std::string get_type() const override
 		{
 			return "Sprite";
 		}

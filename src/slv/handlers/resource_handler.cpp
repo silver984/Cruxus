@@ -9,46 +9,47 @@ namespace slv
     void ResourceHandler::update(float dt)
     {
         m_since_cleanup += dt;
-        if (m_since_cleanup < M_CLEANUP_INTERVAL)
-        {
-            return;
-        }
 
-        // clean up textures
-        for (auto it = m_cached_textures.begin(); it != m_cached_textures.end(); /**/)
+        while (m_since_cleanup >= M_CLEANUP_INTERVAL)
         {
-            if (it->second.use_count() <= 1)
+            // clean up textures
+            for (auto it = m_cached_textures.begin(); it != m_cached_textures.end(); /**/)
             {
-                std::string key = it->first;
-                auto& ptr = it->second;
-
-                if (ptr)
+                if (it->second.use_count() <= 1)
                 {
-                    UnloadTexture(Texture(ptr->id, ptr->width, ptr->height, ptr->mipmaps, ptr->format));
-                    slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Unloaded texture: \"{}\"", key);
+                    std::string key = it->first;
+                    auto& ptr = it->second;
+
+                    if (ptr)
+                    {
+                        UnloadTexture(Texture(ptr->id, ptr->width, ptr->height, ptr->mipmaps, ptr->format));
+                        slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Unloaded texture: \"{}\"", key);
+                    }
+
+                    it = m_cached_textures.erase(it);
                 }
+                else
+                {
+                    ++it;
+                }
+            }
 
-                it = m_cached_textures.erase(it);
-            }
-            else
+            // clean up atlases
+            for (auto it = m_cached_atlas_datas.begin(); it != m_cached_atlas_datas.end(); /**/)
             {
-                ++it;
+                if (it->second.use_count() <= 1)
+                {
+                    std::string key = it->first;
+                    it = m_cached_atlas_datas.erase(it);
+                    slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Unloaded atlas data: \"{}\"", key);
+                }
+                else
+                {
+                    ++it;
+                }
             }
-        }
 
-        // clean up atlases
-        for (auto it = m_cached_atlas_datas.begin(); it != m_cached_atlas_datas.end(); /**/)
-        {
-            if (it->second.use_count() <= 1)
-            {
-                std::string key = it->first;
-                it = m_cached_atlas_datas.erase(it);
-                slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Unloaded atlas data: \"{}\"", key);
-            }
-            else
-            {
-                ++it;
-            }
+            m_since_cleanup -= M_CLEANUP_INTERVAL;
         }
     }
     
@@ -58,18 +59,18 @@ namespace slv
         std::filesystem::path abs = std::filesystem::absolute(file_path);
         
         std::string ext = abs.extension().string();
+        
         if (!ext.empty() && ext[0] == '.')
         {
             ext.erase(0, 1); // remove the dot
         }
-
+        
         std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-
-        return parsed_path(abs, // stitched
-                           abs.parent_path(), // directory
-                           abs.stem().string(), // file_name
-                           ext // extension
-        );
+        
+        return parsed_path(abs.string(),
+                           abs.parent_path().string(),
+                           abs.stem().string(),
+                           ext);
     }
 
     std::shared_ptr<slv::texture> ResourceHandler::load_texture(const std::string& file_path)
@@ -78,23 +79,22 @@ namespace slv
         const std::string& ext = parsed.extension;
         bool is_format_supported = std::any_of(M_SUPPORTED_IMG_FORMATS.begin(), M_SUPPORTED_IMG_FORMATS.end(),
                                                [&](auto e) { return ext == e; });
-        std::string abs_path = parsed.stitched.string();
         if (!is_format_supported)
         {
-            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Can't load texture with unsupported format: \"{}\" | file_path: \"{}\"", ext, abs_path);
+            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Can't load texture with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched);
             return nullptr;
         }
 
-        if (auto it = m_cached_textures.find(abs_path); it != m_cached_textures.end())
+        if (auto it = m_cached_textures.find(parsed.stitched); it != m_cached_textures.end())
         {
             return it->second;
         }
 
-        Texture2D texture_rl = LoadTexture(abs_path.c_str());
+        Texture2D texture_rl = LoadTexture(parsed.stitched.c_str());
 
         if (texture_rl.id == 0U)
         {
-            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Failed to load texture: \"{}\"", abs_path);
+            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Failed to load texture: \"{}\"", parsed.stitched);
             return nullptr;
         }
 
@@ -103,8 +103,8 @@ namespace slv
                                                                            texture_rl.height,
                                                                            texture_rl.mipmaps,
                                                                            texture_rl.format);
-        m_cached_textures.emplace(abs_path, tex);
-        slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Loaded texture: \"{}\"", abs_path);
+        m_cached_textures.emplace(parsed.stitched, tex);
+        slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Loaded texture: \"{}\"", parsed.stitched);
 
         return tex;
 	}
@@ -115,22 +115,21 @@ namespace slv
         const std::string& ext = parsed.extension;
         bool is_format_supported = std::any_of(M_SUPPORTED_DATA_FORMATS.begin(), M_SUPPORTED_DATA_FORMATS.end(),
                                                [&](auto e) { return ext == e; });
-        std::string abs_path = parsed.stitched.string();
         if (!is_format_supported)
         {
-            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Can't load atlas data with unsupported format: \"{}\" | file_path: \"{}\"", ext, abs_path);
+            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Can't load atlas data with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched);
             return nullptr;
         }
 
-        if (auto it = m_cached_atlas_datas.find(abs_path); it != m_cached_atlas_datas.end())
+        if (auto it = m_cached_atlas_datas.find(parsed.stitched); it != m_cached_atlas_datas.end())
         {
             return it->second;
         }
 
-        auto err = [&parsed, &abs_path]() { slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Failed to load atlas data: \"{}\"", abs_path); };
+        auto err = [&parsed]() { slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Failed to load atlas data: \"{}\"", parsed.stitched); };
 
         tinyxml2::XMLDocument doc;
-        tinyxml2::XMLError result = doc.LoadFile(abs_path.c_str());
+        tinyxml2::XMLError result = doc.LoadFile(parsed.stitched.c_str());
 
         if (result != tinyxml2::XML_SUCCESS)
         {
@@ -154,7 +153,7 @@ namespace slv
         }
         else
         {
-            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Can't load atlas data with unsupported data. | file_path: \"{}\"", abs_path);
+            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Can't load atlas data with unsupported data. | file_path: \"{}\"", parsed.stitched);
             return nullptr;
         }
 
@@ -213,8 +212,8 @@ namespace slv
             return nullptr;
         }
 
-        m_cached_atlas_datas.emplace(abs_path, atlas_data);
-        slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Loaded atlas data: \"{}\"", abs_path);
+        m_cached_atlas_datas.emplace(parsed.stitched, atlas_data);
+        slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Loaded atlas data: \"{}\"", parsed.stitched);
 
         return atlas_data;
     }

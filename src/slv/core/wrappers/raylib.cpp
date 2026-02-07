@@ -5,7 +5,7 @@ namespace
 {
 	Rectangle rl_rect(const slv::rect<float>& rect)
 	{
-		return { static_cast<float>(rect.x), static_cast<float>(rect.y), static_cast<float>(rect.width), static_cast<float>(rect.height) };
+		return { rect.x, rect.y, rect.width, rect.height };
 	}
 
 	Color rl_color(const slv::rgb& color, float alpha)
@@ -23,9 +23,9 @@ namespace
 		return { render_texture.id, rl_texture(render_texture.tex), rl_texture(render_texture.depth) };
 	}
 
-	Vector2 rl_origin(const slv::rect<float>& rect, const slv::vec_2<float>& anchor)
+	Vector2 rl_vector(const slv::vec_2<float>& vec_2)
 	{
-		return { static_cast<float>(rect.width * anchor.x), static_cast<float>(rect.height * anchor.y) };
+		return { vec_2.x, vec_2.y };
 	}
 
 	// ----------------------------------------------------- //
@@ -40,12 +40,12 @@ namespace slv::raylib
 {
 	void draw_rectangle(const slv::rect<float>& rect, const slv::vec_2<float>& anchor, const slv::rgb& color, float alpha, float rotation)
 	{
-		DrawRectanglePro(rl_rect(rect), rl_origin(rect, anchor), rotation, rl_color(color, alpha));
+		DrawRectanglePro(rl_rect(rect), rl_vector(anchor), rotation, rl_color(color, alpha));
 	}
 
 	void draw_texture(const slv::texture& texture, const slv::rect<float>& source, const slv::rect<float>& dest, const slv::vec_2<float>& anchor, float rotation, float alpha, const slv::rgb& color)
 	{
-		DrawTexturePro(rl_texture(texture), rl_rect(source), rl_rect(dest), rl_origin(dest, anchor), rotation, rl_color(color, alpha));
+		DrawTexturePro(rl_texture(texture), rl_rect(source), rl_rect(dest), rl_vector(anchor), rotation, rl_color(color, alpha));
 	}
 
 	void set_texture_antialiasing(const slv::texture& texture, bool toggle)

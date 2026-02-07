@@ -4,53 +4,74 @@
 #include <slv/core/colors.hpp>
 #include <vector>
 #include <string>
-#include <string_view>
 #include <memory>
 
 namespace slv
 {
-	class Vessel
+	class Vessel : public std::enable_shared_from_this<Vessel>
 	{
 	public:
 		virtual ~Vessel() = default;
 
 		inline void add_vessel(const std::shared_ptr<Vessel>& vessel)
 		{
+			if (!vessel)
+			{
+				return;
+			}
+
+			if (auto old_parent = vessel->m_parent.lock())
+			{
+				old_parent->remove_vessel(vessel);
+			}
+
+			vessel->m_parent = weak_from_this();
+			m_vessels.emplace_back(vessel);
+		}
+
+		inline void remove_vessel(const std::shared_ptr<Vessel>& vessel)
+		{
+			std::erase(m_vessels, vessel);
+			
 			if (vessel)
 			{
-				vessel->m_parent = this;
-				m_vessels.emplace_back(vessel);
+				vessel->m_parent.reset();
 			}
 		}
 
-		inline const slv::size<float> get_size() const
+		inline size_t get_vessel_count() const
+		{
+			return m_vessels.size();
+		}
+
+		inline slv::size<float> get_size() const
 		{
 			return size_;
 		}
 
-		inline const slv::size<float> get_scaled_size() const
+		inline slv::size<float> get_scaled_size() const
 		{
 			return { size_.width * world_scale_.x, size_.height * world_scale_.y };
 		}
 
-		inline Vessel* get_parent() const
+		inline std::shared_ptr<Vessel> get_parent() const
 		{
-			return m_parent;
+			return m_parent.lock();
 		}
 
-		virtual std::string get_type() const
-		{
-			return "Vessel";
-		}
-
-		void set_name(std::string_view name)
+		inline void set_name(const std::string& name)
 		{
 			m_name = name;
 		}
 
-		const std::string& get_name()
+		inline std::string get_name() const
 		{
 			return m_name;
+		}
+
+		inline virtual std::string get_type() const
+		{
+			return "Vessel";
 		}
 
 		slv::vec_2<float> pos{}; // Position on the screen
@@ -81,7 +102,7 @@ namespace slv
 		float time_scale = 1.f;
 
 	protected:
-		virtual bool init()
+		inline virtual bool init()
 		{
 			return true;
 		};
@@ -95,11 +116,12 @@ namespace slv
 		slv::size<float> size_; // Width and height of this vessel
 		slv::vec_2<float> world_scale_{ 1.0F, 1.0F };
 		slv::vec_2<float> world_pos_{};
+		slv::vec_2<float> world_anchor_{ 0.5F, 0.5F };
 		float world_rotation_ = 0.0F;
 		float world_alpha_ = 1.0F;
 
 	private:
-		Vessel* m_parent = nullptr;
+		std::weak_ptr<Vessel> m_parent;
 		std::vector<std::shared_ptr<Vessel>> m_vessels;
 		std::string m_name;
 		bool m_is_init = false;

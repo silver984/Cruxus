@@ -29,17 +29,19 @@ namespace slv
 			return nullptr;
 		}
 
-		std::string get_type() const override
+		inline std::string get_type() const override
 		{
 			return "AnimatedSprite";
 		}
 
-		void add_anim_alias(const std::string& alias, const std::string& name);
-		void remove_anim_alias(const std::string& alias);
+		void add_alias(const std::string& alias, const std::string& name);
+		void remove_alias(const std::string& alias);
 		void play_alias(const std::string& alias, float fps, bool is_looping = true);
 		void play_anim(const std::string& name, float fps, bool is_looping = true);
-		
-		std::string get_current_anim_name()
+		void set_anim_offsets(const std::string& name, const slv::vec_2<float>& offsets);
+		void set_alias_offsets(const std::string& alias, const slv::vec_2<float>& offsets);
+
+		std::string get_current_anim()
 		{
 			return m_current_anim;
 		}
@@ -75,6 +77,7 @@ namespace slv
 		std::shared_ptr<slv::texture> m_texture = nullptr;
 		std::shared_ptr<slv::sprite::atlas_data> m_atlas_data = nullptr;
 		std::unordered_map<std::string, std::string> m_aliases;
+		std::unordered_map<std::string, slv::vec_2<float>> m_offsets;
 		std::string m_current_anim;
 	};
 }

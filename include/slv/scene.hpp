@@ -14,26 +14,26 @@ namespace slv
 
 	public:
 		template<typename Derived>
-		static inline std::unique_ptr<Scene> create()
+		static inline std::shared_ptr<Scene> create()
 		{
-			static_assert(std::is_base_of_v<Scene, Derived>, "Scene must derive from slv::Scene");
-			
-			auto scene = std::make_unique<Derived>();
+			static_assert(std::is_base_of_v<Scene, Derived>);
+
+			auto scene = std::make_shared<Derived>();
 			if (scene->base_init())
 			{
 				return scene;
 			}
-
+			
 			return nullptr;
 		}
 
-		std::string get_type() const override
+		inline std::string get_type() const override
 		{
 			return "Scene";
 		}
 
 	protected:
-		slv::Game* get_game()
+		inline slv::Game* get_game()
 		{
 			return m_game;
 		}

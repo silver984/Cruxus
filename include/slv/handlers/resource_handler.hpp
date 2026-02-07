@@ -38,8 +38,8 @@ namespace slv
 	private:
 		struct parsed_path
 		{
-			std::filesystem::path stitched;
-			std::filesystem::path directory;
+			std::string stitched;
+			std::string directory;
 			std::string file_name;
 			std::string extension;
 		};

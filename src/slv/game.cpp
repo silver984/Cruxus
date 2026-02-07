@@ -53,8 +53,9 @@ namespace slv
 
 			if (m_pending_scene)
 			{
-				m_current_scene = std::move(m_pending_scene);
+				m_current_scene = m_pending_scene;
 				m_current_scene->m_game = this;
+				m_pending_scene = nullptr;
 			}
 
 			if (m_current_scene)
@@ -78,7 +79,7 @@ namespace slv
 		win_handler.uninit();
 	}
 
-	void Game::change_scene(std::unique_ptr<slv::Scene> new_scene)
+	void Game::change_scene(const std::shared_ptr<slv::Scene>& new_scene)
 	{
 		if (!new_scene)
 		{
@@ -86,6 +87,6 @@ namespace slv
 			return;
 		}
 
-		m_pending_scene = std::move(new_scene);
+		m_pending_scene = new_scene;
 	}
 }

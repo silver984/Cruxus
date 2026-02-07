@@ -14,7 +14,8 @@ namespace slv
 			return false;
 		}
 
-		this->size_ = m_texture ? slv::size<float>(static_cast<float>(m_texture->width), static_cast<float>(m_texture->height)) : slv::size<float>();
+		this->size_ = m_texture ? slv::size<float>(static_cast<float>(m_texture->width),
+												   static_cast<float>(m_texture->height)) : slv::size<float>(0.0F, 0.0F);
 		m_source = slv::rect<float>(0.0F, 0.0F, this->size_.width, this->size_.height);
 		update(0.0F);
 
@@ -36,9 +37,11 @@ namespace slv
 	// protected
 	void Sprite::draw() const
 	{
-		if (m_texture)
+		if (m_texture &&
+			m_source.width > 0.0F && m_source.height > 0.0F &&
+			m_dest.width > 0.0F && m_dest.height > 0.0F)
 		{
-			slv::raylib::draw_texture(*m_texture, m_source, m_dest, this->anchor, this->world_rotation_, this->world_alpha_, this->color);
+			slv::raylib::draw_texture(*m_texture, m_source, m_dest, this->world_anchor_, this->world_rotation_, this->world_alpha_, this->color);
 		}
 	}
 }
