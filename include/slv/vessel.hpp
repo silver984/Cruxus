@@ -1,42 +1,48 @@
 #pragma once
 
-#include <slv/core/types.hpp>
-#include <slv/core/colors.hpp>
+#include <slv/core/types/primitives.hpp>
+#include <slv/core/types/colors.hpp>
+#include <slv/core/console_log.hpp>
 #include <vector>
 #include <string>
-#include <memory>
 
 namespace slv
 {
-	class Vessel : public std::enable_shared_from_this<Vessel>
+	class Vessel
 	{
 	public:
-		virtual ~Vessel() = default;
+		inline void add_vessel(Vessel* vessel)
+		{
+			if (!vessel || vessel == this)
+			{
+				return;
+			}
 
-		inline void add_vessel(const std::shared_ptr<Vessel>& vessel)
+			if (Vessel* old_parent = vessel->m_parent)
+			{
+				// remove from old parent
+				old_parent->remove_vessel(vessel);
+			}
+
+			vessel->m_parent = this;
+			m_vessels.push_back(vessel);
+		}
+
+		inline void remove_vessel(Vessel* vessel)
 		{
 			if (!vessel)
 			{
 				return;
 			}
 
-			if (auto old_parent = vessel->m_parent.lock())
+			auto it = std::find(m_vessels.begin(), m_vessels.end(), vessel);
+			if (it == m_vessels.end())
 			{
-				old_parent->remove_vessel(vessel);
+				return;
 			}
 
-			vessel->m_parent = weak_from_this();
-			m_vessels.emplace_back(vessel);
-		}
-
-		inline void remove_vessel(const std::shared_ptr<Vessel>& vessel)
-		{
-			std::erase(m_vessels, vessel);
-			
-			if (vessel)
-			{
-				vessel->m_parent.reset();
-			}
+			vessel->m_parent = nullptr;
+			m_vessels.erase(it);
 		}
 
 		inline size_t get_vessel_count() const
@@ -54,9 +60,9 @@ namespace slv
 			return { size_.width * world_scale_.x, size_.height * world_scale_.y };
 		}
 
-		inline std::shared_ptr<Vessel> get_parent() const
+		inline Vessel* get_parent() const
 		{
-			return m_parent.lock();
+			return m_parent;
 		}
 
 		inline void set_name(const std::string& name)
@@ -74,6 +80,8 @@ namespace slv
 			return "Vessel";
 		}
 
+		void destroy();
+
 		slv::vec_2<float> pos{}; // Position on the screen
 		
 		slv::vec_2<float> anchor{ 0.5F, 0.5F }; // Anchor point [0, 1]
@@ -89,7 +97,7 @@ namespace slv
 		// Color of this vessel [0, 255]
 		// Not including the alpha channel
 		// White by default
-		slv::rgb color = slv::colors::WHITE;
+		slv::rgb color = slv::white;
 
 		// Visibility toggle
 		// If turned false, this vessel will stop drawing but will keep updating
@@ -102,10 +110,22 @@ namespace slv
 		float time_scale = 1.f;
 
 	protected:
+		Vessel() = default;
+		virtual ~Vessel()
+		{
+			for (Vessel* v : m_vessels)
+			{
+				v->destroy();
+				v = nullptr;
+			}
+
+			m_vessels.clear();
+		}
+
 		inline virtual bool init()
 		{
 			return true;
-		};
+		}
 
 		virtual void update(float dt) = 0;
 		virtual void draw() const = 0;
@@ -121,8 +141,8 @@ namespace slv
 		float world_alpha_ = 1.0F;
 
 	private:
-		std::weak_ptr<Vessel> m_parent;
-		std::vector<std::shared_ptr<Vessel>> m_vessels;
+		Vessel* m_parent = nullptr;
+		std::vector<Vessel*> m_vessels;
 		std::string m_name;
 		bool m_is_init = false;
 	};

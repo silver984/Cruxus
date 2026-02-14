@@ -1,7 +1,8 @@
 #pragma once
 
-#include <slv/core/types.hpp>
-#include <slv/core/sprite_atlas.hpp>
+#define SLV_RESOURCE_HND slv::ResourceHandler::get()
+#include <slv/core/types/texture.hpp>
+#include <slv/core/types/atlas.hpp>
 #include <unordered_map>
 #include <filesystem>
 #include <string>
@@ -33,7 +34,7 @@ namespace slv
         ResourceHandler& operator = (ResourceHandler&&) = delete;
 
 		std::shared_ptr<slv::texture> load_texture(const std::string& file_path);
-		std::shared_ptr<slv::sprite::atlas_data> load_atlas_data(const std::string& file_path);
+		std::shared_ptr<slv::atlas_data> load_atlas_data(const std::string& file_path);
 
 	private:
 		struct parsed_path
@@ -53,6 +54,6 @@ namespace slv
 		static constexpr inline std::array<const char*, 1> M_SUPPORTED_DATA_FORMATS{ "xml" };
 		float m_since_cleanup = 0.0F;
 		std::unordered_map<std::string, std::shared_ptr<slv::texture>> m_cached_textures;
-		std::unordered_map<std::string, std::shared_ptr<slv::sprite::atlas_data>> m_cached_atlas_datas;
+		std::unordered_map<std::string, std::shared_ptr<slv::atlas_data>> m_cached_atlas_datas;
 	};
 }

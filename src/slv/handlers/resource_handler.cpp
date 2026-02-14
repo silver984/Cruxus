@@ -109,7 +109,7 @@ namespace slv
         return tex;
 	}
 
-    std::shared_ptr<slv::sprite::atlas_data> ResourceHandler::load_atlas_data(const std::string& file_path)
+    std::shared_ptr<slv::atlas_data> ResourceHandler::load_atlas_data(const std::string& file_path)
     {
         parsed_path parsed = get_parsed_path(file_path);
         const std::string& ext = parsed.extension;
@@ -145,11 +145,11 @@ namespace slv
             return nullptr;
         }
 
-        std::shared_ptr<slv::sprite::atlas_data> atlas_data = std::make_shared<slv::sprite::atlas_data>();
+        std::shared_ptr<slv::atlas_data> atlas_data = std::make_shared<slv::atlas_data>();
 
         if (std::string(root->Name()) == "TextureAtlas") // Adobe Animate or Flash
         {
-            atlas_data->format = slv::sprite::atlas_format::flash_xml;
+            atlas_data->format = slv::atlas_format::flash_xml;
         }
         else
         {
@@ -159,7 +159,7 @@ namespace slv
 
         switch (atlas_data->format)
         {
-            using enum slv::sprite::atlas_format;
+            using enum slv::atlas_format;
         case flash_xml:
             for (tinyxml2::XMLElement* elem = root->FirstChildElement("SubTexture"); elem != nullptr; elem = elem->NextSiblingElement("SubTexture"))
             {
@@ -172,7 +172,7 @@ namespace slv
                 std::string name = full_name.substr(0, full_name.find_last_not_of("0123456789") + 1);
                 size_t frame_index = std::stoull(full_name.substr(full_name.size() - 4));
 
-                slv::sprite::atlas_frame frame;
+                slv::atlas_frame frame;
 
                 elem->QueryIntAttribute("x", &frame.pos_on_sheet.x);
                 elem->QueryIntAttribute("y", &frame.pos_on_sheet.y);

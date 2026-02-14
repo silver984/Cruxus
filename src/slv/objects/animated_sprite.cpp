@@ -117,7 +117,10 @@ namespace slv
 			}
 		}
 
-		size_ = compounded_size / total;
+		if (total != 0)
+		{
+			size_ = compounded_size / total;
+		}
 	}
 
 	// private

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <slv/core/types.hpp>
+#define SLV_INPUT_HND slv::InputHandler::get()
+#include <slv/core/types/keys.hpp>
 #include <bitset>
 #include <vector>
 #include <memory>

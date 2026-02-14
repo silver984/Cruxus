@@ -2,8 +2,7 @@
 #include <slv/core/math.hpp>
 #include <slv/handlers/window_handler.hpp>
 #include <algorithm>
-#include <raylib.h>
-#include <array>
+#include <cassert>
 
 namespace slv
 {
@@ -14,12 +13,12 @@ namespace slv
 		{
 			return true;
 		}
-		
+
 		if (!init())
 		{
 			return false;
 		}
-		
+
 		m_is_init = true;
 
 		return true;
@@ -33,19 +32,14 @@ namespace slv
 			return;
 		}
 
-		float world_dt = dt * time_scale;
-		update(world_dt);
-
 		// to do world transform
 
-		auto parent = m_parent.lock();
+		slv::vec_2<float> parent_world_scale = m_parent ? m_parent->world_scale_ : slv::vec_2<float>(1.0F, 1.0F);
+		slv::vec_2<float> parent_world_pos = m_parent ? m_parent->world_pos_ : slv::vec_2<float>(0.0F, 0.0F);
+		float parent_world_rotation = m_parent ? m_parent->world_rotation_ : 0.0F;
+		float parent_world_alpha = m_parent ? m_parent->world_alpha_ : 1.0F;
 
-		slv::vec_2<float> parent_world_scale = parent ? parent->world_scale_ : slv::vec_2<float>(1.0F, 1.0F);
-		slv::vec_2<float> parent_world_pos = parent ? parent->world_pos_ : slv::vec_2<float>();
-		float parent_world_rotation = parent ? parent->world_rotation_ : 0.0F;
-		float parent_world_alpha = parent ? parent->world_alpha_ : 1.0F;
-
-		if (!parent)
+		if (!m_parent)
 		{
 			world_scale_ = scale * slv::WindowHandler::get().get_ui_scale();
 		}
@@ -58,12 +52,13 @@ namespace slv
 		world_rotation_ = rotation + parent_world_rotation;
 		world_alpha_ = std::clamp(alpha * parent_world_alpha, 0.0F, 1.0F);
 		world_anchor_ = slv::vec_2<float>(anchor.x * size_.width,
-										  anchor.y * size_.height) * world_scale_;
+											anchor.y * size_.height) * world_scale_;
 
-		// erase null children
-		m_vessels.erase(std::remove_if(m_vessels.begin(), m_vessels.end(),
-						[](const auto& v) { return !v; }),
-						m_vessels.end());
+		float world_dt = dt * time_scale;
+		update(world_dt);
+
+		// remove all nullptr vessels
+		m_vessels.erase(std::remove(m_vessels.begin(), m_vessels.end(), nullptr), m_vessels.end());
 
 		for (const auto& v : m_vessels)
 		{
@@ -84,8 +79,10 @@ namespace slv
 			return;
 		}
 
-		// to integrate for Rectangle
+		draw();
 
+		/*
+		* TO INTEGRATE LATER
 		float outline_thickness = 1.0F;
 		slv::vec_2<float> rect_pos = world_pos_ - world_anchor_;
 
@@ -108,8 +105,7 @@ namespace slv
 			size_t next = (i + 1) % corners.size();
 			DrawLineEx(corners[i], corners[next], outline_thickness, Color(255, 0, 0, 255));
 		}
-
-		draw();
+		*/
 
 		for (const auto& v : m_vessels)
 		{
@@ -120,5 +116,25 @@ namespace slv
 
 			v->base_draw();
 		}
+	}
+
+	void Vessel::destroy()
+	{
+		std::string type = get_type();
+		std::string name = get_name();
+
+		if (!name.empty())
+		{
+			type = type + " : \"" + name + "\"";
+		}
+		
+		if (m_parent)
+		{
+			m_parent->remove_vessel(this);
+		}
+
+		delete this;
+		
+		slv::console_log(slv::LOG_INFO, type.c_str(), "Destroyed");
 	}
 }

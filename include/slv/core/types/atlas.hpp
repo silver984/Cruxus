@@ -1,11 +1,11 @@
 #pragma once
 
-#include <slv/core/types.hpp>
+#include <slv/core/types/primitives.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-namespace slv::sprite
+namespace slv
 {
     enum class atlas_format
     {
@@ -23,7 +23,7 @@ namespace slv::sprite
 
     struct atlas_data
     {
-        slv::sprite::atlas_format format;
-        std::unordered_map<std::string, std::vector<slv::sprite::atlas_frame>> frames;
+        slv::atlas_format format;
+        std::unordered_map<std::string, std::vector<slv::atlas_frame>> frames;
     };
 }

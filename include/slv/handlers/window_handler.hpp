@@ -1,6 +1,8 @@
 #pragma once
 
-#include <slv/core/types.hpp>
+#define SLV_WINDOW_HND slv::WindowHandler::get()
+#include <slv/core/types/primitives.hpp>
+#include <slv/core/types/texture.hpp>
 #ifdef _WIN32
 #include <platform/windows/layered_window.hpp>
 #endif

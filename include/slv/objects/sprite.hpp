@@ -1,7 +1,8 @@
 #pragma once
 
 #include <slv/vessel.hpp>
-#include <slv/core/types.hpp>
+#include <slv/core/types/primitives.hpp>
+#include <slv/core/types/texture.hpp>
 #include <string>
 #include <memory>
 
@@ -10,21 +11,17 @@ namespace slv
 	class Sprite : public slv::Vessel
 	{
 	public:
-		Sprite(const std::string& file_path)
+		static inline Sprite* create(const std::string& file_path)
 		{
-			m_file_path = file_path;
-		}
+			Sprite* s = new Sprite(file_path);
 
-		static inline std::shared_ptr<Sprite> create(const std::string& file_path)
-		{
-			std::shared_ptr<Sprite> spr = std::make_shared<Sprite>(file_path);
-
-			if (spr->base_init())
+			if (!s->base_init())
 			{
-				return spr;
+				s->destroy();
+				return nullptr;
 			}
 
-			return nullptr;
+			return s;
 		}
 
 		inline std::string get_type() const override
@@ -35,8 +32,13 @@ namespace slv
 		bool is_antialiasing = true;
 
 	protected:
-		void update(float dt) override;
+		Sprite(const std::string& file_path)
+		{
+			m_file_path = file_path;
+		}
+
 		bool init() override;
+		void update(float dt) override;
 		void draw() const override;
 
 	private:

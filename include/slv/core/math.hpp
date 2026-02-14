@@ -1,6 +1,6 @@
 #pragma once
 
-#include <slv/core/types.hpp>
+#include <slv/core/types/primitives.hpp>
 #include <cmath>
 #include <numbers>
 #include <algorithm>

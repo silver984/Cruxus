@@ -48,6 +48,11 @@ namespace slv::raylib
 		DrawTexturePro(rl_texture(texture), rl_rect(source), rl_rect(dest), rl_vector(anchor), rotation, rl_color(color, alpha));
 	}
 
+	void draw_line(const slv::vec_2<float>& start_pos, const slv::vec_2<float>& end_pos, const slv::rgb& color, float alpha, float thickness)
+	{
+		DrawLineEx(rl_vector(start_pos), rl_vector(end_pos), thickness, rl_color(color, alpha));
+	}
+
 	void set_texture_antialiasing(const slv::texture& texture, bool toggle)
 	{
 		SetTextureFilter(rl_texture(texture), toggle ? TEXTURE_FILTER_BILINEAR : TEXTURE_FILTER_POINT);

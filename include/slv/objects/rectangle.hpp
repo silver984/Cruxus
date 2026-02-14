@@ -1,9 +1,8 @@
 #pragma once
 
 #include <slv/vessel.hpp>
-#include <slv/core/types.hpp>
-#include <slv/core/colors.hpp>
-#include <memory>
+#include <slv/core/types/primitives.hpp>
+#include <slv/core/types/colors.hpp>
 #include <string>
 
 namespace slv
@@ -11,27 +10,20 @@ namespace slv
 	class Rectangle : public slv::Vessel
 	{
 	public:
-		Rectangle(const slv::rect<float>& rect, const slv::rgb& color)
+		static inline Rectangle* create(const slv::rect<float>& rect, const slv::rgb& color = slv::red)
 		{
-			m_rect = rect;
-			pos = slv::vec_2<float>(rect.x, rect.y);
-			size_ = slv::size<float>(rect.width, rect.height);
-			this->color = color;
-		}
+			Rectangle* r = new Rectangle(rect, color);
 
-		static inline std::shared_ptr<Rectangle> create(const slv::rect<float>& rect, const slv::rgb& color = slv::colors::RED)
-		{
-			std::shared_ptr<Rectangle> rectangle = std::make_shared<Rectangle>(rect, color);
-			
-			if (rectangle->base_init())
+			if (!r->base_init())
 			{
-				return rectangle;
+				r->destroy();
+				return nullptr;
 			}
 
-			return nullptr;
+			return r;
 		}
 
-		std::string get_type() const override
+		inline std::string get_type() const override
 		{
 			return "Rectangle";
 		}
@@ -51,7 +43,18 @@ namespace slv
 			size_.height = height;
 		}
 
+		float outline_size = 0.0F;
+		float outline_alpha = 0.0F;
+
 	protected:
+		Rectangle(const slv::rect<float>& rect, const slv::rgb& color)
+		{
+			m_rect = rect;
+			pos = slv::vec_2<float>(rect.x, rect.y);
+			size_ = slv::size<float>(rect.width, rect.height);
+			this->color = color;
+		}
+
 		inline bool init() override
 		{
 			update(0.0F);

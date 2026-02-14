@@ -7,21 +7,22 @@ namespace slv
 	class Fleet : public slv::Vessel
 	{
 	public:
-		static inline std::shared_ptr<Fleet> create()
+		static inline Fleet* create()
 		{
-			std::shared_ptr<Fleet> fleet = std::make_shared<Fleet>();
+			Fleet* f = new Fleet();
 
-			if (fleet->base_init())
+			if (!f->base_init())
 			{
-				return fleet;
+				f->destroy();
+				return nullptr;
 			}
 
-			return nullptr;
+			return f;
 		}
 
 		void update(float dt) override {};
 
-		std::string get_type() const override
+		inline std::string get_type() const override
 		{
 			return "Fleet";
 		}
