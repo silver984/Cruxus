@@ -13,22 +13,9 @@ namespace slv
 		Rectangle(const slv::rect<float>& rect, const slv::rgb& color)
 		{
 			m_rect = rect;
-			pos = slv::vec_2<float>(rect.x, rect.y);
+			pos = slv::vec2<float>(rect.x, rect.y);
 			size_ = slv::size<float>(rect.width, rect.height);
 			this->color = color;
-		}
-
-		static inline s_ptr<Rectangle> create(const slv::rect<float>& rect, const slv::rgb& color = slv::red)
-		{
-			s_ptr<Rectangle> rectangle = shared<Rectangle>(rect, color);
-
-			if (!rectangle->base_init())
-			{
-				rectangle.reset();
-				return nullptr;
-			}
-
-			return rectangle;
 		}
 
 		inline std::string get_type() const override

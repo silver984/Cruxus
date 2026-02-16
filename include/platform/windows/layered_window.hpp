@@ -5,22 +5,20 @@
 
 namespace slv
 {
-#ifdef _WIN32
-    struct render_buffers
-    {
-        int width{};
-        int height{};
-        std::vector<uint8_t> rgba;
-        std::vector<uint8_t> bgra_premult;
-    };
-#endif
-
     namespace win32
     {
-        slv::render_buffers create_render_buffers(int width, int height);
-        void convert_rgba_to_bgra(slv::render_buffers& buf);
+        struct render_buffers
+        {
+            int width{};
+            int height{};
+            std::vector<uint8_t> rgba;
+            std::vector<uint8_t> bgra_premult;
+        };
+
         void init_layered_window(void* handle);
-        void update_layered_window(const slv::render_buffers& buf);
         void cleanup_layered_window();
+        void convert_rgba_to_bgra(slv::win32::render_buffers& buf);
+        void update_layered_window(const slv::win32::render_buffers& buf);
+        slv::win32::render_buffers create_render_buffers(int width, int height);
     }
 }

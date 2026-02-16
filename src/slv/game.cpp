@@ -14,8 +14,9 @@ namespace slv
 		SLV_WINDOW_HND.uninit();
 	}
 
-	bool Game::init(const std::string& window_title, const slv::size<unsigned int>& window_size, unsigned int fps,
-					bool window_has_vsync, bool is_window_resizable, bool window_starts_fullscreen, bool is_window_borderless, bool is_window_transparent)
+	bool Game::init(const std::string& window_title, const slv::size<int>& window_size,
+					int fps, bool window_has_vsync, bool is_window_resizable,
+					bool window_starts_fullscreen, bool is_window_borderless, bool is_window_transparent)
 	{
 		if (m_is_init)
 		{
@@ -90,7 +91,7 @@ namespace slv
 		SLV_WINDOW_HND.uninit();
 	}
 
-	void Game::change_scene(s_ptr<Scene> new_scene)
+	void Game::change_scene(slv::sptr<Scene> new_scene)
 	{
 		if (!new_scene)
 		{

@@ -16,9 +16,9 @@ namespace slv
     {
         bool is_valid = false;
         bool is_rotated = false;
-        slv::vec_2<int> pos_on_sheet;
+        slv::vec2<int> pos_on_sheet;
         slv::size<int> size_on_sheet;
-        slv::vec_2<int> offsets;
+        slv::vec2<int> offsets;
     };
 
     struct atlas_data

@@ -2,6 +2,7 @@
 #include <slv/core/console_log.hpp>
 #include <raylib.h>
 #include <tinyxml2.h>
+#include <filesystem>
 
 namespace slv
 {
@@ -73,7 +74,7 @@ namespace slv
                            ext);
     }
 
-    s_ptr<slv::texture> ResourceHandler::load_texture(const std::string& file_path)
+    slv::sptr<slv::texture> ResourceHandler::load_texture(const std::string& file_path)
 	{
         parsed_path parsed = get_parsed_path(file_path);
         const std::string& ext = parsed.extension;
@@ -98,7 +99,7 @@ namespace slv
             return nullptr;
         }
 
-        s_ptr<slv::texture> tex = std::make_shared<slv::texture>(texture_rl.id,
+        slv::sptr<slv::texture> tex = std::make_shared<slv::texture>(texture_rl.id,
                                                                            texture_rl.width,
                                                                            texture_rl.height,
                                                                            texture_rl.mipmaps,
@@ -109,7 +110,7 @@ namespace slv
         return tex;
 	}
 
-    s_ptr<slv::atlas_data> ResourceHandler::load_atlas_data(const std::string& file_path)
+    slv::sptr<slv::atlas_data> ResourceHandler::load_atlas_data(const std::string& file_path)
     {
         parsed_path parsed = get_parsed_path(file_path);
         const std::string& ext = parsed.extension;
@@ -145,7 +146,7 @@ namespace slv
             return nullptr;
         }
 
-        s_ptr<slv::atlas_data> atlas_data = std::make_shared<slv::atlas_data>();
+        slv::sptr<slv::atlas_data> atlas_data = std::make_shared<slv::atlas_data>();
 
         if (std::string(root->Name()) == "TextureAtlas") // Adobe Animate or Flash
         {

@@ -4,19 +4,27 @@
 
 namespace slv
 {
+	void Sprite::set_antialiasing(bool val)
+	{
+		if (m_texture)
+		{
+			slv::raylib::set_texture_antialiasing(*m_texture, val);
+		}
+	}
+
 	// protected
 	bool Sprite::init()
 	{
-		m_texture = slv::ResourceHandler::get().load_texture(m_file_path);
+		m_texture = SLV_RESOURCE_HND.load_texture(m_file_path);
 
 		if (!m_texture)
 		{
 			return false;
 		}
 
-		this->size_ = m_texture ? slv::size<float>(static_cast<float>(m_texture->width),
-												   static_cast<float>(m_texture->height)) : slv::size<float>(0.0F, 0.0F);
+		this->size_ = m_texture ? slv::size<float>(static_cast<float>(m_texture->width), static_cast<float>(m_texture->height)) : slv::size<float>(0.0F, 0.0F);
 		m_source = slv::rect<float>(0.0F, 0.0F, this->size_.width, this->size_.height);
+		set_antialiasing(true);
 		update(0.0F);
 
 		return true;
@@ -25,12 +33,6 @@ namespace slv
 	// protected
 	void Sprite::update(float dt)
 	{
-		if (m_antialiasing_check != is_antialiasing && m_texture)
-		{
-			slv::raylib::set_texture_antialiasing(*m_texture, is_antialiasing);
-			m_antialiasing_check = is_antialiasing;
-		}
-
 		m_dest = slv::rect<float>(this->world_pos_.x, this->world_pos_.y, m_source.width * this->world_scale_.x, m_source.height * this->world_scale_.y);
 	}
 

@@ -8,6 +8,8 @@
 #endif
 #include <raylib.h>
 #include <algorithm>
+#include <cstdint>
+#include <cmath>
 
 namespace slv
 {
@@ -22,8 +24,9 @@ namespace slv
 #endif
 	}
 
-	bool WindowHandler::init(const std::string& window_title, const slv::size<unsigned int>& window_size, unsigned int fps,
-							 bool window_has_vsync, bool is_window_resizable, bool window_starts_fullscreen, bool is_window_borderless, bool is_window_transparent)
+	bool WindowHandler::init(const std::string& window_title, const slv::size<int>& window_size,
+							 int fps, bool window_has_vsync, bool is_window_resizable,
+							 bool window_starts_fullscreen, bool is_window_borderless, bool is_window_transparent)
 	{
 		if (m_is_init)
 		{
@@ -40,16 +43,17 @@ namespace slv
 		if (!IsWindowReady() || !GetWindowHandle())
 		{
 			slv::console_log(slv::log::error, M_CLASS_NAME, "Failed to initialize window");
-			m_default_window_size = slv::size<unsigned int>();
+			m_default_window_size = slv::size<int>();
 			return false;
 		}
 	
 		// set the minimum and maximum size of the window
 		reset_minimum_window_size();
 		SetExitKey(KEY_NULL); // disable closing the window when ESC is pressed
-		SetTargetFPS(fps);
+		int clamped_fps = std::max(1, fps);
+		SetTargetFPS(clamped_fps);
 
-		m_target_fps = fps;
+		m_target_fps = clamped_fps;
 		m_window_title = window_title;
 		m_is_window_fullscreen = window_starts_fullscreen;
 		m_is_window_transparent = is_window_transparent;
@@ -100,7 +104,7 @@ namespace slv
 			return;
 		}
 
-		m_current_window_size = slv::size<unsigned int>(static_cast<unsigned int>(GetRenderWidth()), static_cast<unsigned int>(GetRenderHeight()));
+		m_current_window_size = slv::size<int>(static_cast<int>(GetRenderWidth()), static_cast<int>(GetRenderHeight()));
 
 		if (m_is_window_transparent && m_current_window_size != m_last_current_window_size)
 		{
@@ -108,14 +112,14 @@ namespace slv
 			m_last_current_window_size = m_current_window_size;
 		}
 
-		m_window_pos = slv::vec_2<int>(static_cast<int>(GetWindowPosition().x), static_cast<int>(GetWindowPosition().y));
+		m_window_pos = slv::vec2<int>(static_cast<int>(GetWindowPosition().x), static_cast<int>(GetWindowPosition().y));
 
 #ifdef _WIN32
 		// windows automatically fullscreens the window when the size is the same as the monitor's and if the window position is (0, 0)
 		// this disables that in case if the window is not supposed to be fullscreen
-		if (!m_is_window_fullscreen && m_window_pos == slv::vec_2<int>(0, 0) && m_current_window_size == get_monitor_size())
+		if (!m_is_window_fullscreen && m_window_pos == slv::vec2<int>(0, 0) && m_current_window_size == get_monitor_size())
 		{
-			set_window_pos(slv::vec_2<int>(0, -1));
+			set_window_pos(slv::vec2<int>(0, -1));
 		}
 #endif
 
@@ -212,15 +216,29 @@ namespace slv
 		return false;
 	}
 
+	slv::vec2<float> WindowHandler::get_screen_center() const
+	{
+		float ui_scale = get_ui_scale();
+		return slv::vec2<float>((m_current_window_size.width / 2.0F) / ui_scale,
+								 (m_current_window_size.height / 2.0F) / ui_scale);
+	}
+
+	slv::size<float> WindowHandler::get_screen_size() const
+	{
+		float ui_scale = get_ui_scale();
+		return slv::size<float>(m_current_window_size.width / ui_scale,
+								m_current_window_size.height / ui_scale);
+	}
+
 	// to do fix window sizing
 
-	void WindowHandler::set_window_size(const slv::size<unsigned int>& size, bool set_as_default)
+	void WindowHandler::set_window_size(const slv::size<int>& size, bool set_as_default)
 	{
 		set_window_width(size.width, set_as_default);
 		set_window_height(size.height, set_as_default);
 	}
 
-	void WindowHandler::set_window_width(unsigned int width, bool set_as_default)
+	void WindowHandler::set_window_width(int width, bool set_as_default)
 	{
 		if (!m_is_init)
 		{
@@ -236,7 +254,7 @@ namespace slv
 		SetWindowSize(set_as_default ? m_default_window_size.width : std::max(M_LOWEST_WINDOW_SIZE_PX, width), m_default_window_size.height);
 	}
 
-	void WindowHandler::set_window_height(unsigned int height, bool set_as_default)
+	void WindowHandler::set_window_height(int height, bool set_as_default)
 	{
 		if (!m_is_init)
 		{
@@ -268,25 +286,24 @@ namespace slv
 		}
 	}
 
-	void WindowHandler::set_fps(unsigned int fps)
+	void WindowHandler::set_fps(int fps)
 	{
 		if (m_is_init)
 		{
-			m_target_fps = fps;
+			m_target_fps = std::max(1, fps);
 			SetTargetFPS(m_target_fps);
 		}
 	}
 
-	slv::size<unsigned int> WindowHandler::get_monitor_size() const
+	slv::size<int> WindowHandler::get_monitor_size() const
 	{
 		if (m_is_init)
 		{
 			int monitor = GetCurrentMonitor();
-			return slv::size<unsigned int>(static_cast<unsigned int>(GetMonitorWidth(monitor)),
-										   static_cast<unsigned int>(GetMonitorHeight(monitor)));
+			return slv::size<int>(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
 		}
 
-		return slv::size<unsigned int>();
+		return slv::size<int>();
 	}
 
 	float WindowHandler::get_delta_time() const
@@ -299,19 +316,19 @@ namespace slv
 		return 0.0F;
 	}
 
-	slv::vec_2<float> WindowHandler::get_mouse_pos() const
+	slv::vec2<float> WindowHandler::get_mouse_pos() const
 	{
 		if (m_is_init)
 		{
 			Vector2 pos = GetMousePosition();
 			float ui_scale = get_ui_scale();
-			return { pos.x / ui_scale, pos.y / ui_scale };
+			return slv::vec2<float>(pos.x / ui_scale, pos.y / ui_scale);
 		}
 
-		return slv::vec_2<float>();
+		return slv::vec2<float>();
 	}
 
-	slv::vec_2<float> WindowHandler::get_mouse_delta() const
+	slv::vec2<float> WindowHandler::get_mouse_delta() const
 	{
 		if (m_is_init)
 		{
@@ -319,7 +336,7 @@ namespace slv
 			return { dt.x, dt.y };
 		}
 
-		return slv::vec_2<float>();
+		return slv::vec2<float>();
 	}
 
 	float WindowHandler::get_ui_scale() const
@@ -340,7 +357,7 @@ namespace slv
 		return 0;
 	}
 
-	void WindowHandler::set_window_pos(const slv::vec_2<int>& pos)
+	void WindowHandler::set_window_pos(const slv::vec2<int>& pos)
 	{
 		if (m_is_init && !IsWindowFullscreen())
 		{
@@ -351,12 +368,12 @@ namespace slv
 
 	void WindowHandler::set_window_pos_x(int x)
 	{
-		set_window_pos(slv::vec_2<int>(x, m_window_pos.y));
+		set_window_pos(slv::vec2<int>(x, m_window_pos.y));
 	}
 
 	void WindowHandler::set_window_pos_y(int y)
 	{
-		set_window_pos(slv::vec_2<int>(m_window_pos.x, y));
+		set_window_pos(slv::vec2<int>(m_window_pos.x, y));
 	}
 
 	bool WindowHandler::is_window_fullscreen() const

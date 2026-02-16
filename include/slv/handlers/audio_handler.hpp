@@ -1,6 +1,9 @@
 #pragma once
 
+#ifndef SLV_AUDIO_HND
 #define SLV_AUDIO_HND slv::AudioHandler::get()
+#endif
+
 #include <string>
 
 namespace slv

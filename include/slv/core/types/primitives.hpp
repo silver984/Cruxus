@@ -1,12 +1,14 @@
 #pragma once
 
+#include <cstdint>
+
 namespace slv
 {
     struct rgb
     {
-        unsigned char r{};
-        unsigned char g{};
-        unsigned char b{};
+        uint8_t r{};
+        uint8_t g{};
+        uint8_t b{};
     };
 
     template<typename T>
@@ -15,51 +17,51 @@ namespace slv
         T width{};
         T height{};
 
-        constexpr size operator+(const size& rhs) const
+        constexpr size<T> operator+(const size<T>& rhs) const
         {
             return { width + rhs.width, height + rhs.height };
         }
 
-        constexpr size operator-(const size& rhs) const
+        constexpr size<T> operator-(const size<T>& rhs) const
         {
             return { width - rhs.width, height - rhs.height };
         }
 
-        constexpr size operator*(const size& rhs) const
+        constexpr size<T> operator*(const size<T>& rhs) const
         {
             return { width * rhs.width, height * rhs.height };
         }
 
-        constexpr size operator/(const size& rhs) const
+        constexpr size<T> operator/(const size<T>& rhs) const
         {
             return { width / rhs.width, height / rhs.height };
         }
 
         template<typename U>
-        constexpr size operator+(U rhs) const
+        constexpr size<T> operator+(U rhs) const
         {
             return { width + rhs, height + rhs };
         }
 
         template<typename U>
-        constexpr size operator-(U rhs) const
+        constexpr size<T> operator-(U rhs) const
         {
             return { width - rhs, height - rhs };
         }
 
         template<typename U>
-        constexpr size operator*(U rhs) const
+        constexpr size<T> operator*(U rhs) const
         {
             return { width * rhs, height * rhs };
         }
 
         template<typename U>
-        constexpr size operator/(U rhs) const
+        constexpr size<T> operator/(U rhs) const
         {
             return { width / rhs, height / rhs };
         }
 
-        constexpr size& operator+=(const size& rhs)
+        constexpr size<T>& operator+=(const size<T>& rhs)
         {
             width += rhs.width;
             height += rhs.height;
@@ -67,14 +69,14 @@ namespace slv
         }
 
         template<typename U>
-        constexpr size& operator+=(U rhs)
+        constexpr size<T>& operator+=(U rhs)
         {
             width += rhs;
             height += rhs;
             return *this;
         }
 
-        constexpr size& operator-=(const size& rhs)
+        constexpr size<T>& operator-=(const size<T>& rhs)
         {
             width -= rhs.width;
             height -= rhs.height;
@@ -82,39 +84,39 @@ namespace slv
         }
 
         template<typename U>
-        constexpr size& operator-=(U rhs)
+        constexpr size<T>& operator-=(U rhs)
         {
             width -= rhs;
             height -= rhs;
             return *this;
         }
 
-        constexpr bool operator==(const size& rhs) const
+        constexpr bool operator==(const size<T>& rhs) const
         {
             return width == rhs.width && height == rhs.height;
         }
 
-        constexpr bool operator!=(const size& rhs) const
+        constexpr bool operator!=(const size<T>& rhs) const
         {
             return !(*this == rhs);
         }
 
-        constexpr bool operator<=(const size& rhs) const
+        constexpr bool operator<=(const size<T>& rhs) const
         {
             return width <= rhs.width && height <= rhs.height;
         }
 
-        constexpr bool operator>=(const size& rhs) const
+        constexpr bool operator>=(const size<T>& rhs) const
         {
             return width >= rhs.width && height >= rhs.height;
         }
 
-        constexpr bool operator<(const size& rhs) const
+        constexpr bool operator<(const size<T>& rhs) const
         {
             return width < rhs.width && height < rhs.height;
         }
 
-        constexpr bool operator>(const size& rhs) const
+        constexpr bool operator>(const size<T>& rhs) const
         {
             return width > rhs.width && height > rhs.height;
         }
@@ -128,51 +130,51 @@ namespace slv
         T width{};
         T height{};
 
-        constexpr rect operator+(const rect& rhs) const
+        constexpr rect<T> operator+(const rect<T>& rhs) const
         {
             return { x + rhs.x, y + rhs.y, width + rhs.width, height + rhs.height };
         }
 
-        constexpr rect operator-(const rect& rhs) const
+        constexpr rect<T> operator-(const rect<T>& rhs) const
         {
             return { x - rhs.x, y - rhs.y, width - rhs.width, height - rhs.height };
         }
 
-        constexpr rect operator*(const rect& rhs) const
+        constexpr rect<T> operator*(const rect<T>& rhs) const
         {
             return { x * rhs.x, y * rhs.y, width * rhs.width, height * rhs.height };
         }
 
-        constexpr rect operator/(const rect& rhs) const
+        constexpr rect<T> operator/(const rect<T>& rhs) const
         {
             return { x / rhs.x, y / rhs.y, width / rhs.width, height / rhs.height };
         }
 
         template<typename U>
-        constexpr rect operator+(U rhs) const
+        constexpr rect<T> operator+(U rhs) const
         {
             return { x + rhs, y + rhs, width + rhs, height + rhs };
         }
 
         template<typename U>
-        constexpr rect operator-(U rhs) const
+        constexpr rect<T> operator-(U rhs) const
         {
             return { x - rhs, y - rhs, width - rhs, height - rhs };
         }
 
         template<typename U>
-        constexpr rect operator*(U rhs) const
+        constexpr rect<T> operator*(U rhs) const
         {
             return { x * rhs, y * rhs, width * rhs, height * rhs };
         }
 
         template<typename U>
-        constexpr rect operator/(U rhs) const
+        constexpr rect<T> operator/(U rhs) const
         {
             return { x / rhs, y / rhs, width / rhs, height / rhs };
         }
 
-        constexpr rect& operator+=(const rect& rhs)
+        constexpr rect<T>& operator+=(const rect<T>& rhs)
         {
             x += rhs.x;
             y += rhs.y;
@@ -182,7 +184,7 @@ namespace slv
         }
 
         template<typename U>
-        constexpr rect& operator+=(U rhs)
+        constexpr rect<T>& operator+=(U rhs)
         {
             x += rhs;
             y += rhs;
@@ -191,7 +193,7 @@ namespace slv
             return *this;
         }
 
-        constexpr rect& operator-=(const rect& rhs)
+        constexpr rect<T>& operator-=(const rect<T>& rhs)
         {
             x -= rhs.x;
             y -= rhs.y;
@@ -201,7 +203,7 @@ namespace slv
         }
 
         template<typename U>
-        constexpr rect& operator-=(U rhs)
+        constexpr rect<T>& operator-=(U rhs)
         {
             x -= rhs;
             y -= rhs;
@@ -210,88 +212,88 @@ namespace slv
             return *this;
         }
 
-        constexpr bool operator==(const rect& rhs) const
+        constexpr bool operator==(const rect<T>& rhs) const
         {
             return x == rhs.x && y == rhs.y && width == rhs.width && height == rhs.height;
         }
 
-        constexpr bool operator!=(const rect& rhs) const
+        constexpr bool operator!=(const rect<T>& rhs) const
         {
             return !(*this == rhs);
         }
 
-        constexpr bool operator<=(const rect& rhs) const
+        constexpr bool operator<=(const rect<T>& rhs) const
         {
             return x <= rhs.x && y <= rhs.y && width <= rhs.width && height <= rhs.height;
         }
 
-        constexpr bool operator>=(const rect& rhs) const
+        constexpr bool operator>=(const rect<T>& rhs) const
         {
             return x >= rhs.x && y >= rhs.y && width >= rhs.width && height >= rhs.height;
         }
 
-        constexpr bool operator<(const rect& rhs) const
+        constexpr bool operator<(const rect<T>& rhs) const
         {
             return x < rhs.x && y < rhs.y && width < rhs.width && height < rhs.height;
         }
 
-        constexpr bool operator>(const rect& rhs) const
+        constexpr bool operator>(const rect<T>& rhs) const
         {
             return x > rhs.x && y > rhs.y && width > rhs.width && height > rhs.height;
         }
     };
 
     template<typename T>
-    struct vec_2
+    struct vec2
     {
         T x{};
         T y{};
 
-        constexpr vec_2 operator+(const vec_2& rhs) const
+        constexpr vec2<T> operator+(const vec2<T>& rhs) const
         {
             return { x + rhs.x, y + rhs.y };
         }
 
-        constexpr vec_2 operator-(const vec_2& rhs) const
+        constexpr vec2<T> operator-(const vec2<T>& rhs) const
         {
             return { x - rhs.x, y - rhs.y };
         }
 
-        constexpr vec_2 operator*(const vec_2& rhs) const
+        constexpr vec2<T> operator*(const vec2<T>& rhs) const
         {
             return { x * rhs.x, y * rhs.y };
         }
 
-        constexpr vec_2 operator/(const vec_2& rhs) const
+        constexpr vec2<T> operator/(const vec2<T>& rhs) const
         {
             return { x / rhs.x, y / rhs.y };
         }
 
         template<typename U>
-        constexpr vec_2 operator+(U rhs) const
+        constexpr vec2<T> operator+(U rhs) const
         {
             return { x + rhs, y + rhs };
         }
 
         template<typename U>
-        constexpr vec_2 operator-(U rhs) const
+        constexpr vec2<T> operator-(U rhs) const
         {
             return { x - rhs, y - rhs };
         }
 
         template<typename U>
-        constexpr vec_2 operator*(U rhs) const
+        constexpr vec2<T> operator*(U rhs) const
         {
             return { x * rhs, y * rhs };
         }
 
         template<typename U>
-        constexpr vec_2 operator/(U rhs) const
+        constexpr vec2<T> operator/(U rhs) const
         {
             return { x / rhs, y / rhs };
         }
 
-        constexpr vec_2& operator+=(const vec_2& rhs)
+        constexpr vec2<T>& operator+=(const vec2<T>& rhs)
         {
             x += rhs.x;
             y += rhs.y;
@@ -299,14 +301,14 @@ namespace slv
         }
 
         template<typename U>
-        constexpr vec_2& operator+=(U rhs)
+        constexpr vec2<T>& operator+=(U rhs)
         {
             x += rhs;
             y += rhs;
             return *this;
         }
 
-        constexpr vec_2& operator-=(const vec_2& rhs)
+        constexpr vec2<T>& operator-=(const vec2<T>& rhs)
         {
             x -= rhs.x;
             y -= rhs.y;
@@ -314,39 +316,39 @@ namespace slv
         }
 
         template<typename U>
-        constexpr vec_2& operator-=(U rhs)
+        constexpr vec2<T>& operator-=(U rhs)
         {
             x -= rhs;
             y -= rhs;
             return *this;
         }
 
-        constexpr bool operator==(const vec_2& rhs) const
+        constexpr bool operator==(const vec2<T>& rhs) const
         {
             return x == rhs.x && y == rhs.y;
         }
 
-        constexpr bool operator!=(const vec_2& rhs) const
+        constexpr bool operator!=(const vec2<T>& rhs) const
         {
             return !(*this == rhs);
         }
 
-        constexpr bool operator<=(const vec_2& rhs) const
+        constexpr bool operator<=(const vec2<T>& rhs) const
         {
             return x <= rhs.x && y <= rhs.y;
         }
 
-        constexpr bool operator>=(const vec_2& rhs) const
+        constexpr bool operator>=(const vec2<T>& rhs) const
         {
             return x >= rhs.x && y >= rhs.y;
         }
 
-        constexpr bool operator<(const vec_2& rhs) const
+        constexpr bool operator<(const vec2<T>& rhs) const
         {
             return x < rhs.x && y < rhs.y;
         }
 
-        constexpr bool operator>(const vec_2& rhs) const
+        constexpr bool operator>(const vec2<T>& rhs) const
         {
             return x > rhs.x && y > rhs.y;
         }

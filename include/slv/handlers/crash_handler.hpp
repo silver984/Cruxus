@@ -1,6 +1,8 @@
 #pragma once
 
+#ifndef SLV_CRASH_HND
 #define SLV_CRASH_HND slv::CrashHandler::get()
+#endif
 
 namespace slv
 {

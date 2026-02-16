@@ -13,22 +13,6 @@ namespace slv
 		friend class slv::Game;
 
 	public:
-		template<typename Derived>
-		static inline s_ptr<Derived> create()
-		{
-			static_assert(std::is_base_of_v<Scene, Derived>);
-
-			s_ptr<Derived> scene = shared<Derived>();
-
-			if (!scene->base_init())
-			{
-				scene.reset();
-				return nullptr;
-			}
-			
-			return scene;
-		}
-
 		inline std::string get_type() const override
 		{
 			return "Scene";

@@ -7,7 +7,7 @@
 
 namespace slv::win32
 {
-    bool create_console(std::string_view title_prefix)
+    bool create_console(const std::string& title_prefix)
     {
         if (GetConsoleWindow())
         {
@@ -51,11 +51,11 @@ namespace slv::win32
         }
     }
 
-    void rename_console(std::string_view title_prefix)
+    void rename_console(const std::string& title_prefix)
     {
         if (GetConsoleWindow())
         {
-            std::string title = "'" + std::string(title_prefix) + "' Debug Console";
+            std::string title = "\"" + title_prefix + "\" Debug Console";
             SetConsoleTitleA(title.c_str());
         }
     }

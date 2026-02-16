@@ -2,7 +2,7 @@
 
 #include <slv/core/types/primitives.hpp>
 
-namespace slv
+namespace slv::color
 {
 	inline constexpr slv::rgb red{ 255, 0, 0 };
 	inline constexpr slv::rgb green{ 0, 255, 0 };

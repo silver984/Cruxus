@@ -16,25 +16,12 @@ namespace slv
 			m_file_path = file_path;
 		}
 
-		static inline s_ptr<Sprite> create(const std::string& file_path)
-		{
-			s_ptr<Sprite> sprite = shared<Sprite>(file_path);
-
-			if (!sprite->base_init())
-			{
-				sprite.reset();
-				return nullptr;
-			}
-
-			return sprite;
-		}
-
 		inline std::string get_type() const override
 		{
 			return "Sprite";
 		}
 
-		bool is_antialiasing = true;
+		void set_antialiasing(bool val);
 
 	protected:
 		bool init() override;
@@ -46,6 +33,6 @@ namespace slv
 		std::string m_file_path;
 		slv::rect<float> m_source{};
 		slv::rect<float> m_dest{};
-		s_ptr<slv::texture> m_texture = nullptr;
+		slv::sptr<slv::texture> m_texture = nullptr;
 	};
 }

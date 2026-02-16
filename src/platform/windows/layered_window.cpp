@@ -1,7 +1,6 @@
 #include <platform/windows/layered_window.hpp>
 #include <windows.h>
 #include <emmintrin.h>
-#include <cstdint>
 #include <cstddef>
 
 namespace
@@ -17,13 +16,13 @@ namespace
 
 namespace slv::win32
 {
-    void convert_rgba_to_bgra(slv::render_buffers& buf)
+    void convert_rgba_to_bgra(slv::win32::render_buffers& buf)
     {
         uint8_t* src = buf.rgba.data();
         uint8_t* dst = buf.bgra_premult.data();
 
         const size_t pixels = static_cast<size_t>(buf.width) * buf.height;
-        size_t i = 0Ui64;
+        size_t i = 0;
 
         // process 4 pixels (16 bytes) per iteration
         for (; i + 3 < pixels; i += 4)
@@ -58,7 +57,7 @@ namespace slv::win32
         }
 
         // process remaining pixels (if width * height not multiple of 4)
-        for (; i < pixels; ++i)
+        for (/**/; i < pixels; ++i)
         {
             uint8_t r1 = src[0];
             uint8_t g1 = src[1];
@@ -83,7 +82,7 @@ namespace slv::win32
         hdc_mem = CreateCompatibleDC(hdc_screen);
     }
 
-    void update_layered_window(const slv::render_buffers& buf)
+    void update_layered_window(const slv::win32::render_buffers& buf)
     {
         if (!hwnd || !hdc_screen)
         {
@@ -159,9 +158,9 @@ namespace slv::win32
         UpdateLayeredWindow(hwnd, hdc_screen, &pt_wnd, &size, hdc_mem, &pt_src, 0, &blend, ULW_ALPHA);
     }
 
-    slv::render_buffers create_render_buffers(int width, int height)
+    slv::win32::render_buffers create_render_buffers(int width, int height)
     {
-        slv::render_buffers buf{};
+        slv::win32::render_buffers buf{};
         buf.width = width;
         buf.height = height;
         buf.rgba.resize(static_cast<size_t>(width) * height * 4);

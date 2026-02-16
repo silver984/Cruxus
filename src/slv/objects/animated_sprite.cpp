@@ -26,9 +26,10 @@ namespace slv
 
 		for (const auto& [name, frames] : m_atlas_data->frames)
 		{
-			m_offsets.insert({ name, slv::vec_2<float>(0.0F, 0.0F) });
+			m_offsets.insert({ name, slv::vec2<float>(0.0F, 0.0F) });
 		}
 
+		set_antialiasing(true);
 		update(0.0F);
 		
 		return true;
@@ -37,12 +38,6 @@ namespace slv
 	// protected
 	void AnimatedSprite::update(float dt)
 	{
-		if (m_antialiasing_check != is_antialiasing && m_texture)
-		{
-			slv::raylib::set_texture_antialiasing(*m_texture, is_antialiasing);
-			m_antialiasing_check = is_antialiasing;
-		}
-
 		auto it = m_atlas_data->frames.find(m_current_anim);
 		if (it == m_atlas_data->frames.end() || it->second.empty())
 		{
@@ -51,10 +46,10 @@ namespace slv
 
 		const auto& current_frames = it->second;
 
-		if (m_fps > 0.0F)
+		if (fps > 0.0F)
 		{
 			m_frame_elapsed += dt;
-			float target_dt = 1.0F / m_fps;
+			float target_dt = 1.0F / fps;
 
 			while (m_frame_elapsed >= target_dt)
 			{
@@ -78,10 +73,10 @@ namespace slv
 									static_cast<float>(current_frame.size_on_sheet.width),
 									static_cast<float>(current_frame.size_on_sheet.height));
 
-		auto atlas_offsets = slv::vec_2<float>(static_cast<float>(current_frame.offsets.x) * this->world_scale_.x,
+		auto atlas_offsets = slv::vec2<float>(static_cast<float>(current_frame.offsets.x) * this->world_scale_.x,
 											   static_cast<float>(current_frame.offsets.y) * this->world_scale_.y);
 		
-		auto offsets = slv::vec_2<float>(m_offsets[m_current_anim].x * this->world_scale_.x,
+		auto offsets = slv::vec2<float>(m_offsets[m_current_anim].x * this->world_scale_.x,
 										 m_offsets[m_current_anim].y * this->world_scale_.y);
 
 		m_dest = slv::rect<float>(this->world_pos_.x - atlas_offsets.x + offsets.x,
@@ -183,12 +178,13 @@ namespace slv
 		}
 
 		m_current_anim = name;
-		m_fps = fps;
+		float clamped_fps = std::max(0.0F, fps);
+		this->fps = clamped_fps == 0.0F ? this->fps : clamped_fps;
 		m_is_looping = is_looping;
 		m_current_frame_index = 0;
 	}
 
-	void AnimatedSprite::set_anim_offsets(const std::string& name, const slv::vec_2<float>& offsets)
+	void AnimatedSprite::set_anim_offsets(const std::string& name, const slv::vec2<float>& offsets)
 	{
 		if (!is_anim_found(name))
 		{
@@ -198,7 +194,7 @@ namespace slv
 		m_offsets[name] = offsets;
 	}
 
-	void AnimatedSprite::set_alias_offsets(const std::string& alias, const slv::vec_2<float>& offsets)
+	void AnimatedSprite::set_alias_offsets(const std::string& alias, const slv::vec2<float>& offsets)
 	{
 		if (!is_alias_found(alias))
 		{
@@ -206,5 +202,13 @@ namespace slv
 		}
 
 		set_anim_offsets(m_aliases[alias], offsets);
+	}
+
+	void AnimatedSprite::set_antialiasing(bool val)
+	{
+		if (m_texture)
+		{
+			slv::raylib::set_texture_antialiasing(*m_texture, val);
+		}
 	}
 }

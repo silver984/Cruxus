@@ -3,10 +3,11 @@
 #include <slv/core/types/primitives.hpp>
 #include <slv/core/types/colors.hpp>
 #include <slv/core/types/pointers.hpp>
-#include <slv/core/console_log.hpp>
 #include <vector>
 #include <string>
 #include <memory>
+#include <utility>
+#include <cstdint>
 
 namespace slv
 {
@@ -16,94 +17,25 @@ namespace slv
 		Vessel() = default;
 		virtual ~Vessel() = default;
 
-		inline void add(const s_ptr<Vessel>& vessel)
+		template<typename T, typename... args>
+		static inline slv::sptr<T> create(args&&... _args)
 		{
-			if (!vessel)
+			static_assert(std::is_base_of_v<Vessel, T>);
+
+			slv::sptr<T> v = slv::shared<T>(std::forward<args>(_args)...);
+
+			if (!v->base_init())
 			{
-				return;
+				v.reset();
+				return nullptr;
 			}
 
-			auto self = shared_from_this();
-
-			if (vessel == self)
-			{
-				// prevent self-parenting
-				return;
-			}
-
-			if (vessel->has_ancestor(self))
-			{
-				// prevent hierarchy cycle
-				return;
-			}
-
-			if (std::find(m_vessels.begin(), m_vessels.end(), vessel) != m_vessels.end())
-			{
-				// prevent duplicates
-				return;
-			}
-
-			if (auto old_parent = vessel->get_parent().lock())
-			{
-				// remove from old parent
-				old_parent->remove(vessel);
-			}
-
-			vessel->m_parent = weak_from_this();
-			m_vessels.push_back(vessel);
+			return v;
 		}
 
-		inline void remove(const s_ptr<Vessel>& vessel)
-		{
-			if (!vessel)
-			{
-				return;
-			}
-
-			auto self = shared_from_this();
-
-			if (vessel == self)
-			{
-				// prevent self-remove
-				return;
-			}
-
-			auto it = std::find(m_vessels.begin(), m_vessels.end(), vessel);
-			if (it == m_vessels.end())
-			{
-				return;
-			}
-
-			vessel->m_parent.reset();
-			m_vessels.erase(it);
-		}
-
-		inline void destroy()
-		{
-			if (!m_is_init)
-			{
-				return;
-			}
-
-			m_is_init = false;
-
-			if (auto parent = m_parent.lock())
-			{
-				parent->remove(shared_from_this());
-			}
-
-			on_destroyed();
-
-			// recursively destroy children
-			while (!m_vessels.empty())
-			{
-				auto& child = m_vessels.back();
-				m_vessels.pop_back();
-
-				child->m_parent.reset();
-				child->destroy();
-			}
-		}
+		void add(const slv::sptr<Vessel>& vessel);
+		void remove(const slv::sptr<Vessel>& vessel);
+		void destroy();
 
 		inline size_t get_count() const
 		{
@@ -117,10 +49,10 @@ namespace slv
 
 		inline slv::size<float> get_scaled_size() const
 		{
-			return { size_.width * world_scale_.x, size_.height * world_scale_.y };
+			return slv::size<float>(size_.width * world_scale_.x, size_.height * world_scale_.y);
 		}
 
-		inline w_ptr<Vessel> get_parent() const
+		inline slv::wptr<Vessel> get_parent() const
 		{
 			return m_parent;
 		}
@@ -140,15 +72,15 @@ namespace slv
 			return "Vessel";
 		}
 
-		slv::vec_2<float> pos{};
-		slv::vec_2<float> anchor{ 0.5F, 0.5F };
-		slv::vec_2<float> scale{ 1.0F, 1.0F };
+		slv::vec2<float> pos{};
+		slv::vec2<float> anchor{ 0.5F, 0.5F };
+		slv::vec2<float> scale{ 1.0F, 1.0F };
+		slv::rgb color = slv::color::white;
+		float time_scale = 1.0F;
 		float rotation = 0.0F;
 		float alpha = 1.0F;
-		slv::rgb color = slv::white;
 		bool is_visible = true;
 		bool is_active = true;
-		float time_scale = 1.0F;
 
 	protected:
 		inline virtual bool init()
@@ -164,32 +96,17 @@ namespace slv
 		void base_draw() const;
 
 		slv::size<float> size_;
-		slv::vec_2<float> world_scale_{ 1.0F, 1.0F };
-		slv::vec_2<float> world_pos_{};
-		slv::vec_2<float> world_anchor_{ 0.5F, 0.5F };
+		slv::vec2<float> world_scale_{ 1.0F, 1.0F };
+		slv::vec2<float> world_pos_{};
+		slv::vec2<float> world_anchor_{ 0.5F, 0.5F };
 		float world_rotation_ = 0.0F;
 		float world_alpha_ = 1.0F;
 
 	private:
-		bool has_ancestor(const s_ptr<Vessel>& vessel) const
-		{
-			auto p = get_parent().lock();
+		bool has_ancestor(const slv::sptr<Vessel>& vessel) const;
 
-			while (p)
-			{
-				if (p == vessel)
-				{
-					return true;
-				}
-
-				p = p->get_parent().lock();
-			}
-			
-			return false;
-		}
-
-		w_ptr<Vessel> m_parent;
-		std::vector<s_ptr<Vessel>> m_vessels;
+		slv::wptr<Vessel> m_parent;
+		std::vector<slv::sptr<Vessel>> m_vessels;
 		std::string m_name;
 		bool m_is_init = false;
 	};

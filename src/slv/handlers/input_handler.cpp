@@ -36,6 +36,20 @@ namespace slv
 		}
 	}
 
+	// private
+	slv::sptr<slv::action_bind> InputHandler::get_bind(const std::string& name) const
+	{
+		for (const auto& bind : m_binds)
+		{
+			if (bind.get()->name == name)
+			{
+				return bind;
+			}
+		}
+
+		return nullptr;
+	}
+
 	bool InputHandler::is_key_down(slv::key key) const
 	{
 		return m_down_keys.test(static_cast<size_t>(key));
@@ -58,7 +72,7 @@ namespace slv
 		m_down_keys.set(static_cast<size_t>(key));
 	}
 
-	void InputHandler::add_bind(const std::shared_ptr<slv::action_bind>& bind)
+	void InputHandler::add_bind(const slv::sptr<slv::action_bind>& bind)
 	{
 		auto bind_ptr = bind.get();
 
@@ -79,7 +93,7 @@ namespace slv
 
 	bool InputHandler::is_bind_down(const std::string& name) const
 	{
-		auto bind = slv::InputHandler::get().get_bind(name);
+		auto bind = get_bind(name);
 		if (bind)
 		{
 			return is_key_down(bind->key);
@@ -90,7 +104,7 @@ namespace slv
 
 	bool InputHandler::is_bind_pressed(const std::string& name) const
 	{
-		auto bind = slv::InputHandler::get().get_bind(name);
+		auto bind = get_bind(name);
 		if (bind)
 		{
 			return is_key_pressed(bind->key);
@@ -101,7 +115,7 @@ namespace slv
 
 	bool InputHandler::is_bind_released(const std::string& name) const
 	{
-		auto bind = slv::InputHandler::get().get_bind(name);
+		auto bind = get_bind(name);
 		if (bind)
 		{
 			return is_key_released(bind->key);
@@ -112,7 +126,7 @@ namespace slv
 
 	void InputHandler::invoke_bind(const std::string& name)
 	{
-		auto bind = slv::InputHandler::get().get_bind(name);
+		auto bind = get_bind(name);
 		if (bind)
 		{
 			invoke_key(bind->key);

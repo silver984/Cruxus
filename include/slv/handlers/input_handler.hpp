@@ -1,10 +1,14 @@
 #pragma once
 
+#ifndef SLV_INPUT_HND
 #define SLV_INPUT_HND slv::InputHandler::get()
+#endif
+
 #include <slv/core/types/keys.hpp>
+#include <slv/core/types/pointers.hpp>
 #include <bitset>
 #include <vector>
-#include <memory>
+#include <cstdint>
 
 namespace slv
 {
@@ -34,7 +38,7 @@ namespace slv
 		bool is_key_pressed(slv::key key) const;
 		bool is_key_released(slv::key key) const;
 		void invoke_key(slv::key key);
-		void add_bind(const std::shared_ptr<slv::action_bind>& bind);
+		void add_bind(const slv::sptr<slv::action_bind>& bind);
 		bool is_bind_down(const std::string& name) const;
 		bool is_bind_pressed(const std::string& name) const;
 		bool is_bind_released(const std::string& name) const;
@@ -42,24 +46,12 @@ namespace slv
 
 	private:
 		void update();
-
-		inline std::shared_ptr<slv::action_bind> get_bind(const std::string& name) const
-		{
-			for (const auto& bind : m_binds)
-			{
-				if (bind.get()->name == name)
-				{
-					return bind;
-				}
-			}
-
-			return nullptr;
-		}
+		slv::sptr<slv::action_bind> get_bind(const std::string& name) const;
 
 		static constexpr inline const char* M_CLASS_NAME = "InputHandler";
-		static constexpr inline size_t M_KEY_COUNT = 348Ui64;
+		static constexpr inline size_t M_KEY_COUNT = 348;
 		std::bitset<M_KEY_COUNT> m_down_keys;
 		std::bitset<M_KEY_COUNT> m_prev_down_keys;
-		std::vector<std::shared_ptr<slv::action_bind>> m_binds;
+		std::vector<slv::sptr<slv::action_bind>> m_binds;
 	};
 }
