@@ -34,14 +34,16 @@ namespace slv
 
 		// to do world transform
 
-		slv::vec_2<float> parent_world_scale = m_parent ? m_parent->world_scale_ : slv::vec_2<float>(1.0F, 1.0F);
-		slv::vec_2<float> parent_world_pos = m_parent ? m_parent->world_pos_ : slv::vec_2<float>(0.0F, 0.0F);
-		float parent_world_rotation = m_parent ? m_parent->world_rotation_ : 0.0F;
-		float parent_world_alpha = m_parent ? m_parent->world_alpha_ : 1.0F;
+		s_ptr<Vessel> parent = get_parent().lock();
 
-		if (!m_parent)
+		slv::vec_2<float> parent_world_scale = parent ? parent->world_scale_ : slv::vec_2<float>(1.0F, 1.0F);
+		slv::vec_2<float> parent_world_pos = parent ? parent->world_pos_ : slv::vec_2<float>(0.0F, 0.0F);
+		float parent_world_rotation = parent ? parent->world_rotation_ : 0.0F;
+		float parent_world_alpha = parent ? parent->world_alpha_ : 1.0F;
+
+		if (!parent)
 		{
-			world_scale_ = scale * slv::WindowHandler::get().get_ui_scale();
+			world_scale_ = scale * SLV_WINDOW_HND.get_ui_scale();
 		}
 		else
 		{
@@ -60,21 +62,21 @@ namespace slv
 		// remove all nullptr vessels
 		m_vessels.erase(std::remove(m_vessels.begin(), m_vessels.end(), nullptr), m_vessels.end());
 
-		for (const auto& v : m_vessels)
+		for (const auto& vessel : m_vessels)
 		{
-			if (!v)
+			if (!vessel)
 			{
 				continue;
 			}
 			
-			v->base_update(world_dt);
+			vessel->base_update(world_dt);
 		}
 	}
 
 	// protected
 	void Vessel::base_draw() const
 	{
-		if (!m_is_init || !is_active || !is_visible || alpha == 0.0F)
+		if (!m_is_init || !is_visible || alpha == 0.0F)
 		{
 			return;
 		}
@@ -116,25 +118,5 @@ namespace slv
 
 			v->base_draw();
 		}
-	}
-
-	void Vessel::destroy()
-	{
-		std::string type = get_type();
-		std::string name = get_name();
-
-		if (!name.empty())
-		{
-			type = type + " : \"" + name + "\"";
-		}
-		
-		if (m_parent)
-		{
-			m_parent->remove_vessel(this);
-		}
-
-		delete this;
-		
-		slv::console_log(slv::LOG_INFO, type.c_str(), "Destroyed");
 	}
 }

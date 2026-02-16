@@ -3,6 +3,7 @@
 #define SLV_RESOURCE_HND slv::ResourceHandler::get()
 #include <slv/core/types/texture.hpp>
 #include <slv/core/types/atlas.hpp>
+#include <slv/core/types/pointers.hpp>
 #include <unordered_map>
 #include <filesystem>
 #include <string>
@@ -33,8 +34,9 @@ namespace slv
         ResourceHandler& operator = (const ResourceHandler&) = delete;
         ResourceHandler& operator = (ResourceHandler&&) = delete;
 
-		std::shared_ptr<slv::texture> load_texture(const std::string& file_path);
-		std::shared_ptr<slv::atlas_data> load_atlas_data(const std::string& file_path);
+		s_ptr<slv::texture> load_texture(const std::string& file_path);
+		s_ptr<slv::atlas_data> load_atlas_data(const std::string& file_path);
+		// slv::audio_decoder create_audio_decoder(const std::string& file_path);
 
 	private:
 		struct parsed_path
@@ -51,9 +53,10 @@ namespace slv
 		static constexpr inline const char* M_CLASS_NAME = "ResourceHandler";
 		static constexpr inline float M_CLEANUP_INTERVAL = 1.0F;
 		static constexpr inline std::array<const char*, 3> M_SUPPORTED_IMG_FORMATS{ "png", "jpg", "jpeg" };
+		static constexpr inline std::array<const char*, 2> M_SUPPORTED_AUDIO_FORMATS{ "mp3", "wav"};
 		static constexpr inline std::array<const char*, 1> M_SUPPORTED_DATA_FORMATS{ "xml" };
 		float m_since_cleanup = 0.0F;
-		std::unordered_map<std::string, std::shared_ptr<slv::texture>> m_cached_textures;
-		std::unordered_map<std::string, std::shared_ptr<slv::atlas_data>> m_cached_atlas_datas;
+		std::unordered_map<std::string, s_ptr<slv::texture>> m_cached_textures;
+		std::unordered_map<std::string, s_ptr<slv::atlas_data>> m_cached_atlas_datas;
 	};
 }

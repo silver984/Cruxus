@@ -13,7 +13,10 @@ namespace slv
 
 	private:
 		AudioHandler() = default;
-		~AudioHandler();
+		~AudioHandler()
+		{
+			uninit();
+		}
 
 	public:
 		static inline AudioHandler& get()

@@ -10,17 +10,25 @@ namespace slv
 	class Rectangle : public slv::Vessel
 	{
 	public:
-		static inline Rectangle* create(const slv::rect<float>& rect, const slv::rgb& color = slv::red)
+		Rectangle(const slv::rect<float>& rect, const slv::rgb& color)
 		{
-			Rectangle* r = new Rectangle(rect, color);
+			m_rect = rect;
+			pos = slv::vec_2<float>(rect.x, rect.y);
+			size_ = slv::size<float>(rect.width, rect.height);
+			this->color = color;
+		}
 
-			if (!r->base_init())
+		static inline s_ptr<Rectangle> create(const slv::rect<float>& rect, const slv::rgb& color = slv::red)
+		{
+			s_ptr<Rectangle> rectangle = shared<Rectangle>(rect, color);
+
+			if (!rectangle->base_init())
 			{
-				r->destroy();
+				rectangle.reset();
 				return nullptr;
 			}
 
-			return r;
+			return rectangle;
 		}
 
 		inline std::string get_type() const override
@@ -47,14 +55,6 @@ namespace slv
 		float outline_alpha = 0.0F;
 
 	protected:
-		Rectangle(const slv::rect<float>& rect, const slv::rgb& color)
-		{
-			m_rect = rect;
-			pos = slv::vec_2<float>(rect.x, rect.y);
-			size_ = slv::size<float>(rect.width, rect.height);
-			this->color = color;
-		}
-
 		inline bool init() override
 		{
 			update(0.0F);

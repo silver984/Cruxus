@@ -1,26 +1,25 @@
 #pragma once
 
 #include <slv/vessel.hpp>
+#include <slv/core/types/pointers.hpp>
 
 namespace slv
 {
 	class Fleet : public slv::Vessel
 	{
 	public:
-		static inline Fleet* create()
+		static inline s_ptr<Fleet> create()
 		{
-			Fleet* f = new Fleet();
+			s_ptr<Fleet> fleet = shared<Fleet>();
 
-			if (!f->base_init())
+			if (!fleet->base_init())
 			{
-				f->destroy();
+				fleet.reset();
 				return nullptr;
 			}
 
-			return f;
+			return fleet;
 		}
-
-		void update(float dt) override {};
 
 		inline std::string get_type() const override
 		{
@@ -28,6 +27,7 @@ namespace slv
 		}
 
 	protected:
+		void update(float dt) override {};
 		void draw() const override {};
 	};
 }

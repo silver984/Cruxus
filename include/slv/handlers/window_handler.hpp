@@ -70,6 +70,13 @@ namespace slv
                                      (m_current_window_size.height / 2.0F) / ui_scale);
         }
 
+        inline slv::size<float> get_window_scaled_size() const
+        {
+            float ui_scale = get_ui_scale();
+            return slv::size<float>(m_current_window_size.width / ui_scale,
+                                    m_current_window_size.height / ui_scale);
+        }
+
         inline slv::size<unsigned int> get_window_default_size() const
         {
             return m_default_window_size;

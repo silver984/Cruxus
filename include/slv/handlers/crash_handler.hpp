@@ -1,5 +1,7 @@
 #pragma once
 
+#define SLV_CRASH_HND slv::CrashHandler::get()
+
 namespace slv
 {
 	class Game; // forward declare

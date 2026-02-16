@@ -19,7 +19,7 @@ namespace slv
 				std::string name = bind_ptr->name;
 				int key = static_cast<int>(bind_ptr->key);
 				it = m_binds.erase(it);
-				slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Erased bind: \"{}\" | key: {}", name, key);
+				slv::console_log(slv::log::trace, M_CLASS_NAME, "Erased bind: \"{}\" | key: {}", name, key);
 			}
 			else
 			{
@@ -64,18 +64,17 @@ namespace slv
 
 		if (bind_ptr->name.empty())
 		{
-			slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Tried to insert bind with empty name");
 			return;
 		}
 
 		if (bind_ptr->key == slv::key::NULL_KEY)
 		{
-			slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Tried to insert bind with NULL key");
 			return;
 		}
 
 		m_binds.emplace_back(bind);
-		slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Added bind: \"{}\" | key: {}", bind_ptr->name, static_cast<int>(bind_ptr->key));
+		
+		slv::console_log(slv::log::trace, M_CLASS_NAME, "Added bind: \"{}\" | key: {}", bind_ptr->name, static_cast<int>(bind_ptr->key));
 	}
 
 	bool InputHandler::is_bind_down(const std::string& name) const

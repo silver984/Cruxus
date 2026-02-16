@@ -1,27 +1,32 @@
 #pragma once
 
 #include <slv/vessel.hpp>
+#include <slv/core/types/pointers.hpp>
 #include <slv/core/types/primitives.hpp>
 #include <slv/core/types/texture.hpp>
 #include <string>
-#include <memory>
 
 namespace slv
 {
 	class Sprite : public slv::Vessel
 	{
 	public:
-		static inline Sprite* create(const std::string& file_path)
+		Sprite(const std::string& file_path)
 		{
-			Sprite* s = new Sprite(file_path);
+			m_file_path = file_path;
+		}
 
-			if (!s->base_init())
+		static inline s_ptr<Sprite> create(const std::string& file_path)
+		{
+			s_ptr<Sprite> sprite = shared<Sprite>(file_path);
+
+			if (!sprite->base_init())
 			{
-				s->destroy();
+				sprite.reset();
 				return nullptr;
 			}
 
-			return s;
+			return sprite;
 		}
 
 		inline std::string get_type() const override
@@ -32,11 +37,6 @@ namespace slv
 		bool is_antialiasing = true;
 
 	protected:
-		Sprite(const std::string& file_path)
-		{
-			m_file_path = file_path;
-		}
-
 		bool init() override;
 		void update(float dt) override;
 		void draw() const override;
@@ -46,6 +46,6 @@ namespace slv
 		std::string m_file_path;
 		slv::rect<float> m_source{};
 		slv::rect<float> m_dest{};
-		std::shared_ptr<slv::texture> m_texture = nullptr;
+		s_ptr<slv::texture> m_texture = nullptr;
 	};
 }

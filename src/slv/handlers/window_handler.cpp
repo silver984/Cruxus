@@ -16,7 +16,7 @@ namespace slv
 #ifdef _WIN32
 		if (slv::win32::is_console_open())
 		{
-			slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Destroying console...");
+			slv::console_log(slv::log::info, M_CLASS_NAME, "Destroying console...");
 			slv::win32::destroy_console();
 		}
 #endif
@@ -39,7 +39,7 @@ namespace slv
 
 		if (!IsWindowReady() || !GetWindowHandle())
 		{
-			slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Failed to initialize window");
+			slv::console_log(slv::log::error, M_CLASS_NAME, "Failed to initialize window");
 			m_default_window_size = slv::size<unsigned int>();
 			return false;
 		}
@@ -64,7 +64,7 @@ namespace slv
 		m_is_init = true;
 		update();
 
-		slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Window initialized");
+		slv::console_log(slv::log::info, M_CLASS_NAME, "Window initialized");
 
 		return true;
 	}
@@ -76,7 +76,7 @@ namespace slv
 			return;
 		}
 
-		slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Destroying window...");
+		slv::console_log(slv::log::info, M_CLASS_NAME, "Destroying window...");
 
 		slv::raylib::unload_render_texture(m_view);
 
@@ -212,6 +212,8 @@ namespace slv
 		return false;
 	}
 
+	// to do fix window sizing
+
 	void WindowHandler::set_window_size(const slv::size<unsigned int>& size, bool set_as_default)
 	{
 		set_window_width(size.width, set_as_default);
@@ -229,14 +231,9 @@ namespace slv
 		{
 			m_default_window_size.width = std::max(M_LOWEST_WINDOW_SIZE_PX, width);
 		}
-		else
-		{
-			width = std::max(M_LOWEST_WINDOW_SIZE_PX, width);
-		}
 
 		reset_minimum_window_size(); // reset minimum size of the window
-
-		SetWindowSize(set_as_default ? m_default_window_size.width : width, m_default_window_size.height);
+		SetWindowSize(set_as_default ? m_default_window_size.width : std::max(M_LOWEST_WINDOW_SIZE_PX, width), m_default_window_size.height);
 	}
 
 	void WindowHandler::set_window_height(unsigned int height, bool set_as_default)
@@ -250,14 +247,9 @@ namespace slv
 		{
 			m_default_window_size.height = std::max(M_LOWEST_WINDOW_SIZE_PX, height);
 		}
-		else
-		{
-			height = std::max(M_LOWEST_WINDOW_SIZE_PX, height);
-		}
 
 		reset_minimum_window_size(); // reset minimum size of the window
-
-		SetWindowSize(m_default_window_size.width, set_as_default ? m_default_window_size.height : height);
+		SetWindowSize(m_default_window_size.width, set_as_default ? m_default_window_size.height : std::max(M_LOWEST_WINDOW_SIZE_PX, height));
 	}
 
 	void WindowHandler::set_window_title(const std::string& title)
@@ -332,8 +324,8 @@ namespace slv
 
 	float WindowHandler::get_ui_scale() const
 	{
-		float w = m_default_window_size.width > 0U ? static_cast<float>(m_current_window_size.width) / m_default_window_size.width : 1.0F;
-		float h = m_default_window_size.height > 0U ? static_cast<float>(m_current_window_size.height) / m_default_window_size.height : 1.0F;
+		float w = m_default_window_size.width > 0 ? static_cast<float>(m_current_window_size.width) / m_default_window_size.width : 1.0F;
+		float h = m_default_window_size.height > 0 ? static_cast<float>(m_current_window_size.height) / m_default_window_size.height : 1.0F;
 		return std::min(w, h);
 	}
 
@@ -387,10 +379,10 @@ namespace slv
 #ifdef _WIN32
 		if (slv::win32::create_console(window_title))
 		{
-			slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Console initialized");
+			slv::console_log(slv::log::info, M_CLASS_NAME, "Console initialized");
 		}
 #else
-		slv::console_log(slv::LOG_WARNING, M_CLASS_NAME, "SLV's debug console is not supported on this platform");
+		slv::console_log(slv::log::warning, M_CLASS_NAME, "SLV's debug console is not supported on this platform");
 #endif
 #endif
 	}
@@ -407,7 +399,7 @@ namespace slv
 		}
 #else
 		is_window_transparent = false;
-		slv::console_log(slv::LOG_WARNING, M_CLASS_NAME, "SLV's transparent window feature is not supported on this platform");
+		slv::console_log(slv::log::warning, M_CLASS_NAME, "SLV's transparent window feature is not supported on this platform");
 #endif
 
 		int flags = 0;
@@ -439,7 +431,7 @@ namespace slv
 	// private
 	void WindowHandler::create_buffers()
 	{
-		if (m_view.id != 0u)
+		if (m_view.id != 0)
 		{
 			slv::raylib::unload_render_texture(m_view);
 		}

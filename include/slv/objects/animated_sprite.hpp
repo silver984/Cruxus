@@ -1,6 +1,7 @@
 #pragma once
 
 #include <slv/vessel.hpp>
+#include <slv/core/types/pointers.hpp>
 #include <slv/core/types/primitives.hpp>
 #include <slv/core/types/texture.hpp>
 #include <slv/core/types/atlas.hpp>
@@ -13,17 +14,23 @@ namespace slv
 	class AnimatedSprite : public slv::Vessel
 	{
 	public:
-		static inline AnimatedSprite* create(const std::string& texture_file_path, const std::string& data_file_path)
+		AnimatedSprite(const std::string& texture_file_path, const std::string& data_file_path)
 		{
-			AnimatedSprite* as = new AnimatedSprite(texture_file_path, data_file_path);
+			m_texture_file_path = texture_file_path;
+			m_data_file_path = data_file_path;
+		}
 
-			if (!as->base_init())
+		static s_ptr<AnimatedSprite> create(const std::string& texture_file_path, const std::string& data_file_path)
+		{
+			s_ptr<AnimatedSprite> animated_sprite = shared<AnimatedSprite>(texture_file_path, data_file_path);
+
+			if (!animated_sprite->base_init())
 			{
-				as->destroy();
+				animated_sprite.reset();
 				return nullptr;
 			}
 
-			return as;
+			return animated_sprite;
 		}
 
 		void add_alias(const std::string& alias, const std::string& name);
@@ -53,12 +60,6 @@ namespace slv
 		bool is_antialiasing = true;
 
 	protected:
-		AnimatedSprite(const std::string& texture_file_path, const std::string& data_file_path)
-		{
-			m_texture_file_path = texture_file_path;
-			m_data_file_path = data_file_path;
-		}
-
 		bool init() override;
 		void update(float dt) override;
 		void draw() const override;
@@ -77,8 +78,8 @@ namespace slv
 		std::string m_data_file_path;
 		slv::rect<float> m_source{};
 		slv::rect<float> m_dest{};
-		std::shared_ptr<slv::texture> m_texture = nullptr;
-		std::shared_ptr<slv::atlas_data> m_atlas_data = nullptr;
+		s_ptr<slv::texture> m_texture = nullptr;
+		s_ptr<slv::atlas_data> m_atlas_data = nullptr;
 		std::unordered_map<std::string, std::string> m_aliases;
 		std::unordered_map<std::string, slv::vec_2<float>> m_offsets;
 		std::string m_current_anim;

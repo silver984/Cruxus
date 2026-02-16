@@ -128,7 +128,7 @@ namespace slv
 	{
 		if (!m_atlas_data->frames.contains(name))
 		{
-			slv::console_log(slv::LOG_WARNING, get_type().c_str(), "Animation \"{}\" not found", name);
+			slv::console_log(slv::log::warning, get_type().c_str(), "Animation \"{}\" not found", name);
 			return false;
 		}
 
@@ -140,7 +140,7 @@ namespace slv
 	{
 		if (!m_aliases.contains(alias))
 		{
-			slv::console_log(slv::LOG_WARNING, get_type().c_str(), "Alias \"{}\" not found", alias);
+			slv::console_log(slv::log::warning, get_type().c_str(), "Alias \"{}\" not found", alias);
 			return false;
 		}
 

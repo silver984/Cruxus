@@ -5,48 +5,43 @@
 #include <chrono>
 #include <ctime>
 #include <string>
-#include <string_view>
 #ifdef _WIN32
 #include <platform/windows/console.hpp>
 #endif
 
 namespace slv
 {
-	enum class log_level
+	enum class log
 	{
-		Info,
-		Warning,
-		Error
+		trace,
+		info,
+		warning,
+		error
 	};
-
-	inline constexpr log_level LOG_INFO = log_level::Info;
-	inline constexpr log_level LOG_WARNING = log_level::Warning;
-	inline constexpr log_level LOG_ERROR = log_level::Error;
-	inline constexpr const char* LOG_NO_OWNER = nullptr;
 
 	namespace log_impl
 	{
-		inline constexpr const char* UNKNOWN_OWNER = "?";
-
-		inline fmt::color get_level_color(log_level level)
+		inline fmt::color get_level_color(slv::log level)
 		{
 			switch (level)
 			{
-			case log_level::Info:    return fmt::color::green_yellow;
-			case log_level::Warning: return fmt::color::gold;
-			case log_level::Error:   return fmt::color::crimson;
-			default:                return fmt::color::white;
+			case slv::log::trace: return fmt::color::lemon_chiffon;
+			case slv::log::info: return fmt::color::green_yellow;
+			case slv::log::warning: return fmt::color::gold;
+			case slv::log::error: return fmt::color::crimson;
+			default: return fmt::color::white;
 			}
 		}
 
-		inline const char* get_level_label(log_level level)
+		inline const char* get_level_label(slv::log level)
 		{
 			switch (level)
 			{
-			case log_level::Info:    return "Info";
-			case log_level::Warning: return "Warning";
-			case log_level::Error:   return "Error";
-			default:                return "Unknown";
+			case slv::log::trace: return "Trace";
+			case slv::log::info: return "Info";
+			case slv::log::warning: return "Warning";
+			case slv::log::error: return "Error";
+			default: return "Unknown";
 			}
 		}
 
@@ -73,7 +68,7 @@ namespace slv
 	}
 
 	template<typename... args>
-	inline void console_log(log_level level, const char* owner = slv::LOG_NO_OWNER, std::string_view message = "?", args&&... _args)
+	inline void console_log(slv::log level, const std::string& owner = "?", const std::string& message = "?", args&&... _args)
 	{
 #ifdef _WIN32
 		if (!slv::win32::is_console_open())
@@ -84,12 +79,11 @@ namespace slv
 		return;
 #endif
 
-		const std::string time = log_impl::get_time();
-		const std::string message_owner = owner != LOG_NO_OWNER ? owner : "?";
-		const std::string stitched_message = fmt::format(fmt::runtime(message), std::forward<args>(_args)...);
+		std::string time = log_impl::get_time();
+		std::string stitched_message = fmt::format(fmt::runtime(message), std::forward<args>(_args)...);
 
 		fmt::print(fmt::fg(fmt::color::dim_gray), "{:<10} ", time);
-		fmt::print(fmt::fg(fmt::color::light_blue), "[{}] ", message_owner);
+		fmt::print(fmt::fg(fmt::color::light_blue), "[{}] ", owner);
 		fmt::print(fmt::fg(log_impl::get_level_color(level)), "[{}] ", log_impl::get_level_label(level));
 		fmt::print("{}\n", stitched_message);
 	}

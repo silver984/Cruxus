@@ -10,11 +10,6 @@ namespace slv
 {
 	Game::~Game()
 	{
-		if (m_current_scene)
-		{
-			m_current_scene->destroy();
-		}
-
 		SLV_AUDIO_HND.uninit();
 		SLV_WINDOW_HND.uninit();
 	}
@@ -34,14 +29,12 @@ namespace slv
 
 		if (!SLV_AUDIO_HND.init())
 		{
-			slv::console_log(slv::LOG_ERROR, M_CLASS_NAME,
-							 "SLV's audio handler failed");
+			slv::console_log(slv::log::error, M_CLASS_NAME, "SLV's audio handler failed");
 		}
 
-		if (!slv::CrashHandler::get().init())
+		if (!SLV_CRASH_HND.init())
 		{
-			slv::console_log(slv::LOG_WARNING, M_CLASS_NAME,
-							 "SLV's crash handler failed or may not be available on this platform");
+			slv::console_log(slv::log::warning, M_CLASS_NAME, "SLV's crash handler failed or may not be available on this platform");
 		}
 
 		m_is_init = true;
@@ -62,16 +55,15 @@ namespace slv
 
 			if (m_pending_scene)
 			{
-				if (m_current_scene)
-				{
-					m_current_scene->destroy();
-					m_current_scene = nullptr;
-				}
-
-				m_current_scene = m_pending_scene;
+				m_current_scene = std::move(m_pending_scene);
 				m_current_scene->m_game = this;
+			}
 
-				m_pending_scene = nullptr;
+			if (m_destroying_current_scene)
+			{
+				m_current_scene->destroy();
+				m_current_scene.reset();
+				m_destroying_current_scene = false;
 			}
 
 			if (m_current_scene)
@@ -98,19 +90,19 @@ namespace slv
 		SLV_WINDOW_HND.uninit();
 	}
 
-	void Game::change_scene(Scene* new_scene)
+	void Game::change_scene(s_ptr<Scene> new_scene)
 	{
 		if (!new_scene)
 		{
-			slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "The scene the game tried to change into is NULL");
+			slv::console_log(slv::log::error, M_CLASS_NAME, "The scene the game tried to change into is nullptr");
 			return;
 		}
 
-		if (m_pending_scene)
-		{
-			m_pending_scene->destroy();
-		}
+		m_pending_scene = std::move(new_scene);
+	}
 
-		m_pending_scene = new_scene;
+	void Game::destroy_current_scene()
+	{
+		m_destroying_current_scene = true;
 	}
 }

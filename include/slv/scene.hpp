@@ -1,6 +1,7 @@
 #pragma once
 
 #include <slv/vessel.hpp>
+#include <slv/core/types/pointers.hpp>
 #include <string>
 
 namespace slv
@@ -13,18 +14,19 @@ namespace slv
 
 	public:
 		template<typename Derived>
-		static inline Scene* create()
+		static inline s_ptr<Derived> create()
 		{
 			static_assert(std::is_base_of_v<Scene, Derived>);
 
-			auto s = new Derived();
-			if (!s->base_init())
+			s_ptr<Derived> scene = shared<Derived>();
+
+			if (!scene->base_init())
 			{
-				s->destroy();
+				scene.reset();
 				return nullptr;
 			}
 			
-			return s;
+			return scene;
 		}
 
 		inline std::string get_type() const override

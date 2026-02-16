@@ -23,7 +23,7 @@ namespace slv
                     if (ptr)
                     {
                         UnloadTexture(Texture(ptr->id, ptr->width, ptr->height, ptr->mipmaps, ptr->format));
-                        slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Unloaded texture: \"{}\"", key);
+                        slv::console_log(slv::log::trace, M_CLASS_NAME, "Unloaded texture: \"{}\"", key);
                     }
 
                     it = m_cached_textures.erase(it);
@@ -41,7 +41,7 @@ namespace slv
                 {
                     std::string key = it->first;
                     it = m_cached_atlas_datas.erase(it);
-                    slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Unloaded atlas data: \"{}\"", key);
+                    slv::console_log(slv::log::trace, M_CLASS_NAME, "Unloaded atlas data: \"{}\"", key);
                 }
                 else
                 {
@@ -73,7 +73,7 @@ namespace slv
                            ext);
     }
 
-    std::shared_ptr<slv::texture> ResourceHandler::load_texture(const std::string& file_path)
+    s_ptr<slv::texture> ResourceHandler::load_texture(const std::string& file_path)
 	{
         parsed_path parsed = get_parsed_path(file_path);
         const std::string& ext = parsed.extension;
@@ -81,7 +81,7 @@ namespace slv
                                                [&](auto e) { return ext == e; });
         if (!is_format_supported)
         {
-            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Can't load texture with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched);
+            slv::console_log(slv::log::error, M_CLASS_NAME, "Can't load texture with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched);
             return nullptr;
         }
 
@@ -94,22 +94,22 @@ namespace slv
 
         if (texture_rl.id == 0U)
         {
-            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Failed to load texture: \"{}\"", parsed.stitched);
+            slv::console_log(slv::log::error, M_CLASS_NAME, "Failed to load texture: \"{}\"", parsed.stitched);
             return nullptr;
         }
 
-        std::shared_ptr<slv::texture> tex = std::make_shared<slv::texture>(texture_rl.id,
+        s_ptr<slv::texture> tex = std::make_shared<slv::texture>(texture_rl.id,
                                                                            texture_rl.width,
                                                                            texture_rl.height,
                                                                            texture_rl.mipmaps,
                                                                            texture_rl.format);
         m_cached_textures.emplace(parsed.stitched, tex);
-        slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Loaded texture: \"{}\"", parsed.stitched);
+        slv::console_log(slv::log::trace, M_CLASS_NAME, "Loaded texture: \"{}\"", parsed.stitched);
 
         return tex;
 	}
 
-    std::shared_ptr<slv::atlas_data> ResourceHandler::load_atlas_data(const std::string& file_path)
+    s_ptr<slv::atlas_data> ResourceHandler::load_atlas_data(const std::string& file_path)
     {
         parsed_path parsed = get_parsed_path(file_path);
         const std::string& ext = parsed.extension;
@@ -117,7 +117,7 @@ namespace slv
                                                [&](auto e) { return ext == e; });
         if (!is_format_supported)
         {
-            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Can't load atlas data with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched);
+            slv::console_log(slv::log::error, M_CLASS_NAME, "Can't load atlas data with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched);
             return nullptr;
         }
 
@@ -126,7 +126,7 @@ namespace slv
             return it->second;
         }
 
-        auto err = [&parsed]() { slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Failed to load atlas data: \"{}\"", parsed.stitched); };
+        auto err = [&parsed]() { slv::console_log(slv::log::error, M_CLASS_NAME, "Failed to load atlas data: \"{}\"", parsed.stitched); };
 
         tinyxml2::XMLDocument doc;
         tinyxml2::XMLError result = doc.LoadFile(parsed.stitched.c_str());
@@ -145,7 +145,7 @@ namespace slv
             return nullptr;
         }
 
-        std::shared_ptr<slv::atlas_data> atlas_data = std::make_shared<slv::atlas_data>();
+        s_ptr<slv::atlas_data> atlas_data = std::make_shared<slv::atlas_data>();
 
         if (std::string(root->Name()) == "TextureAtlas") // Adobe Animate or Flash
         {
@@ -153,7 +153,7 @@ namespace slv
         }
         else
         {
-            slv::console_log(slv::LOG_ERROR, M_CLASS_NAME, "Can't load atlas data with unsupported data. | file_path: \"{}\"", parsed.stitched);
+            slv::console_log(slv::log::error, M_CLASS_NAME, "Can't load atlas data with unsupported data. | file_path: \"{}\"", parsed.stitched);
             return nullptr;
         }
 
@@ -213,8 +213,29 @@ namespace slv
         }
 
         m_cached_atlas_datas.emplace(parsed.stitched, atlas_data);
-        slv::console_log(slv::LOG_INFO, M_CLASS_NAME, "Loaded atlas data: \"{}\"", parsed.stitched);
+        slv::console_log(slv::log::trace, M_CLASS_NAME, "Loaded atlas data: \"{}\"", parsed.stitched);
 
         return atlas_data;
     }
+
+    /*
+    slv::audio_decoder ResourceHandler::create_audio_decoder(const std::string& file_path)
+    {
+        parsed_path parsed = get_parsed_path(file_path);
+        const std::string& ext = parsed.extension;
+        bool is_format_supported = std::any_of(M_SUPPORTED_DATA_FORMATS.begin(), M_SUPPORTED_DATA_FORMATS.end(),
+                                               [&](auto e) { return ext == e; });
+        if (!is_format_supported)
+        {
+            slv::console_log(slv::log::error, M_CLASS_NAME, "Can't load audio decoder with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched);
+            return slv::audio_decoder();
+        }
+
+        static unsigned int current_id = 0;
+        current_id++;
+
+        slv::audio_decoder audio_decoder;
+        audio_decoder.id = current_id;
+    }
+    */
 }
