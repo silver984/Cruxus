@@ -1,6 +1,6 @@
-#include <slv/vessel.hpp>
+#include <slv/objects/Vessel.hpp>
+#include <slv/game/Window.hpp>
 #include <slv/core/math.hpp>
-#include <slv/handlers/window_handler.hpp>
 #include <algorithm>
 #include <cassert>
 
@@ -33,7 +33,7 @@ namespace slv
 			return;
 		}
 
-		if (auto old_parent = vessel->get_parent().lock())
+		if (auto old_parent = vessel->parent().lock())
 		{
 			// remove from old parent
 			old_parent->remove(vessel);
@@ -82,8 +82,6 @@ namespace slv
 			parent->remove(shared_from_this());
 		}
 
-		on_destroyed();
-
 		// recursively destroy children
 		while (!m_vessels.empty())
 		{
@@ -96,14 +94,14 @@ namespace slv
 	}
 
 	// protected
-	bool Vessel::base_init()
+	bool Vessel::base_init(const slv::game_context& ctx)
 	{
 		if (m_is_init)
 		{
 			return true;
 		}
 
-		if (!init())
+		if (!init(ctx))
 		{
 			return false;
 		}
@@ -114,25 +112,29 @@ namespace slv
 	}
 
 	// protected
-	void Vessel::base_update(float dt)
+	void Vessel::base_update(float dt, const slv::game_context& ctx)
 	{
 		if (!m_is_init || !is_active)
 		{
 			return;
 		}
 
-		// to do world transform
+		// TODO: world transform
+		// TODO: negative values
 
-		slv::sptr<Vessel> parent = get_parent().lock();
+		slv::sptr<Vessel> _parent = parent().lock();
 
-		slv::vec2<float> parent_world_scale = parent ? parent->world_scale_ : slv::vec2<float>(1.0F, 1.0F);
-		slv::vec2<float> parent_world_pos = parent ? parent->world_pos_ : slv::vec2<float>(0.0F, 0.0F);
-		float parent_world_rotation = parent ? parent->world_rotation_ : 0.0F;
-		float parent_world_alpha = parent ? parent->world_alpha_ : 1.0F;
+		slv::vec2<float> parent_world_scale = _parent ? _parent->world_scale_ : slv::vec2<float>(1.0F, 1.0F);
+		slv::vec2<float> parent_world_pos = _parent ? _parent->world_pos_ : slv::vec2<float>(0.0F, 0.0F);
+		float parent_world_rotation = _parent ? _parent->world_rotation_ : 0.0F;
+		float parent_world_alpha = _parent ? _parent->world_alpha_ : 1.0F;
 
-		if (!parent)
+		if (!_parent)
 		{
-			world_scale_ = scale * SLV_WINDOW_HND.get_ui_scale();
+			if (auto window = ctx.window)
+			{
+				world_scale_ = scale * window->ui_scale();
+			}
 		}
 		else
 		{
@@ -142,11 +144,10 @@ namespace slv
 		world_pos_ = parent_world_pos + (pos * parent_world_scale);
 		world_rotation_ = rotation + parent_world_rotation;
 		world_alpha_ = std::clamp(alpha * parent_world_alpha, 0.0F, 1.0F);
-		world_anchor_ = slv::vec2<float>(anchor.x * size_.width,
-											anchor.y * size_.height) * world_scale_;
+		world_anchor_ = slv::vec2<float>(anchor.x * size_.width, anchor.y * size_.height) * world_scale_;
 
 		float world_dt = dt * time_scale;
-		update(world_dt);
+		update(world_dt, ctx);
 
 		// remove all nullptr vessels
 		m_vessels.erase(std::remove(m_vessels.begin(), m_vessels.end(), nullptr), m_vessels.end());
@@ -158,19 +159,19 @@ namespace slv
 				continue;
 			}
 			
-			vessel->base_update(world_dt);
+			vessel->base_update(world_dt, ctx);
 		}
 	}
 
 	// protected
-	void Vessel::base_draw() const
+	void Vessel::base_draw(const slv::game_context& ctx) const
 	{
 		if (!m_is_init || !is_visible || alpha == 0.0F)
 		{
 			return;
 		}
 
-		draw();
+		draw(ctx);
 
 		/*
 		* TO INTEGRATE LATER
@@ -205,14 +206,14 @@ namespace slv
 				continue;
 			}
 
-			v->base_draw();
+			v->base_draw(ctx);
 		}
 	}
 
 	// private
 	bool Vessel::has_ancestor(const slv::sptr<Vessel>& vessel) const
 	{
-		auto p = get_parent().lock();
+		auto p = parent().lock();
 
 		while (p)
 		{
@@ -221,7 +222,7 @@ namespace slv
 				return true;
 			}
 
-			p = p->get_parent().lock();
+			p = p->parent().lock();
 		}
 
 		return false;

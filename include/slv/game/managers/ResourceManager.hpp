@@ -1,9 +1,5 @@
 #pragma once
 
-#ifndef SLV_RESOURCE_HND
-#define SLV_RESOURCE_HND slv::ResourceHandler::get()
-#endif
-
 #include <slv/core/types/texture.hpp>
 #include <slv/core/types/atlas.hpp>
 #include <slv/core/types/pointers.hpp>
@@ -15,26 +11,19 @@ namespace slv
 {
 	class Game; // forward declare
 
-	class ResourceHandler
+	class ResourceManager
 	{
 		friend class slv::Game;
 
 	private:
-		ResourceHandler() = default;
-		~ResourceHandler() = default;
+		ResourceManager() = default;
+		~ResourceManager() = default;
+		ResourceManager(const ResourceManager&) = delete;
+		ResourceManager& operator=(const ResourceManager&) = delete;
+		ResourceManager(ResourceManager&&) = delete;
+		ResourceManager& operator=(ResourceManager&&) = delete;
 
 	public:
-		static inline ResourceHandler& get()
-        {
-            static ResourceHandler instance;
-            return instance;
-        }
-
-        ResourceHandler(const ResourceHandler&) = delete;
-        ResourceHandler(ResourceHandler&&) = delete;
-        ResourceHandler& operator = (const ResourceHandler&) = delete;
-        ResourceHandler& operator = (ResourceHandler&&) = delete;
-
 		slv::sptr<slv::texture> load_texture(const std::string& file_path);
 		slv::sptr<slv::atlas_data> load_atlas_data(const std::string& file_path);
 		// slv::audio_decoder create_audio_decoder(const std::string& file_path);
@@ -51,7 +40,7 @@ namespace slv
 		void update(float dt);
 		parsed_path get_parsed_path(const std::string& file_path) const;
 
-		static constexpr inline const char* M_CLASS_NAME = "ResourceHandler";
+		static constexpr inline const char* M_CLASS_NAME = "ResourceManager";
 		static constexpr inline float M_CLEANUP_INTERVAL = 1.0F;
 		static constexpr inline std::array<const char*, 3> M_SUPPORTED_IMG_FORMATS{ "png", "jpg", "jpeg" };
 		static constexpr inline std::array<const char*, 2> M_SUPPORTED_AUDIO_FORMATS{ "mp3", "wav" };

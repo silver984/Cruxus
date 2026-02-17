@@ -1,9 +1,10 @@
-#include <slv/handlers/audio_handler.hpp>
+#include <slv/game/managers/AudioManager.hpp>
 #include <slv/core/console_log.hpp>
 #include <miniaudio/miniaudio.h>
 #include <vector>
 #include <mutex>
 #include <atomic>
+#include <cstdint>
 
 namespace
 {
@@ -88,7 +89,7 @@ namespace
 namespace slv
 {
     // private
-    bool AudioHandler::init()
+    bool AudioManager::init()
     {
         if (audio_system.is_initialized.load())
         {
@@ -108,17 +109,17 @@ namespace slv
         ma_result result;
 
         result = ma_device_init(nullptr, &config, &audio_system.device);
-        slv::console_log(slv::log::trace, M_CLASS_NAME, "ma_device_init -> ma_result: {}", static_cast<int>(result));
+        slv::console_log(slv::log::TRACE, M_NAME, "ma_device_init -> ma_result: {}", static_cast<int>(result));
         
         if (result != MA_SUCCESS)
         {
             return false;
         }
 
-        audio_system.temp_buffer.resize(4096Ui64 * 2, 0.0F);
+        audio_system.temp_buffer.resize(static_cast<size_t>(4096) * 2, 0.0F);
 
         result = ma_device_start(&audio_system.device);
-        slv::console_log(slv::log::trace, M_CLASS_NAME, "ma_device_start -> ma_result: {}", static_cast<int>(result));
+        slv::console_log(slv::log::TRACE, M_NAME, "ma_device_start -> ma_result: {}", static_cast<int>(result));
 
         if (result != MA_SUCCESS)
         {
@@ -128,13 +129,13 @@ namespace slv
 
         audio_system.is_initialized.store(true);
 
-        slv::console_log(slv::log::info, M_CLASS_NAME, "Audio initialized");
+        slv::console_log(slv::log::INFO, M_NAME, "Audio initialized");
 
         return true;
     }
 
     // private
-    void AudioHandler::uninit() const
+    void AudioManager::uninit() const
     {
         if (!audio_system.is_initialized.load())
         {
@@ -147,7 +148,7 @@ namespace slv
         audio_system.is_initialized.store(false);
     }
 
-    bool AudioHandler::play_audio(const std::string& file_path) const
+    bool AudioManager::play_audio(const std::string& file_path) const
     {
         if (!audio_system.is_initialized.load())
         {
@@ -160,7 +161,7 @@ namespace slv
         ma_decoder decoder{};
         ma_decoder_config decoder_config = ma_decoder_config_init(sample_format, channels, sample_rate);
         ma_result result = ma_decoder_init_file(file_path.c_str(), &decoder_config, &decoder);
-        slv::console_log(slv::log::trace, M_CLASS_NAME, "ma_decoder_config_init -> ma_result: {}", static_cast<int>(result));
+        slv::console_log(slv::log::TRACE, M_NAME, "ma_decoder_config_init -> ma_result: {}", static_cast<int>(result));
         if (result != MA_SUCCESS)
         {
             return false;

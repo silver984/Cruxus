@@ -3,6 +3,7 @@
 #include <slv/core/types/primitives.hpp>
 #include <slv/core/types/colors.hpp>
 #include <slv/core/types/pointers.hpp>
+#include <slv/core/types/game_context.hpp>
 #include <vector>
 #include <string>
 #include <memory>
@@ -18,13 +19,13 @@ namespace slv
 		virtual ~Vessel() = default;
 
 		template<typename T, typename... args>
-		static inline slv::sptr<T> create(args&&... _args)
+		static inline slv::sptr<T> create(const slv::game_context& ctx, args&&... _args)
 		{
 			static_assert(std::is_base_of_v<Vessel, T>);
 
 			slv::sptr<T> v = slv::shared<T>(std::forward<args>(_args)...);
 
-			if (!v->base_init())
+			if (!v->base_init(ctx))
 			{
 				v.reset();
 				return nullptr;
@@ -37,22 +38,22 @@ namespace slv
 		void remove(const slv::sptr<Vessel>& vessel);
 		void destroy();
 
-		inline size_t get_count() const
+		inline size_t count() const
 		{
 			return m_vessels.size();
 		}
 
-		inline slv::size<float> get_size() const
+		inline slv::size<float> size() const
 		{
 			return size_;
 		}
 
-		inline slv::size<float> get_scaled_size() const
+		inline slv::size<float> scaled_size() const
 		{
 			return slv::size<float>(size_.width * world_scale_.x, size_.height * world_scale_.y);
 		}
 
-		inline slv::wptr<Vessel> get_parent() const
+		inline slv::wptr<Vessel> parent() const
 		{
 			return m_parent;
 		}
@@ -62,12 +63,12 @@ namespace slv
 			m_name = name;
 		}
 
-		inline std::string get_name() const
+		inline std::string name() const
 		{
 			return m_name;
 		}
 
-		inline virtual std::string get_type() const
+		inline virtual std::string type() const
 		{
 			return "Vessel";
 		}
@@ -83,17 +84,16 @@ namespace slv
 		bool is_active = true;
 
 	protected:
-		inline virtual bool init()
+		inline virtual bool init(const slv::game_context& ctx)
 		{
 			return true;
 		}
 
-		virtual void update(float dt) = 0;
-		virtual void draw() const = 0;
-		virtual void on_destroyed() {}
-		bool base_init();
-		void base_update(float dt);
-		void base_draw() const;
+		virtual void update(float dt, const slv::game_context& ctx) {}
+		virtual void draw(const slv::game_context& ctx) const {}
+		bool base_init(const slv::game_context& ctx);
+		void base_update(float dt, const slv::game_context& ctx);
+		void base_draw(const slv::game_context& ctx) const;
 
 		slv::size<float> size_;
 		slv::vec2<float> world_scale_{ 1.0F, 1.0F };

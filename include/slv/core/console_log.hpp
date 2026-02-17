@@ -13,10 +13,10 @@ namespace slv
 {
 	enum class log
 	{
-		trace,
-		info,
-		warning,
-		error
+		TRACE,
+		INFO,
+		WARNING,
+		ERROR
 	};
 
 	namespace log_impl

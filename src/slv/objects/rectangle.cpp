@@ -4,7 +4,7 @@
 namespace slv
 {
 	// protected
-	void Rectangle::update(float dt)
+	void Rectangle::update(float dt, const slv::game_context& ctx)
 	{
 		float width = this->size_.width * this->world_scale_.x;
 		float height = this->size_.height * this->world_scale_.y;
@@ -12,7 +12,7 @@ namespace slv
 	}
 
 	// protected
-	void Rectangle::draw() const
+	void Rectangle::draw(const slv::game_context& ctx) const
 	{
 		slv::raylib::draw_rectangle(m_rect, this->world_anchor_, this->color, this->world_alpha_, this->world_rotation_);
 	}

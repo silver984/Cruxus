@@ -10,16 +10,16 @@ namespace slv::log_impl
 	{
 		switch (level)
 		{
-		case slv::log::trace:
+		case slv::log::TRACE:
 			return fmt::color::lemon_chiffon;
 
-		case slv::log::info:
+		case slv::log::INFO:
 			return fmt::color::green_yellow;
 
-		case slv::log::warning:
+		case slv::log::WARNING:
 			return fmt::color::gold;
 
-		case slv::log::error:
+		case slv::log::ERROR:
 			return fmt::color::crimson;
 
 		default:
@@ -31,16 +31,16 @@ namespace slv::log_impl
 	{
 		switch (level)
 		{
-		case slv::log::trace:
+		case slv::log::TRACE:
 			return "Trace";
 
-		case slv::log::info:
+		case slv::log::INFO:
 			return "Info";
 
-		case slv::log::warning:
+		case slv::log::WARNING:
 			return "Warning";
 
-		case slv::log::error:
+		case slv::log::ERROR:
 			return "Error";
 
 		default:

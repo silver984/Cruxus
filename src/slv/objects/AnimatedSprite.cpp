@@ -1,16 +1,23 @@
-#include <slv/objects/animated_sprite.hpp>
+#include <slv/objects/AnimatedSprite.hpp>
+#include <slv/game/managers/ResourceManager.hpp>
 #include <slv/core/wrappers/raylib.hpp>
 #include <slv/core/console_log.hpp>
-#include <slv/handlers/resource_handler.hpp>
 #include <algorithm>
 
 namespace slv
 {
 	// protected
-	bool AnimatedSprite::init()
+	bool AnimatedSprite::init(const slv::game_context& ctx)
 	{
-		m_texture = slv::ResourceHandler::get().load_texture(m_texture_file_path);
-		m_atlas_data = slv::ResourceHandler::get().load_atlas_data(m_data_file_path);
+		auto resource = ctx.resource_manager;
+
+		if (!resource)
+		{
+			return false;
+		}
+
+		m_texture = resource->load_texture(m_texture_file_path);
+		m_atlas_data = resource->load_atlas_data(m_data_file_path);
 
 		if (!m_texture || !m_atlas_data)
 		{
@@ -30,13 +37,13 @@ namespace slv
 		}
 
 		set_antialiasing(true);
-		update(0.0F);
+		update(0.0F, ctx);
 		
 		return true;
 	}
 
 	// protected
-	void AnimatedSprite::update(float dt)
+	void AnimatedSprite::update(float dt, const slv::game_context& ctx)
 	{
 		auto it = m_atlas_data->frames.find(m_current_anim);
 		if (it == m_atlas_data->frames.end() || it->second.empty())
@@ -86,7 +93,7 @@ namespace slv
 	}
 
 	// protected
-	void AnimatedSprite::draw() const
+	void AnimatedSprite::draw(const slv::game_context& ctx) const
 	{
 		if (m_texture &&
 			m_source.width > 0.0F && m_source.height > 0.0F &&
@@ -123,7 +130,7 @@ namespace slv
 	{
 		if (!m_atlas_data->frames.contains(name))
 		{
-			slv::console_log(slv::log::warning, get_type().c_str(), "Animation \"{}\" not found", name);
+			slv::console_log(slv::log::WARNING, type(), "Animation \"{}\" not found", name);
 			return false;
 		}
 
@@ -135,7 +142,7 @@ namespace slv
 	{
 		if (!m_aliases.contains(alias))
 		{
-			slv::console_log(slv::log::warning, get_type().c_str(), "Alias \"{}\" not found", alias);
+			slv::console_log(slv::log::WARNING, type(), "Alias \"{}\" not found", alias);
 			return false;
 		}
 

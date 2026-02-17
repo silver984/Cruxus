@@ -1,6 +1,6 @@
 #include <slv/objects/sprite.hpp>
 #include <slv/core/wrappers/raylib.hpp>
-#include <slv/handlers/resource_handler.hpp>
+#include <slv/game/managers/ResourceManager.hpp>
 
 namespace slv
 {
@@ -13,9 +13,16 @@ namespace slv
 	}
 
 	// protected
-	bool Sprite::init()
+	bool Sprite::init(const slv::game_context& ctx)
 	{
-		m_texture = SLV_RESOURCE_HND.load_texture(m_file_path);
+		auto resource = ctx.resource_manager;
+
+		if (!resource)
+		{
+			return false;
+		}
+
+		m_texture = resource->load_texture(m_file_path);
 
 		if (!m_texture)
 		{
@@ -25,19 +32,19 @@ namespace slv
 		this->size_ = m_texture ? slv::size<float>(static_cast<float>(m_texture->width), static_cast<float>(m_texture->height)) : slv::size<float>(0.0F, 0.0F);
 		m_source = slv::rect<float>(0.0F, 0.0F, this->size_.width, this->size_.height);
 		set_antialiasing(true);
-		update(0.0F);
+		update(0.0F, ctx);
 
 		return true;
 	}
 
 	// protected
-	void Sprite::update(float dt)
+	void Sprite::update(float dt, const slv::game_context& ctx)
 	{
 		m_dest = slv::rect<float>(this->world_pos_.x, this->world_pos_.y, m_source.width * this->world_scale_.x, m_source.height * this->world_scale_.y);
 	}
 
 	// protected
-	void Sprite::draw() const
+	void Sprite::draw(const slv::game_context& ctx) const
 	{
 		if (m_texture &&
 			m_source.width > 0.0F && m_source.height > 0.0F &&

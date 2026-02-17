@@ -1,8 +1,7 @@
 #pragma once
 
-#include <slv/vessel.hpp>
+#include <slv/objects/Vessel.hpp>
 #include <slv/core/types/primitives.hpp>
-#include <slv/core/types/colors.hpp>
 #include <string>
 
 namespace slv
@@ -18,7 +17,7 @@ namespace slv
 			this->color = color;
 		}
 
-		inline std::string get_type() const override
+		inline std::string type() const override
 		{
 			return "Rectangle";
 		}
@@ -42,14 +41,14 @@ namespace slv
 		float outline_alpha = 0.0F;
 
 	protected:
-		inline bool init() override
+		inline bool init(const slv::game_context& ctx) override
 		{
-			update(0.0F);
+			update(0.0F, ctx);
 			return true;
 		}
 
-		void update(float dt) override;
-		void draw() const override;
+		void update(float dt, const slv::game_context& ctx) override;
+		void draw(const slv::game_context& ctx) const override;
 
 	private:
 		slv::rect<float> m_rect{};

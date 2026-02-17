@@ -21,12 +21,6 @@ namespace slv::math
     }
 
     template <typename T>
-    inline T clamp(T val, T min_val, T max_val)
-    {
-        return std::max(min_val, std::min(val, max_val));
-    }
-
-    template <typename T>
     inline T map(T val, T in_min, T in_max, T out_min, T out_max)
     {
         return out_min + (out_max - out_min) * ((val - in_min) / (in_max - in_min));
@@ -41,7 +35,7 @@ namespace slv::math
     template <typename T>
     inline slv::vec2<T> clamp(const slv::vec2<T>& val, const slv::vec2<T>& min_val, const slv::vec2<T>& max_val)
     {
-        return slv::vec2<T>(slv::math::clamp(val.x, min_val.x, max_val.x), slv::math::clamp(val.y, min_val.y, max_val.y));
+        return slv::vec2<T>(std::clamp(val.x, min_val.x, max_val.x), std::clamp(val.y, min_val.y, max_val.y));
     }
 
     template <typename T>

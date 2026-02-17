@@ -1,6 +1,6 @@
 #pragma once
 
-#include <slv/vessel.hpp>
+#include <slv/objects/Vessel.hpp>
 #include <slv/core/types/pointers.hpp>
 #include <slv/core/types/primitives.hpp>
 #include <slv/core/types/texture.hpp>
@@ -30,12 +30,12 @@ namespace slv
 		void set_alias_offsets(const std::string& alias, const slv::vec2<float>& offsets);
 		void set_antialiasing(bool val);
 
-		inline std::string get_type() const override
+		inline std::string type() const override
 		{
 			return "AnimatedSprite";
 		}
 
-		inline std::string get_current_anim()
+		inline std::string current_anim()
 		{
 			return m_current_anim;
 		}
@@ -50,9 +50,9 @@ namespace slv
 		float fps = 24.0F;
 
 	protected:
-		bool init() override;
-		void update(float dt) override;
-		void draw() const override;
+		bool init(const slv::game_context& ctx) override;
+		void update(float dt, const slv::game_context& ctx) override;
+		void draw(const slv::game_context& ctx) const override;
 
 	private:
 		void init_size();

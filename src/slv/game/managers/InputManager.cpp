@@ -1,11 +1,11 @@
-#include <slv/handlers/input_handler.hpp>
+#include <slv/game/managers/InputManager.hpp>
 #include <slv/core/console_log.hpp>
 #include <raylib.h>
 
 namespace slv
 {
 	// private
-	void InputHandler::update()
+	void InputManager::update()
 	{
 		m_prev_down_keys = m_down_keys;
 		m_down_keys.reset();
@@ -19,7 +19,7 @@ namespace slv
 				std::string name = bind_ptr->name;
 				int key = static_cast<int>(bind_ptr->key);
 				it = m_binds.erase(it);
-				slv::console_log(slv::log::trace, M_CLASS_NAME, "Erased bind: \"{}\" | key: {}", name, key);
+				slv::console_log(slv::log::TRACE, M_NAME, "Erased bind: \"{}\" | key: {}", name, key);
 			}
 			else
 			{
@@ -37,7 +37,7 @@ namespace slv
 	}
 
 	// private
-	slv::sptr<slv::action_bind> InputHandler::get_bind(const std::string& name) const
+	slv::sptr<slv::action_bind> InputManager::get_bind(const std::string& name) const
 	{
 		for (const auto& bind : m_binds)
 		{
@@ -50,29 +50,29 @@ namespace slv
 		return nullptr;
 	}
 
-	bool InputHandler::is_key_down(slv::key key) const
+	bool InputManager::is_key_down(slv::key key) const
 	{
 		return m_down_keys.test(static_cast<size_t>(key));
 	}
 
-	bool InputHandler::is_key_pressed(slv::key key) const
+	bool InputManager::is_key_pressed(slv::key key) const
 	{
 		size_t idx = static_cast<size_t>(key);
 		return m_down_keys.test(idx) && !m_prev_down_keys.test(idx);
 	}
 
-	bool InputHandler::is_key_released(slv::key key) const
+	bool InputManager::is_key_released(slv::key key) const
 	{
 		size_t idx = static_cast<size_t>(key);
 		return !m_down_keys.test(idx) && m_prev_down_keys.test(idx);
 	}
 
-	void InputHandler::invoke_key(slv::key key)
+	void InputManager::invoke_key(slv::key key)
 	{
 		m_down_keys.set(static_cast<size_t>(key));
 	}
 
-	void InputHandler::add_bind(const slv::sptr<slv::action_bind>& bind)
+	void InputManager::add_bind(const slv::sptr<slv::action_bind>& bind)
 	{
 		auto bind_ptr = bind.get();
 
@@ -88,10 +88,10 @@ namespace slv
 
 		m_binds.emplace_back(bind);
 		
-		slv::console_log(slv::log::trace, M_CLASS_NAME, "Added bind: \"{}\" | key: {}", bind_ptr->name, static_cast<int>(bind_ptr->key));
+		slv::console_log(slv::log::TRACE, M_NAME, "Added bind: \"{}\" | key: {}", bind_ptr->name, static_cast<int>(bind_ptr->key));
 	}
 
-	bool InputHandler::is_bind_down(const std::string& name) const
+	bool InputManager::is_bind_down(const std::string& name) const
 	{
 		auto bind = get_bind(name);
 		if (bind)
@@ -102,7 +102,7 @@ namespace slv
 		return false;
 	}
 
-	bool InputHandler::is_bind_pressed(const std::string& name) const
+	bool InputManager::is_bind_pressed(const std::string& name) const
 	{
 		auto bind = get_bind(name);
 		if (bind)
@@ -113,7 +113,7 @@ namespace slv
 		return false;
 	}
 
-	bool InputHandler::is_bind_released(const std::string& name) const
+	bool InputManager::is_bind_released(const std::string& name) const
 	{
 		auto bind = get_bind(name);
 		if (bind)
@@ -124,7 +124,7 @@ namespace slv
 		return false;
 	}
 
-	void InputHandler::invoke_bind(const std::string& name)
+	void InputManager::invoke_bind(const std::string& name)
 	{
 		auto bind = get_bind(name);
 		if (bind)

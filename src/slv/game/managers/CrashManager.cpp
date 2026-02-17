@@ -1,4 +1,5 @@
-#include <slv/handlers/crash_handler.hpp>
+#include <slv/game/managers/CrashManager.hpp>
+#include <slv/core/console_log.hpp>
 #ifdef _WIN32
 #include <platform/windows/crash.hpp>
 #endif
@@ -6,7 +7,7 @@
 namespace slv
 {
 	// private
-	bool CrashHandler::init()
+	bool CrashManager::init()
 	{
 		if (m_is_init)
 		{
@@ -18,6 +19,8 @@ namespace slv
 		m_is_init = true;
 		return true;
 #endif
+
+		slv::console_log(slv::log::WARNING, M_NAME, "SLV's CrashManager is not available on the current platform");
 
 		return false;
 	}

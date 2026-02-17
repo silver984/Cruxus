@@ -1,6 +1,6 @@
 #pragma once
 
-#include <slv/vessel.hpp>
+#include <slv/objects/Vessel.hpp>
 #include <slv/core/types/pointers.hpp>
 #include <slv/core/types/primitives.hpp>
 #include <slv/core/types/texture.hpp>
@@ -16,7 +16,7 @@ namespace slv
 			m_file_path = file_path;
 		}
 
-		inline std::string get_type() const override
+		inline std::string type() const override
 		{
 			return "Sprite";
 		}
@@ -24,12 +24,11 @@ namespace slv
 		void set_antialiasing(bool val);
 
 	protected:
-		bool init() override;
-		void update(float dt) override;
-		void draw() const override;
+		bool init(const slv::game_context& ctx) override;
+		void update(float dt, const slv::game_context& ctx) override;
+		void draw(const slv::game_context& ctx) const override;
 
 	private:
-		bool m_antialiasing_check = false;
 		std::string m_file_path;
 		slv::rect<float> m_source{};
 		slv::rect<float> m_dest{};
