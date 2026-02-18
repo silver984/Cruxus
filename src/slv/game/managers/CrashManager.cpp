@@ -1,5 +1,5 @@
 #include <slv/game/managers/CrashManager.hpp>
-#include <slv/core/console_log.hpp>
+#include <slv/core/console/log.hpp>
 #ifdef _WIN32
 #include <platform/windows/crash.hpp>
 #endif
@@ -20,7 +20,7 @@ namespace slv
 		return true;
 #endif
 
-		slv::console_log(slv::log::WARNING, M_NAME, "SLV's CrashManager is not available on the current platform");
+		slv::log::warning(M_NAME, "SLV's CrashManager is not available on the current platform");
 
 		return false;
 	}

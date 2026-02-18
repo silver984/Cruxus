@@ -1,5 +1,5 @@
 #include <slv/game/managers/AudioManager.hpp>
-#include <slv/core/console_log.hpp>
+#include <slv/core/console/log.hpp>
 #include <miniaudio/miniaudio.h>
 #include <vector>
 #include <mutex>
@@ -26,7 +26,7 @@ namespace
         audio_sys* system = static_cast<audio_sys*>(device->pUserData);
         float* out = static_cast<float*>(output);
         size_t sample_count = static_cast<size_t>(frame_count) * device->playback.channels;
-        std::fill(out, out + sample_count, 0.0F);
+        std::fill(out, out + sample_count, 0.f);
 
         {
             std::lock_guard<std::mutex> lock(system->pending_mutex);
@@ -89,6 +89,12 @@ namespace
 namespace slv
 {
     // private
+    AudioManager::~AudioManager()
+    {
+        uninit();
+    }
+
+    // private
     bool AudioManager::init()
     {
         if (audio_system.is_initialized.load())
@@ -109,17 +115,17 @@ namespace slv
         ma_result result;
 
         result = ma_device_init(nullptr, &config, &audio_system.device);
-        slv::console_log(slv::log::TRACE, M_NAME, "ma_device_init -> ma_result: {}", static_cast<int>(result));
+        slv::log::trace(M_NAME, "ma_device_init -> ma_result: {}", static_cast<int>(result));
         
         if (result != MA_SUCCESS)
         {
             return false;
         }
 
-        audio_system.temp_buffer.resize(static_cast<size_t>(4096) * 2, 0.0F);
+        audio_system.temp_buffer.resize(static_cast<size_t>(4096) * 2, 0.f);
 
         result = ma_device_start(&audio_system.device);
-        slv::console_log(slv::log::TRACE, M_NAME, "ma_device_start -> ma_result: {}", static_cast<int>(result));
+        slv::log::trace(M_NAME, "ma_device_start -> ma_result: {}", static_cast<int>(result));
 
         if (result != MA_SUCCESS)
         {
@@ -129,7 +135,7 @@ namespace slv
 
         audio_system.is_initialized.store(true);
 
-        slv::console_log(slv::log::INFO, M_NAME, "Audio initialized");
+        slv::log::info(M_NAME, "Audio initialized");
 
         return true;
     }
@@ -161,7 +167,7 @@ namespace slv
         ma_decoder decoder{};
         ma_decoder_config decoder_config = ma_decoder_config_init(sample_format, channels, sample_rate);
         ma_result result = ma_decoder_init_file(file_path.c_str(), &decoder_config, &decoder);
-        slv::console_log(slv::log::TRACE, M_NAME, "ma_decoder_config_init -> ma_result: {}", static_cast<int>(result));
+        slv::log::trace(M_NAME, "ma_decoder_config_init -> ma_result: {}", static_cast<int>(result));
         if (result != MA_SUCCESS)
         {
             return false;

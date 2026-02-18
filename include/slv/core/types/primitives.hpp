@@ -353,4 +353,62 @@ namespace slv
             return x > rhs.x && y > rhs.y;
         }
     };
+
+    class mat3
+    {
+    public:
+        mat3()
+        {
+            set_identity();
+        }
+        
+        mat3(float m00, float m01, float m02,
+             float m10, float m11, float m12,
+             float m20, float m21, float m22)
+        {
+            m_[0][0] = m00; m_[0][1] = m01; m_[0][2] = m02;
+            m_[1][0] = m10; m_[1][1] = m11; m_[1][2] = m12;
+            m_[2][0] = m20; m_[2][1] = m21; m_[2][2] = m22;
+        }
+
+        static mat3 rotation(float radians);
+        mat3 operator*(const mat3& o) const;
+        vec2<float> transform_point(const vec2<float>& p) const;
+
+        static inline mat3 identity()
+        {
+            return mat3(1, 0, 0,
+                        0, 1, 0,
+                        0, 0, 1);
+        }
+
+        static inline mat3 translation(const vec2<float>& t)
+        {
+            return mat3(1, 0, t.x,
+                        0, 1, t.y,
+                        0, 0, 1);
+        }
+
+        static inline mat3 scale(const vec2<float>& s)
+        {
+            return mat3(s.x, 0, 0,
+                        0, s.y, 0,
+                        0, 0, 1);
+        }
+
+        inline vec2<float> translation() const
+        {
+            return vec2<float>(m_[0][2], m_[1][2]);
+        }
+
+    private:
+        inline void set_identity()
+        {
+            m_[0][0] = 1; m_[0][1] = 0; m_[0][2] = 0;
+            m_[1][0] = 0; m_[1][1] = 1; m_[1][2] = 0;
+            m_[2][0] = 0; m_[2][1] = 0; m_[2][2] = 1;
+        }
+
+        float m_[3][3];
+    };
 }

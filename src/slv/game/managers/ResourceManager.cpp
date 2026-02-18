@@ -1,5 +1,5 @@
 #include <slv/game/managers/ResourceManager.hpp>
-#include <slv/core/console_log.hpp>
+#include <slv/core/console/log.hpp>
 #include <raylib.h>
 #include <tinyxml2.h>
 #include <filesystem>
@@ -24,7 +24,7 @@ namespace slv
                     if (ptr)
                     {
                         UnloadTexture(Texture(ptr->id, ptr->width, ptr->height, ptr->mipmaps, ptr->format));
-                        slv::console_log(slv::log::TRACE, M_CLASS_NAME, "Unloaded texture: \"{}\"", key);
+                        slv::log::trace(M_NAME, "Unloaded texture: \"{}\"", key);
                     }
 
                     it = m_cached_textures.erase(it);
@@ -42,7 +42,7 @@ namespace slv
                 {
                     std::string key = it->first;
                     it = m_cached_atlas_datas.erase(it);
-                    slv::console_log(slv::log::TRACE, M_CLASS_NAME, "Unloaded atlas data: \"{}\"", key);
+                    slv::log::trace(M_NAME, "Unloaded atlas data: \"{}\"", key);
                 }
                 else
                 {
@@ -82,7 +82,7 @@ namespace slv
                                                [&](auto e) { return ext == e; });
         if (!is_format_supported)
         {
-            slv::console_log(slv::log::ERROR, M_CLASS_NAME, "Can't load texture with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched);
+            slv::log::error(M_NAME, "Can't load texture with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched);
             return nullptr;
         }
 
@@ -95,7 +95,7 @@ namespace slv
 
         if (texture_rl.id == 0U)
         {
-            slv::console_log(slv::log::ERROR, M_CLASS_NAME, "Failed to load texture: \"{}\"", parsed.stitched);
+            slv::log::error(M_NAME, "Failed to load texture: \"{}\"", parsed.stitched);
             return nullptr;
         }
 
@@ -105,7 +105,7 @@ namespace slv
                                                                            texture_rl.mipmaps,
                                                                            texture_rl.format);
         m_cached_textures.emplace(parsed.stitched, tex);
-        slv::console_log(slv::log::TRACE, M_CLASS_NAME, "Loaded texture: \"{}\"", parsed.stitched);
+        slv::log::trace(M_NAME, "Loaded texture: \"{}\"", parsed.stitched);
 
         return tex;
 	}
@@ -118,7 +118,7 @@ namespace slv
                                                [&](auto e) { return ext == e; });
         if (!is_format_supported)
         {
-            slv::console_log(slv::log::ERROR, M_CLASS_NAME, "Can't load atlas data with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched);
+            slv::log::error(M_NAME, "Can't load atlas data with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched);
             return nullptr;
         }
 
@@ -127,7 +127,7 @@ namespace slv
             return it->second;
         }
 
-        auto err = [&parsed]() { slv::console_log(slv::log::ERROR, M_CLASS_NAME, "Failed to load atlas data: \"{}\"", parsed.stitched); };
+        auto err = [&parsed]() { slv::log::error(M_NAME, "Failed to load atlas data: \"{}\"", parsed.stitched); };
 
         tinyxml2::XMLDocument doc;
         tinyxml2::XMLError result = doc.LoadFile(parsed.stitched.c_str());
@@ -154,7 +154,7 @@ namespace slv
         }
         else
         {
-            slv::console_log(slv::log::ERROR, M_CLASS_NAME, "Can't load atlas data with unsupported data. | file_path: \"{}\"", parsed.stitched);
+            slv::log::error(M_NAME, "Can't load atlas data with unsupported data. | file_path: \"{}\"", parsed.stitched);
             return nullptr;
         }
 
@@ -214,7 +214,7 @@ namespace slv
         }
 
         m_cached_atlas_datas.emplace(parsed.stitched, atlas_data);
-        slv::console_log(slv::log::TRACE, M_CLASS_NAME, "Loaded atlas data: \"{}\"", parsed.stitched);
+        slv::log::trace(M_NAME, "Loaded atlas data: \"{}\"", parsed.stitched);
 
         return atlas_data;
     }
@@ -228,7 +228,7 @@ namespace slv
                                                [&](auto e) { return ext == e; });
         if (!is_format_supported)
         {
-            slv::console_log(slv::log::ERROR, M_CLASS_NAME, "Can't load audio decoder with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched);
+            slv::log::error(M_NAME, "Can't load audio decoder with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched);
             return slv::audio_decoder();
         }
 

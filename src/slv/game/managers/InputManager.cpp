@@ -1,30 +1,37 @@
 #include <slv/game/managers/InputManager.hpp>
-#include <slv/core/console_log.hpp>
+#include <slv/core/console/log.hpp>
 #include <raylib.h>
 
 namespace slv
 {
 	// private
-	void InputManager::update()
+	void InputManager::update(float dt)
 	{
 		m_prev_down_keys = m_down_keys;
 		m_down_keys.reset();
+		m_current_key_pressed = slv::key::NULL_KEY;
 
-		// clean up binds
-		for (auto it = m_binds.begin(); it != m_binds.end(); /**/)
+		m_since_cleanup += dt;
+		while (m_since_cleanup >= M_CLEANUP_INTERVAL)
 		{
-			if (it->use_count() <= 1)
+			// clean up binds
+			for (auto it = m_binds.begin(); it != m_binds.end(); /**/)
 			{
-				auto bind_ptr = it->get();
-				std::string name = bind_ptr->name;
-				int key = static_cast<int>(bind_ptr->key);
-				it = m_binds.erase(it);
-				slv::console_log(slv::log::TRACE, M_NAME, "Erased bind: \"{}\" | key: {}", name, key);
+				if (it->use_count() <= 1)
+				{
+					auto bind_ptr = it->get();
+					std::string name = bind_ptr->name;
+					int key = static_cast<int>(bind_ptr->key);
+					it = m_binds.erase(it);
+					slv::log::trace(M_NAME, "Erased bind: \"{}\" | key: {}", name, key);
+				}
+				else
+				{
+					++it;
+				}
 			}
-			else
-			{
-				++it;
-			}
+
+			m_since_cleanup -= M_CLEANUP_INTERVAL;
 		}
 
 		for (slv::key key : slv::all_keys)
@@ -32,6 +39,11 @@ namespace slv
 			if (IsKeyDown(static_cast<int>(key)))
 			{
 				m_down_keys.set(static_cast<size_t>(key));
+			}
+
+			if (IsKeyPressed(static_cast<int>(key)))
+			{
+				m_current_key_pressed = key;
 			}
 		}
 	}
@@ -88,7 +100,7 @@ namespace slv
 
 		m_binds.emplace_back(bind);
 		
-		slv::console_log(slv::log::TRACE, M_NAME, "Added bind: \"{}\" | key: {}", bind_ptr->name, static_cast<int>(bind_ptr->key));
+		slv::log::trace(M_NAME, "Added bind: \"{}\" | key: {}", bind_ptr->name, static_cast<int>(bind_ptr->key));
 	}
 
 	bool InputManager::is_bind_down(const std::string& name) const

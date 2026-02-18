@@ -1,7 +1,7 @@
 #pragma once
 
 #include <slv/game/managers/SceneManager.hpp>
-#include <slv/core/console_log.hpp>
+#include <slv/core/console/log.hpp>
 
 namespace slv
 {
@@ -41,7 +41,7 @@ namespace slv
 	{
 		if (!new_scene)
 		{
-			slv::console_log(slv::log::ERROR, M_NAME, "The scene the game tried to change into is nullptr");
+			slv::log::error(M_NAME, "The scene the game tried to change into is nullptr");
 			return;
 		}
 

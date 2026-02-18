@@ -2,7 +2,6 @@
 #include <slv/game/Window.hpp>
 #include <slv/core/math.hpp>
 #include <algorithm>
-#include <cassert>
 
 namespace slv
 {
@@ -27,7 +26,7 @@ namespace slv
 			return;
 		}
 
-		if (std::find(m_vessels.begin(), m_vessels.end(), vessel) != m_vessels.end())
+		if (std::find(m_children.begin(), m_children.end(), vessel) != m_children.end())
 		{
 			// prevent duplicates
 			return;
@@ -40,7 +39,7 @@ namespace slv
 		}
 
 		vessel->m_parent = weak_from_this();
-		m_vessels.push_back(vessel);
+		m_children.push_back(vessel);
 	}
 
 	void Vessel::remove(const slv::sptr<Vessel>& vessel)
@@ -58,24 +57,24 @@ namespace slv
 			return;
 		}
 
-		auto it = std::find(m_vessels.begin(), m_vessels.end(), vessel);
-		if (it == m_vessels.end())
+		auto it = std::find(m_children.begin(), m_children.end(), vessel);
+		if (it == m_children.end())
 		{
 			return;
 		}
 
 		vessel->m_parent.reset();
-		m_vessels.erase(it);
+		m_children.erase(it);
 	}
 
 	void Vessel::destroy()
 	{
-		if (!m_is_init)
+		if (!m_is_initialized)
 		{
 			return;
 		}
 
-		m_is_init = false;
+		m_is_initialized = false;
 
 		if (auto parent = m_parent.lock())
 		{
@@ -83,10 +82,10 @@ namespace slv
 		}
 
 		// recursively destroy children
-		while (!m_vessels.empty())
+		while (!m_children.empty())
 		{
-			auto child = m_vessels.back();
-			m_vessels.pop_back();
+			auto child = m_children.back();
+			m_children.pop_back();
 
 			child->m_parent.reset();
 			child->destroy();
@@ -96,7 +95,7 @@ namespace slv
 	// protected
 	bool Vessel::base_init(const slv::game_context& ctx)
 	{
-		if (m_is_init)
+		if (m_is_initialized)
 		{
 			return true;
 		}
@@ -106,7 +105,7 @@ namespace slv
 			return false;
 		}
 
-		m_is_init = true;
+		m_is_initialized = true;
 
 		return true;
 	}
@@ -114,7 +113,7 @@ namespace slv
 	// protected
 	void Vessel::base_update(float dt, const slv::game_context& ctx)
 	{
-		if (!m_is_init || !is_active)
+		if (!m_is_initialized || !is_active)
 		{
 			return;
 		}
@@ -124,10 +123,10 @@ namespace slv
 
 		slv::sptr<Vessel> _parent = parent().lock();
 
-		slv::vec2<float> parent_world_scale = _parent ? _parent->world_scale_ : slv::vec2<float>(1.0F, 1.0F);
-		slv::vec2<float> parent_world_pos = _parent ? _parent->world_pos_ : slv::vec2<float>(0.0F, 0.0F);
-		float parent_world_rotation = _parent ? _parent->world_rotation_ : 0.0F;
-		float parent_world_alpha = _parent ? _parent->world_alpha_ : 1.0F;
+		slv::vec2<float> parent_world_scale = _parent ? _parent->world_scale_ : slv::vec2<float>(1.f, 1.f);
+		slv::vec2<float> parent_world_pos = _parent ? _parent->world_pos_ : slv::vec2<float>(0.f, 0.f);
+		float parent_world_rotation = _parent ? _parent->world_rotation_ : 0.f;
+		float parent_world_alpha = _parent ? _parent->world_alpha_ : 1.f;
 
 		if (!_parent)
 		{
@@ -143,16 +142,14 @@ namespace slv
 
 		world_pos_ = parent_world_pos + (pos * parent_world_scale);
 		world_rotation_ = rotation + parent_world_rotation;
-		world_alpha_ = std::clamp(alpha * parent_world_alpha, 0.0F, 1.0F);
-		world_anchor_ = slv::vec2<float>(anchor.x * size_.width, anchor.y * size_.height) * world_scale_;
+		world_alpha_ = std::clamp(std::clamp(alpha, 0.f, 1.f) * parent_world_alpha, 0.f, 1.f);
+		// world_anchor_ = slv::vec2<float>(anchor.x * size_.width, anchor.y * size_.height) * world_scale_;
+		world_anchor_ = slv::vec2<float>(anchor.x * scaled_dimensions().width, anchor.y * scaled_dimensions().height);
 
 		float world_dt = dt * time_scale;
 		update(world_dt, ctx);
 
-		// remove all nullptr vessels
-		m_vessels.erase(std::remove(m_vessels.begin(), m_vessels.end(), nullptr), m_vessels.end());
-
-		for (const auto& vessel : m_vessels)
+		for (const auto& vessel : m_children)
 		{
 			if (!vessel)
 			{
@@ -166,40 +163,14 @@ namespace slv
 	// protected
 	void Vessel::base_draw(const slv::game_context& ctx) const
 	{
-		if (!m_is_init || !is_visible || alpha == 0.0F)
+		if (!m_is_initialized || !is_visible || alpha == 0.f)
 		{
 			return;
 		}
 
 		draw(ctx);
 
-		/*
-		* TO INTEGRATE LATER
-		float outline_thickness = 1.0F;
-		slv::vec2<float> rect_pos = world_pos_ - world_anchor_;
-
-		std::array<Vector2, 4> corners = {
-			Vector2(rect_pos.x - outline_thickness,
-					rect_pos.y - outline_thickness),
-
-			Vector2(rect_pos.x + (size_.width * world_scale_.x) + outline_thickness,
-					rect_pos.y - outline_thickness),
-
-			Vector2(rect_pos.x + (size_.width * world_scale_.x) + outline_thickness,
-					rect_pos.y + (size_.height * world_scale_.y) + outline_thickness),
-
-			Vector2(rect_pos.x - outline_thickness,
-					rect_pos.y + (size_.height * world_scale_.y) + outline_thickness)
-		};
-
-		for (size_t i = 0; i < corners.size(); i++)
-		{
-			size_t next = (i + 1) % corners.size();
-			DrawLineEx(corners[i], corners[next], outline_thickness, Color(255, 0, 0, 255));
-		}
-		*/
-
-		for (const auto& v : m_vessels)
+		for (const auto& v : m_children)
 		{
 			if (!v)
 			{
@@ -226,5 +197,11 @@ namespace slv
 		}
 
 		return false;
+	}
+
+	// private
+	void Vessel::clean_children()
+	{
+		m_children.erase(std::remove(m_children.begin(), m_children.end(), nullptr), m_children.end());
 	}
 }

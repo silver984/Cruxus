@@ -60,8 +60,9 @@ FetchContent_Declare(tinyxml2
 FetchContent_MakeAvailable(tinyxml2)
 
 target_link_libraries(${PROJECT_NAME}
-    PUBLIC
+    PRIVATE
         raylib
+    PUBLIC
         fmt::fmt
         tinyxml2::tinyxml2
 )

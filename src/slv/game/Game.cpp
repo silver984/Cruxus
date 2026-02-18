@@ -4,7 +4,7 @@ namespace slv
 {
 	bool Game::init(const std::string& window_title, const slv::size<int>& window_size, int fps, int window_settings)
 	{
-		if (m_is_init)
+		if (m_is_initialized)
 		{
 			return true;
 		}
@@ -17,7 +17,7 @@ namespace slv
 		m_audio_manager.init();
 		m_crash_manager.init();
 
-		m_is_init = true;
+		m_is_initialized = true;
 
 		return true;
 	}
@@ -28,9 +28,9 @@ namespace slv
 		{
 			// update
 
-			m_window.update();
-			m_input_manager.update();
 			float dt = m_window.delta_time();
+			m_window.update(dt);
+			m_input_manager.update(dt);
 			m_resource_manager.update(dt);
 			auto ctx = context();
 			m_scene_manager.update(dt, ctx);

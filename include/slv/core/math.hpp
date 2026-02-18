@@ -21,6 +21,13 @@ namespace slv::math
     }
 
     template <typename T>
+    inline T avg(T a, T b)
+    {
+        T two = static_cast<T>(2); // explicit
+        return (a + b) / two;
+    }
+
+    template <typename T>
     inline T map(T val, T in_min, T in_max, T out_min, T out_max)
     {
         return out_min + (out_max - out_min) * ((val - in_min) / (in_max - in_min));

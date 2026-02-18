@@ -1,7 +1,7 @@
 #include <slv/objects/AnimatedSprite.hpp>
 #include <slv/game/managers/ResourceManager.hpp>
 #include <slv/core/wrappers/raylib.hpp>
-#include <slv/core/console_log.hpp>
+#include <slv/core/console/log.hpp>
 #include <algorithm>
 
 namespace slv
@@ -33,11 +33,11 @@ namespace slv
 
 		for (const auto& [name, frames] : m_atlas_data->frames)
 		{
-			m_offsets.insert({ name, slv::vec2<float>(0.0F, 0.0F) });
+			m_offsets.insert({ name, slv::vec2<float>(0.f, 0.f) });
 		}
 
 		set_antialiasing(true);
-		update(0.0F, ctx);
+		update(0.f, ctx);
 		
 		return true;
 	}
@@ -53,10 +53,10 @@ namespace slv
 
 		const auto& current_frames = it->second;
 
-		if (fps > 0.0F)
+		if (fps > 0.f)
 		{
 			m_frame_elapsed += dt;
-			float target_dt = 1.0F / fps;
+			float target_dt = 1.f / fps;
 
 			while (m_frame_elapsed >= target_dt)
 			{
@@ -96,8 +96,8 @@ namespace slv
 	void AnimatedSprite::draw(const slv::game_context& ctx) const
 	{
 		if (m_texture &&
-			m_source.width > 0.0F && m_source.height > 0.0F &&
-			m_dest.width > 0.0F && m_dest.height > 0.0F)
+			m_source.width > 0.f && m_source.height > 0.f &&
+			m_dest.width > 0.f && m_dest.height > 0.f)
 		{
 			slv::raylib::draw_texture(*m_texture, m_source, m_dest, this->world_anchor_, this->world_rotation_, this->world_alpha_, this->color);
 		}
@@ -130,7 +130,7 @@ namespace slv
 	{
 		if (!m_atlas_data->frames.contains(name))
 		{
-			slv::console_log(slv::log::WARNING, type(), "Animation \"{}\" not found", name);
+			slv::log::warning(type(), "Animation \"{}\" not found", name);
 			return false;
 		}
 
@@ -142,7 +142,7 @@ namespace slv
 	{
 		if (!m_aliases.contains(alias))
 		{
-			slv::console_log(slv::log::WARNING, type(), "Alias \"{}\" not found", alias);
+			slv::log::warning(type(), "Alias \"{}\" not found", alias);
 			return false;
 		}
 
@@ -185,8 +185,8 @@ namespace slv
 		}
 
 		m_current_anim = name;
-		float clamped_fps = std::max(0.0F, fps);
-		this->fps = clamped_fps == 0.0F ? this->fps : clamped_fps;
+		float clamped_fps = std::max(0.f, fps);
+		this->fps = clamped_fps == 0.f ? this->fps : clamped_fps;
 		m_is_looping = is_looping;
 		m_current_frame_index = 0;
 	}

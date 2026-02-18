@@ -6,7 +6,6 @@
 #include <slv/game/managers/InputManager.hpp>
 #include <slv/game/managers/SceneManager.hpp>
 #include <slv/game/managers/ResourceManager.hpp>
-#include <slv/core/types/window_settings.hpp>
 #include <slv/core/types/game_context.hpp>
 #include <string>
 
@@ -37,6 +36,6 @@ namespace slv
 		slv::InputManager m_input_manager;
 		slv::SceneManager m_scene_manager;
 		slv::ResourceManager m_resource_manager;
-		bool m_is_init = false;
+		bool m_is_initialized = false;
 	};
 }

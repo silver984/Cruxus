@@ -12,10 +12,7 @@ namespace slv
 
 	private:
 		AudioManager() = default;
-		~AudioManager()
-		{
-			uninit();
-		}
+		~AudioManager();
 		AudioManager(const AudioManager&) = delete;
 		AudioManager& operator=(const AudioManager&) = delete;
 		AudioManager(AudioManager&&) = delete;

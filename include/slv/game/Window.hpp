@@ -6,10 +6,6 @@
 #include <string>
 #include <vector>
 
-#ifdef _WIN32
-#include <platform/windows/layered_window.hpp>
-#endif
-
 namespace slv
 {
     class Game; // forward declare
@@ -33,7 +29,6 @@ namespace slv
         slv::size<int> monitor_size() const;
         slv::vec2<float> mouse_pos() const;
         slv::vec2<float> mouse_delta() const;
-        int running_fps() const;
         float delta_time() const;
         float ui_scale() const;
         void set_size(const slv::size<int>& size, bool set_as_default = true);
@@ -44,7 +39,21 @@ namespace slv
         void set_pos(const slv::vec2<int>& pos);
         void set_posx(int x);
         void set_posy(int y);
+        void toggle_fullscreen(bool val);
         bool is_fullscreen() const;
+        bool is_transparent() const;
+        bool is_resizable() const;
+        bool is_borderless() const;
+        bool has_vsync() const;
+#ifdef _WIN32
+        void open_console() const;
+        void close_console() const;
+#endif
+
+        inline int running_fps() const
+        {
+            return m_running_fps;
+        }
 
         inline slv::size<int> size() const
         {
@@ -61,7 +70,7 @@ namespace slv
             return m_default_size;
         }
 
-        inline std::string title() const
+        std::string title() const
         {
             return m_title;
         }
@@ -79,31 +88,26 @@ namespace slv
     private:
         bool init(const std::string& title, const slv::size<int>& size, int fps, int settings);
         void uninit();
-        void update();
+        void update(float dt);
         void start_draw() const;
-        void end_draw();
-        void setup_console(const std::string& window_title);
+        void end_draw() const;
         void configure_settings(int settings);
-        void create_buffers();
         void reset_minimum_size();
 
         static constexpr inline const char* M_NAME = "Window";
-        static constexpr inline int M_LOWEST_SIZE_PX = 100;
+        static constexpr inline int M_LOWEST_SIZE_PX = 400;
         static constexpr inline slv::size<int> M_LOW_SIZE{ 800, 600 };
-        bool m_is_init = false;
         slv::vec2<int> m_pos{};
         slv::size<int> m_default_size{};
         slv::size<int> m_current_size{};
         slv::size<int> m_minimum_size{};
         slv::size<int> m_last_current_size{};
         slv::size<int> m_unmaximized_size{};
-        slv::render_texture m_view{};
-#ifdef _WIN32
-        slv::win32::render_buffers m_render_buffers{};
-#endif
         std::string m_title;
         int m_target_fps = 0;
-        bool m_is_transparent = false;
-        bool m_is_fullscreen = false;
+        int m_running_fps = 0;
+        int m_frame_count = 0;
+        float m_elapsed = 0.f;
+        bool m_is_initialized = false;
 	};
 }

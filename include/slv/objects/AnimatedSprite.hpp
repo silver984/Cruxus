@@ -22,10 +22,10 @@ namespace slv
 
 		void add_alias(const std::string& alias, const std::string& name);
 		void remove_alias(const std::string& alias);
-		// fps = 0.0F (automatic)
-		void play_alias(const std::string& alias, float fps = 0.0F, bool is_looping = true);
-		// fps = 0.0F (automatic)
-		void play_anim(const std::string& name, float fps = 0.0F, bool is_looping = true);
+		// fps = 0.f (automatic)
+		void play_alias(const std::string& alias, float fps = 0.f, bool is_looping = true);
+		// fps = 0.f (automatic)
+		void play_anim(const std::string& name, float fps = 0.f, bool is_looping = true);
 		void set_anim_offsets(const std::string& name, const slv::vec2<float>& offsets);
 		void set_alias_offsets(const std::string& alias, const slv::vec2<float>& offsets);
 		void set_antialiasing(bool val);
@@ -47,7 +47,7 @@ namespace slv
 		bool is_current_anim_playing();
 		*/
 
-		float fps = 24.0F;
+		float fps = 24.f;
 
 	protected:
 		bool init(const slv::game_context& ctx) override;
@@ -60,7 +60,7 @@ namespace slv
 		bool is_alias_found(const std::string& alias) const;
 
 		bool m_antialiasing_check = false;
-		float m_frame_elapsed = 0.0F;
+		float m_frame_elapsed = 0.f;
 		bool m_is_looping = false;
 		size_t m_current_frame_index = 0;
 		std::string m_texture_file_path;

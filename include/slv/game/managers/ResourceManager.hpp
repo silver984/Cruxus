@@ -40,12 +40,12 @@ namespace slv
 		void update(float dt);
 		parsed_path get_parsed_path(const std::string& file_path) const;
 
-		static constexpr inline const char* M_CLASS_NAME = "ResourceManager";
-		static constexpr inline float M_CLEANUP_INTERVAL = 1.0F;
+		static constexpr inline const char* M_NAME = "ResourceManager";
+		static constexpr inline float M_CLEANUP_INTERVAL = 1.f;
 		static constexpr inline std::array<const char*, 3> M_SUPPORTED_IMG_FORMATS{ "png", "jpg", "jpeg" };
 		static constexpr inline std::array<const char*, 2> M_SUPPORTED_AUDIO_FORMATS{ "mp3", "wav" };
 		static constexpr inline std::array<const char*, 1> M_SUPPORTED_DATA_FORMATS{ "xml" };
-		float m_since_cleanup = 0.0F;
+		float m_since_cleanup = 0.f;
 		std::unordered_map<std::string, slv::sptr<slv::texture>> m_cached_textures;
 		std::unordered_map<std::string, slv::sptr<slv::atlas_data>> m_cached_atlas_datas;
 	};

@@ -13,4 +13,6 @@ namespace slv::raylib
 	slv::render_texture load_render_texture(int width, int height);
 	void begin_texture_mode(const slv::render_texture& render_texture);
 	void unload_render_texture(const slv::render_texture& render_texture);
+	void draw_line(const slv::vec2<float>& start_pos, const slv::vec2<float>& end_pos, float thickness, float alpha, const slv::rgb& color);
+	void draw_circle(const slv::vec2<float>& pos, float radius, float alpha, const slv::rgb& color);
 }

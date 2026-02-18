@@ -33,14 +33,22 @@ namespace slv
 		bool is_bind_released(const std::string& name) const;
 		void invoke_bind(const std::string& name);
 
+		slv::key current_key_pressed() const
+		{
+			return m_current_key_pressed;
+		}
+
 	private:
-		void update();
+		void update(float dt);
 		slv::sptr<slv::action_bind> get_bind(const std::string& name) const;
 
 		static constexpr inline const char* M_NAME = "InputManager";
+		static constexpr inline float M_CLEANUP_INTERVAL = 1.f;
 		static constexpr inline size_t M_KEY_COUNT = 348;
 		std::bitset<M_KEY_COUNT> m_down_keys;
 		std::bitset<M_KEY_COUNT> m_prev_down_keys;
 		std::vector<slv::sptr<slv::action_bind>> m_binds;
+		slv::key m_current_key_pressed = slv::key::NULL_KEY;
+		float m_since_cleanup = 0.f;
 	};
 }

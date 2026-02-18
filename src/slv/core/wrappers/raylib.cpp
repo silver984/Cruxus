@@ -74,4 +74,14 @@ namespace slv::raylib
 	{
 		UnloadRenderTexture(rl_render_texture(render_texture));
 	}
+
+	void draw_line(const slv::vec2<float>& start_pos, const slv::vec2<float>& end_pos, float thickness, float alpha, const slv::rgb& color)
+	{
+		DrawLineEx(rl_vector(start_pos), rl_vector(end_pos), thickness, rl_color(color, alpha));
+	}
+
+	void draw_circle(const slv::vec2<float>& pos, float radius, float alpha, const slv::rgb& color)
+	{
+		DrawCircleV(rl_vector(pos), radius, rl_color(color, alpha));
+	}
 }

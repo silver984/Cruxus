@@ -16,7 +16,7 @@ namespace slv
 	{
 	public:
 		Vessel() = default;
-		virtual ~Vessel() = default;
+		inline virtual ~Vessel() = default;
 
 		template<typename T, typename... args>
 		static inline slv::sptr<T> create(const slv::game_context& ctx, args&&... _args)
@@ -40,15 +40,15 @@ namespace slv
 
 		inline size_t count() const
 		{
-			return m_vessels.size();
+			return m_children.size();
 		}
 
-		inline slv::size<float> size() const
+		inline slv::size<float> dimensions() const
 		{
 			return size_;
 		}
 
-		inline slv::size<float> scaled_size() const
+		inline slv::size<float> scaled_dimensions() const
 		{
 			return slv::size<float>(size_.width * world_scale_.x, size_.height * world_scale_.y);
 		}
@@ -75,11 +75,11 @@ namespace slv
 
 		slv::vec2<float> pos{};
 		slv::vec2<float> anchor{ 0.5F, 0.5F };
-		slv::vec2<float> scale{ 1.0F, 1.0F };
+		slv::vec2<float> scale{ 1.f, 1.f };
 		slv::rgb color = slv::color::white;
-		float time_scale = 1.0F;
-		float rotation = 0.0F;
-		float alpha = 1.0F;
+		float time_scale = 1.f;
+		float rotation = 0.f;
+		float alpha = 1.f;
 		bool is_visible = true;
 		bool is_active = true;
 
@@ -96,18 +96,19 @@ namespace slv
 		void base_draw(const slv::game_context& ctx) const;
 
 		slv::size<float> size_;
-		slv::vec2<float> world_scale_{ 1.0F, 1.0F };
+		slv::vec2<float> world_scale_{ 1.f, 1.f };
 		slv::vec2<float> world_pos_{};
-		slv::vec2<float> world_anchor_{ 0.5F, 0.5F };
-		float world_rotation_ = 0.0F;
-		float world_alpha_ = 1.0F;
+		slv::vec2<float> world_anchor_{ 0.5f, 0.5f };
+		float world_rotation_ = 0.f;
+		float world_alpha_ = 1.f;
 
 	private:
 		bool has_ancestor(const slv::sptr<Vessel>& vessel) const;
+		void clean_children();
 
 		slv::wptr<Vessel> m_parent;
-		std::vector<slv::sptr<Vessel>> m_vessels;
+		std::vector<slv::sptr<Vessel>> m_children;
 		std::string m_name;
-		bool m_is_init = false;
+		bool m_is_initialized = false;
 	};
 }
