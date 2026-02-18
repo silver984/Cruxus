@@ -90,6 +90,17 @@ namespace slv
 		}
 
 		m_current_size = slv::size<int>(GetRenderWidth(), GetRenderHeight());
+
+		if (m_last_current_size != m_current_size)
+		{
+			m_was_resized = true;
+			m_last_current_size = m_current_size;
+		}
+		else
+		{
+			m_was_resized = false;
+		}
+
 		m_pos = slv::vec2<int>(static_cast<int>(GetWindowPosition().x), static_cast<int>(GetWindowPosition().y));
 
 #ifdef _WIN32
@@ -104,7 +115,8 @@ namespace slv
 
 		if (IsKeyPressed(KEY_F11))
 		{
-			toggle_fullscreen(true);
+			m_invoked_fullscreen = !m_invoked_fullscreen;
+			toggle_fullscreen(m_invoked_fullscreen);
 		}
 
 		m_elapsed += dt;
@@ -212,6 +224,7 @@ namespace slv
 
 		reset_minimum_size(); // reset minimum size of the window
 		SetWindowSize(set_as_default ? m_default_size.width : std::max(M_LOWEST_SIZE_PX, width), m_default_size.height);
+		m_was_resized = true;
 	}
 
 	void Window::set_height(int height, bool set_as_default)
@@ -228,6 +241,7 @@ namespace slv
 
 		reset_minimum_size(); // reset minimum size of the window
 		SetWindowSize(m_default_size.width, set_as_default ? m_default_size.height : std::max(M_LOWEST_SIZE_PX, height));
+		m_was_resized = true;
 	}
 
 	void Window::set_title(const std::string& title)

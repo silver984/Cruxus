@@ -50,6 +50,11 @@ namespace slv
         void close_console() const;
 #endif
 
+        bool was_resized() const
+        {
+            return m_was_resized;
+        }
+
         inline int running_fps() const
         {
             return m_running_fps;
@@ -108,6 +113,8 @@ namespace slv
         int m_running_fps = 0;
         int m_frame_count = 0;
         float m_elapsed = 0.f;
+        bool m_invoked_fullscreen = false;
+        bool m_was_resized = false;
         bool m_is_initialized = false;
 	};
 }

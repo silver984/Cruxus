@@ -66,7 +66,7 @@ namespace slv
 		std::string m_texture_file_path;
 		std::string m_data_file_path;
 		slv::rect<float> m_source{};
-		slv::rect<float> m_dest{};
+		slv::vec2<float> m_current_offsets{};
 		slv::sptr<slv::texture> m_texture = nullptr;
 		slv::sptr<slv::atlas_data> m_atlas_data = nullptr;
 		std::unordered_map<std::string, std::string> m_aliases;

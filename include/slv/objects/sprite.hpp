@@ -25,13 +25,11 @@ namespace slv
 
 	protected:
 		bool init(const slv::game_context& ctx) override;
-		void update(float dt, const slv::game_context& ctx) override;
 		void draw(const slv::game_context& ctx) const override;
 
 	private:
 		std::string m_file_path;
 		slv::rect<float> m_source{};
-		slv::rect<float> m_dest{};
 		slv::sptr<slv::texture> m_texture = nullptr;
 	};
 }

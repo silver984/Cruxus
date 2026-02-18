@@ -2,6 +2,8 @@
 #include <slv/game/Window.hpp>
 #include <slv/core/math.hpp>
 #include <algorithm>
+#include <cmath>
+#include <limits>
 
 namespace slv
 {
@@ -92,6 +94,32 @@ namespace slv
 		}
 	}
 
+	float Vessel::world_rotation() const
+	{
+		return std::atan2(world_transform_.m_[1][0], world_transform_.m_[0][0]);
+	}
+
+	slv::vec2<float> Vessel::world_position() const
+	{
+		return world_transform_.translation();
+	}
+
+	slv::vec2<float> Vessel::world_scale() const
+	{
+		float sx = std::sqrt(world_transform_.m_[0][0] * world_transform_.m_[0][0] +
+							 world_transform_.m_[0][1] * world_transform_.m_[0][1]);
+
+		float sy = std::sqrt(world_transform_.m_[1][0] * world_transform_.m_[1][0] +
+							 world_transform_.m_[1][1] * world_transform_.m_[1][1]);
+
+		return slv::vec2<float>(sx, sy);
+	}
+
+	slv::size<float> Vessel::world_dimensions() const
+	{
+		return slv::size<float>(dimensions_.width * world_scale().x, dimensions_.height * world_scale().y);
+	}
+
 	// protected
 	bool Vessel::base_init(const slv::game_context& ctx)
 	{
@@ -118,33 +146,48 @@ namespace slv
 			return;
 		}
 
-		// TODO: world transform
-		// TODO: negative values
-
-		slv::sptr<Vessel> _parent = parent().lock();
-
-		slv::vec2<float> parent_world_scale = _parent ? _parent->world_scale_ : slv::vec2<float>(1.f, 1.f);
-		slv::vec2<float> parent_world_pos = _parent ? _parent->world_pos_ : slv::vec2<float>(0.f, 0.f);
-		float parent_world_rotation = _parent ? _parent->world_rotation_ : 0.f;
-		float parent_world_alpha = _parent ? _parent->world_alpha_ : 1.f;
-
-		if (!_parent)
+		bool was_resized = ctx.window ? ctx.window->was_resized() : false;
+		bool alpha_changed = std::abs(m_last_alpha - alpha) > std::numeric_limits<float>::epsilon();
+		if (was_resized || m_last_pos != pos || alpha_changed || m_last_anchor != anchor ||
+			m_last_rotation != rotation || m_last_scale != scale || m_last_dimensions != dimensions_)
 		{
-			if (auto window = ctx.window)
+			m_last_pos = pos;
+			m_last_alpha = alpha;
+			m_last_anchor = anchor;
+			m_last_rotation = rotation;
+			m_last_scale = scale;
+			m_last_dimensions = dimensions_;
+			mark_dirty();
+		}
+
+		if (m_is_dirty)
+		{
+			auto anchor_offset = slv::vec2<float>(anchor.x * dimensions_.width,
+												  anchor.y * dimensions_.height);
+			float rad = slv::math::deg_to_rad(rotation);
+
+			slv::mat3 T = slv::mat3::translation(pos);
+			slv::mat3 R = slv::mat3::rotation(rad);
+			slv::mat3 S = slv::mat3::scale(scale);
+			slv::mat3 A = slv::mat3::translation(-anchor_offset);
+
+			local_transform_ = T * R * S * A;
+
+			if (auto p = m_parent.lock())
 			{
-				world_scale_ = scale * window->ui_scale();
+				world_transform_ = p->world_transform_ * local_transform_;
+				world_alpha_ = std::clamp(alpha * p->world_alpha_, 0.f, 1.f);
 			}
-		}
-		else
-		{
-			world_scale_ = scale * parent_world_scale;
-		}
+			else
+			{
+				float ui_scale = ctx.window ? ctx.window->ui_scale() : 1.f;
+				slv::mat3 UI = slv::mat3::scale(slv::vec2<float>(ui_scale, ui_scale));
+				world_transform_ = UI * local_transform_;
+				world_alpha_ = std::clamp(alpha, 0.f, 1.f);
+			}
 
-		world_pos_ = parent_world_pos + (pos * parent_world_scale);
-		world_rotation_ = rotation + parent_world_rotation;
-		world_alpha_ = std::clamp(std::clamp(alpha, 0.f, 1.f) * parent_world_alpha, 0.f, 1.f);
-		// world_anchor_ = slv::vec2<float>(anchor.x * size_.width, anchor.y * size_.height) * world_scale_;
-		world_anchor_ = slv::vec2<float>(anchor.x * scaled_dimensions().width, anchor.y * scaled_dimensions().height);
+			m_is_dirty = false;
+		}
 
 		float world_dt = dt * time_scale;
 		update(world_dt, ctx);
@@ -163,7 +206,7 @@ namespace slv
 	// protected
 	void Vessel::base_draw(const slv::game_context& ctx) const
 	{
-		if (!m_is_initialized || !is_visible || alpha == 0.f)
+		if (!m_is_initialized || !is_visible || world_alpha_ == 0.f)
 		{
 			return;
 		}
@@ -203,5 +246,22 @@ namespace slv
 	void Vessel::clean_children()
 	{
 		m_children.erase(std::remove(m_children.begin(), m_children.end(), nullptr), m_children.end());
+	}
+
+	// private
+	void Vessel::mark_dirty()
+	{
+		if (!m_is_dirty)
+		{
+			m_is_dirty = true;
+
+			for (auto& child : m_children)
+			{
+				if (child)
+				{
+					child->mark_dirty();
+				}
+			}
+		}
 	}
 }

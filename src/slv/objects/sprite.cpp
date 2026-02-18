@@ -29,8 +29,8 @@ namespace slv
 			return false;
 		}
 
-		this->size_ = m_texture ? slv::size<float>(static_cast<float>(m_texture->width), static_cast<float>(m_texture->height)) : slv::size<float>(0.f, 0.f);
-		m_source = slv::rect<float>(0.f, 0.f, this->size_.width, this->size_.height);
+		this->dimensions_ = slv::size<float>(static_cast<float>(m_texture->width), static_cast<float>(m_texture->height));
+		m_source = slv::rect<float>(0.f, 0.f, this->dimensions_.width, this->dimensions_.height);
 		set_antialiasing(true);
 		update(0.f, ctx);
 
@@ -38,19 +38,11 @@ namespace slv
 	}
 
 	// protected
-	void Sprite::update(float dt, const slv::game_context& ctx)
-	{
-		m_dest = slv::rect<float>(this->world_pos_.x, this->world_pos_.y, m_source.width * this->world_scale_.x, m_source.height * this->world_scale_.y);
-	}
-
-	// protected
 	void Sprite::draw(const slv::game_context& ctx) const
 	{
-		if (m_texture &&
-			m_source.width > 0.f && m_source.height > 0.f &&
-			m_dest.width > 0.f && m_dest.height > 0.f)
+		if (m_texture && m_source.width > 0.f && m_source.height > 0.f)
 		{
-			slv::raylib::draw_texture(*m_texture, m_source, m_dest, this->world_anchor_, this->world_rotation_, this->world_alpha_, this->color);
+			slv::raylib::draw_texture(*m_texture, m_source, slv::vec2<float>(0.f, 0.f), this->world_transform_, this->color, this->world_alpha_);
 		}
 	}
 }

@@ -80,26 +80,16 @@ namespace slv
 									static_cast<float>(current_frame.size_on_sheet.width),
 									static_cast<float>(current_frame.size_on_sheet.height));
 
-		auto atlas_offsets = slv::vec2<float>(static_cast<float>(current_frame.offsets.x) * this->world_scale_.x,
-											   static_cast<float>(current_frame.offsets.y) * this->world_scale_.y);
-		
-		auto offsets = slv::vec2<float>(m_offsets[m_current_anim].x * this->world_scale_.x,
-										 m_offsets[m_current_anim].y * this->world_scale_.y);
-
-		m_dest = slv::rect<float>(this->world_pos_.x - atlas_offsets.x + offsets.x,
-								  this->world_pos_.y - atlas_offsets.y + offsets.y,
-								  m_source.width * this->world_scale_.x,
-								  m_source.height * this->world_scale_.y);
+		auto atlas_offsets = slv::vec2<float>(static_cast<float>(current_frame.offsets.x), static_cast<float>(current_frame.offsets.y));
+		m_current_offsets = m_offsets[m_current_anim] - atlas_offsets;
 	}
 
 	// protected
 	void AnimatedSprite::draw(const slv::game_context& ctx) const
 	{
-		if (m_texture &&
-			m_source.width > 0.f && m_source.height > 0.f &&
-			m_dest.width > 0.f && m_dest.height > 0.f)
+		if (m_texture && m_source.width > 0.f && m_source.height > 0.f)
 		{
-			slv::raylib::draw_texture(*m_texture, m_source, m_dest, this->world_anchor_, this->world_rotation_, this->world_alpha_, this->color);
+			slv::raylib::draw_texture(*m_texture, m_source, m_current_offsets, this->world_transform_, this->color, this->world_alpha_);
 		}
 	}
 
@@ -121,7 +111,7 @@ namespace slv
 
 		if (total != 0)
 		{
-			size_ = compounded_size / total;
+			dimensions_ = compounded_size / total;
 		}
 	}
 

@@ -259,6 +259,11 @@ namespace slv
             return { x - rhs.x, y - rhs.y };
         }
 
+        constexpr vec2<T> operator-() const
+        {
+            return { -x, -y };
+        }
+
         constexpr vec2<T> operator*(const vec2<T>& rhs) const
         {
             return { x * rhs.x, y * rhs.y };
@@ -359,7 +364,9 @@ namespace slv
     public:
         mat3()
         {
-            set_identity();
+            m_[0][0] = 1; m_[0][1] = 0; m_[0][2] = 0;
+            m_[1][0] = 0; m_[1][1] = 1; m_[1][2] = 0;
+            m_[2][0] = 0; m_[2][1] = 0; m_[2][2] = 1;
         }
         
         mat3(float m00, float m01, float m02,
@@ -399,14 +406,6 @@ namespace slv
         inline vec2<float> translation() const
         {
             return vec2<float>(m_[0][2], m_[1][2]);
-        }
-
-    private:
-        inline void set_identity()
-        {
-            m_[0][0] = 1; m_[0][1] = 0; m_[0][2] = 0;
-            m_[1][0] = 0; m_[1][1] = 1; m_[1][2] = 0;
-            m_[2][0] = 0; m_[2][1] = 0; m_[2][2] = 1;
         }
 
         float m_[3][3];

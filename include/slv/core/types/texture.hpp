@@ -11,10 +11,12 @@ namespace slv
         int format{};
     };
 
+    /*
     struct render_texture
     {
         unsigned int id{};
         slv::texture tex;
         slv::texture depth;
     };
+    */
 }
