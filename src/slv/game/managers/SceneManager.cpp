@@ -37,7 +37,7 @@ namespace slv
 		}
 	}
 
-	void SceneManager::change_scene(slv::sptr<Scene>&& new_scene)
+	void SceneManager::change_scene(slv::sptr<slv::Vessel>&& new_scene)
 	{
 		if (!new_scene)
 		{

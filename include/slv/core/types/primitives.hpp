@@ -27,6 +27,11 @@ namespace slv
             return { width - rhs.width, height - rhs.height };
         }
 
+        constexpr size<T> operator-() const
+        {
+            return { -width, -height };
+        }
+
         constexpr size<T> operator*(const size<T>& rhs) const
         {
             return { width * rhs.width, height * rhs.height };
@@ -138,6 +143,11 @@ namespace slv
         constexpr rect<T> operator-(const rect<T>& rhs) const
         {
             return { x - rhs.x, y - rhs.y, width - rhs.width, height - rhs.height };
+        }
+
+        constexpr rect<T> operator-() const
+        {
+            return { -x, -y, -width, -height };
         }
 
         constexpr rect<T> operator*(const rect<T>& rhs) const
@@ -379,28 +389,29 @@ namespace slv
         }
 
         static mat3 rotation(float radians);
+        static mat3 skew(const vec2<float>& radians);
         mat3 operator*(const mat3& o) const;
         vec2<float> transform_point(const vec2<float>& p) const;
 
         static inline mat3 identity()
         {
-            return mat3(1, 0, 0,
-                        0, 1, 0,
-                        0, 0, 1);
+            return mat3(1.f, 0.f, 0,
+                        0.f, 1.f, 0,
+                        0.f, 0.f, 1);
         }
 
         static inline mat3 translation(const vec2<float>& t)
         {
-            return mat3(1, 0, t.x,
-                        0, 1, t.y,
-                        0, 0, 1);
+            return mat3(1.f, 0.f, t.x,
+                        0.f, 1.f, t.y,
+                        0.f, 0.f, 1.f);
         }
 
         static inline mat3 scale(const vec2<float>& s)
         {
-            return mat3(s.x, 0, 0,
-                        0, s.y, 0,
-                        0, 0, 1);
+            return mat3(s.x, 0.f, 0,
+                        0.f, s.y, 0,
+                        0.f, 0.f, 1.f);
         }
 
         inline vec2<float> translation() const

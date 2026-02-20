@@ -96,21 +96,21 @@ namespace slv
 
 	float Vessel::world_rotation() const
 	{
-		return std::atan2(world_transform_.m_[1][0], world_transform_.m_[0][0]);
+		return std::atan2(m_world_transform.m_[1][0], m_world_transform.m_[0][0]);
 	}
 
 	slv::vec2<float> Vessel::world_position() const
 	{
-		return world_transform_.translation();
+		return m_world_transform.translation();
 	}
 
 	slv::vec2<float> Vessel::world_scale() const
 	{
-		float sx = std::sqrt(world_transform_.m_[0][0] * world_transform_.m_[0][0] +
-							 world_transform_.m_[0][1] * world_transform_.m_[0][1]);
+		float sx = std::sqrt(m_world_transform.m_[0][0] * m_world_transform.m_[0][0] +
+							 m_world_transform.m_[0][1] * m_world_transform.m_[0][1]);
 
-		float sy = std::sqrt(world_transform_.m_[1][0] * world_transform_.m_[1][0] +
-							 world_transform_.m_[1][1] * world_transform_.m_[1][1]);
+		float sy = std::sqrt(m_world_transform.m_[1][0] * m_world_transform.m_[1][0] +
+							 m_world_transform.m_[1][1] * m_world_transform.m_[1][1]);
 
 		return slv::vec2<float>(sx, sy);
 	}
@@ -146,10 +146,11 @@ namespace slv
 			return;
 		}
 
-		bool was_resized = ctx.window ? ctx.window->was_resized() : false;
-		bool alpha_changed = std::abs(m_last_alpha - alpha) > std::numeric_limits<float>::epsilon();
-		if (was_resized || m_last_pos != pos || alpha_changed || m_last_anchor != anchor ||
-			m_last_rotation != rotation || m_last_scale != scale || m_last_dimensions != dimensions_)
+		alpha = std::clamp(alpha, 0.f, 1.f);
+
+		bool window_was_resized = ctx.window ? ctx.window->was_resized() : false;
+		if (window_was_resized || m_last_pos != pos || m_last_alpha != alpha || m_last_anchor != anchor ||
+			m_last_rotation != rotation || m_last_scale != scale || m_last_dimensions != dimensions_ || m_last_skew != skew)
 		{
 			m_last_pos = pos;
 			m_last_alpha = alpha;
@@ -157,6 +158,7 @@ namespace slv
 			m_last_rotation = rotation;
 			m_last_scale = scale;
 			m_last_dimensions = dimensions_;
+			m_last_skew = skew;
 			mark_dirty();
 		}
 
@@ -164,26 +166,29 @@ namespace slv
 		{
 			auto anchor_offset = slv::vec2<float>(anchor.x * dimensions_.width,
 												  anchor.y * dimensions_.height);
-			float rad = slv::math::deg_to_rad(rotation);
+			auto skew_rad = slv::vec2<float>(slv::math::deg_to_rad(skew.x),
+											 slv::math::deg_to_rad(skew.y));
+			float rotation_rad = slv::math::deg_to_rad(rotation);
 
 			slv::mat3 T = slv::mat3::translation(pos);
-			slv::mat3 R = slv::mat3::rotation(rad);
+			slv::mat3 R = slv::mat3::rotation(rotation_rad);
 			slv::mat3 S = slv::mat3::scale(scale);
+			slv::mat3 K = slv::mat3::skew(skew_rad);
 			slv::mat3 A = slv::mat3::translation(-anchor_offset);
 
-			local_transform_ = T * R * S * A;
+			m_local_transform = T * R * S * K * A;
 
 			if (auto p = m_parent.lock())
 			{
-				world_transform_ = p->world_transform_ * local_transform_;
-				world_alpha_ = std::clamp(alpha * p->world_alpha_, 0.f, 1.f);
+				m_world_transform = p->m_world_transform * m_local_transform;
+				m_world_alpha = std::clamp(alpha * p->m_world_alpha, 0.f, 1.f);
 			}
 			else
 			{
 				float ui_scale = ctx.window ? ctx.window->ui_scale() : 1.f;
 				slv::mat3 UI = slv::mat3::scale(slv::vec2<float>(ui_scale, ui_scale));
-				world_transform_ = UI * local_transform_;
-				world_alpha_ = std::clamp(alpha, 0.f, 1.f);
+				m_world_transform = UI * m_local_transform;
+				m_world_alpha = alpha;
 			}
 
 			m_is_dirty = false;
@@ -206,7 +211,7 @@ namespace slv
 	// protected
 	void Vessel::base_draw(const slv::game_context& ctx) const
 	{
-		if (!m_is_initialized || !is_visible || world_alpha_ == 0.f)
+		if (!m_is_initialized || !is_visible || m_world_alpha == 0.f)
 		{
 			return;
 		}

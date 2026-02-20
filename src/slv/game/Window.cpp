@@ -30,7 +30,7 @@ namespace slv
 		// disable raylib's logs
 		SetTraceLogCallback([](int, const char*, va_list) {});
 		m_title = title;
-#ifdef _WIN32
+#if (defined(SLV_DEBUG) || defined(SLV_RELWITHDEBINFO)) && defined(_WIN32)
 		open_console();
 #endif
 		

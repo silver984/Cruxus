@@ -89,7 +89,7 @@ namespace slv
 	{
 		if (m_texture && m_source.width > 0.f && m_source.height > 0.f)
 		{
-			slv::raylib::draw_texture(*m_texture, m_source, m_current_offsets, this->world_transform_, this->color, this->world_alpha_);
+			slv::raylib::draw_texture(*m_texture, m_source, m_current_offsets, this->world_transform(), this->color, this->world_alpha());
 		}
 	}
 

@@ -84,10 +84,24 @@ namespace slv::raylib
 		rlPopMatrix();
 	}
 
-	void draw_rectangle_sharp_lines(const slv::mat3& matrix, const slv::size<float>& size, const slv::rgb& color, float alpha, float thickness)
+	void draw_round_rectangle(const slv::mat3& matrix, const slv::size<float>& size, const slv::rgb& color, float alpha, float roundness, int segments)
 	{
 		push_matrix(matrix);
-		DrawRectangleLinesEx(Rectangle(0.f, 0.f, size.width, size.height), thickness, rl_color(color, alpha));
+		DrawRectangleRounded(Rectangle(0.f, 0.f, size.width, size.height), roundness, segments, rl_color(color, alpha));
+		rlPopMatrix();
+	}
+
+	void draw_rectangle_lines(const slv::mat3& matrix, const slv::vec2<float>& offset, const slv::size<float>& size, const slv::rgb& color, float alpha, float thickness)
+	{
+		push_matrix(matrix);
+		DrawRectangleLinesEx(Rectangle(offset.x, offset.y, size.width, size.height), thickness, rl_color(color, alpha));
+		rlPopMatrix();
+	}
+
+	void draw_round_rectangle_lines(const slv::mat3& matrix, const slv::vec2<float>& offset, const slv::size<float>& size, const slv::rgb& color, float alpha, float thickness, float roundness, int segments)
+	{
+		push_matrix(matrix);
+		DrawRectangleRoundedLinesEx(Rectangle(offset.x, offset.y, size.width, size.height), roundness, segments, thickness, rl_color(color, alpha));
 		rlPopMatrix();
 	}
 

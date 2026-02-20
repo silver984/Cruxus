@@ -42,7 +42,7 @@ namespace slv
 	{
 		if (m_texture && m_source.width > 0.f && m_source.height > 0.f)
 		{
-			slv::raylib::draw_texture(*m_texture, m_source, slv::vec2<float>(0.f, 0.f), this->world_transform_, this->color, this->world_alpha_);
+			slv::raylib::draw_texture(*m_texture, m_source, slv::vec2<float>(0.f, 0.f), this->world_transform(), this->color, this->world_alpha());
 		}
 	}
 }

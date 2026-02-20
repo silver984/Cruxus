@@ -12,8 +12,12 @@
 
 namespace slv
 {
+	class SceneManager; // forward declare
+
 	class Vessel : public std::enable_shared_from_this<Vessel>
 	{
+		friend class slv::SceneManager;
+
 	public:
 		Vessel() = default;
 		inline virtual ~Vessel() = default;
@@ -41,6 +45,11 @@ namespace slv
 		slv::vec2<float> world_position() const;
 		slv::vec2<float> world_scale() const;
 		slv::size<float> world_dimensions() const;
+
+		inline float world_alpha() const
+		{
+			return m_world_alpha;
+		}
 
 		inline size_t count() const
 		{
@@ -81,30 +90,33 @@ namespace slv
 		slv::vec2<float> pos{};
 		slv::vec2<float> anchor{ 0.5f, 0.5f };
 		slv::vec2<float> scale{ 1.f, 1.f };
-		float rotation = 0.f;
-		float alpha = 1.f;
+		slv::vec2<float> skew{ 0.f, 0.f }; // degrees
+		float rotation = 0.f; // degrees
+		float alpha = 1.f; // 0 - 1
 		float time_scale = 1.f;
 		bool is_visible = true;
 		bool is_active = true;
 
 	protected:
+		virtual void update(float dt, const slv::game_context& ctx) {}
+		virtual void draw(const slv::game_context& ctx) const {}
+
 		inline virtual bool init(const slv::game_context& ctx)
 		{
 			return true;
 		}
 
-		virtual void update(float dt, const slv::game_context& ctx) {}
-		virtual void draw(const slv::game_context& ctx) const {}
-		bool base_init(const slv::game_context& ctx);
-		void base_update(float dt, const slv::game_context& ctx);
-		void base_draw(const slv::game_context& ctx) const;
+		inline slv::mat3 world_transform() const
+		{
+			return m_world_transform;
+		}
 
-		slv::mat3 local_transform_ = slv::mat3::identity();
-		slv::mat3 world_transform_ = slv::mat3::identity();
-		float world_alpha_ = 1.f;
 		slv::size<float> dimensions_;
 
 	private:
+		bool base_init(const slv::game_context& ctx);
+		void base_update(float dt, const slv::game_context& ctx);
+		void base_draw(const slv::game_context& ctx) const;
 		bool has_ancestor(const slv::sptr<Vessel>& vessel) const;
 		void clean_children();
 		void mark_dirty();
@@ -112,10 +124,14 @@ namespace slv
 		slv::wptr<Vessel> m_parent;
 		std::vector<slv::sptr<Vessel>> m_children;
 		std::string m_name;
+		slv::mat3 m_local_transform = slv::mat3::identity();
+		slv::mat3 m_world_transform = slv::mat3::identity();
+		float m_world_alpha = 1.f;
 		slv::size<float> m_last_dimensions{ -1.f, -1.f };
 		slv::vec2<float> m_last_pos{ -1.f, -1.f };
 		slv::vec2<float> m_last_anchor{ -1.f, -1.f };
 		slv::vec2<float> m_last_scale{ -1.f, -1.f };
+		slv::vec2<float> m_last_skew{ -1.f, -1.f };
 		float m_last_rotation = -1.f;
 		float m_last_alpha = -1.f;
 		bool m_is_dirty = false;

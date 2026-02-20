@@ -7,7 +7,9 @@
 namespace slv::raylib
 {
 	void draw_rectangle(const slv::mat3& matrix, const slv::size<float>& size, const slv::rgb& color, float alpha);
-	void draw_rectangle_sharp_lines(const slv::mat3& matrix, const slv::size<float>& size, const slv::rgb& color, float alpha, float thickness);
+	void draw_round_rectangle(const slv::mat3& matrix, const slv::size<float>& size, const slv::rgb& color, float alpha, float roundness, int segments);
+	void draw_rectangle_lines(const slv::mat3& matrix, const slv::vec2<float>& offset, const slv::size<float>& size, const slv::rgb& color, float alpha, float thickness);
+	void draw_round_rectangle_lines(const slv::mat3& matrix, const slv::vec2<float>& offset, const slv::size<float>& size, const slv::rgb& color, float alpha, float thickness, float roundness, int segments);
 	void draw_texture(const slv::texture& texture, const slv::rect<float>& source, const slv::vec2<float>& offset, const slv::mat3& matrix, const slv::rgb& color, float alpha);
 	void draw_line(const slv::mat3& matrix, const slv::vec2<float>& start_pos, const slv::vec2<float>& end_pos, const slv::rgb& color, float alpha, float thickness);
 	void draw_circle(const slv::mat3& matrix, const slv::rgb& color, float alpha, float radius);
