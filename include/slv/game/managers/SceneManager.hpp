@@ -27,6 +27,7 @@ namespace slv
 	private:
 		void update(float dt, const slv::game_context& ctx);
 		void draw(const slv::game_context& ctx);
+		void safely_destroy_scene();
 
 		static constexpr inline const char* M_NAME = "SceneManager";
 		slv::sptr<slv::Vessel> m_current_scene = nullptr;

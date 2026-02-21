@@ -7,6 +7,8 @@
 
 namespace slv::math
 {
+    constexpr inline float pi = std::numbers::pi_v<float>;
+
     template <typename T>
     inline T lerp(T a, T b, T t)
     {
@@ -79,18 +81,14 @@ namespace slv::math
         return lerp(current, target, t);
     }
 
-    template <typename T>
-    inline T deg_to_rad(T deg)
+    inline float deg2rad(float deg)
     {
-        T angle = static_cast<T>(180); // explicit
-        return deg * (std::numbers::pi / angle);
+        return deg * (pi / 180.f);
     }
 
-    template <typename T>
-    inline T rad_to_deg(T rad)
+    inline float rad2deg(float rad)
     {
-        T angle = static_cast<T>(180); // explicit
-        return rad * (angle / std::numbers::pi);
+        return rad * (180.f / pi);
     }
 
     template <typename T>

@@ -38,6 +38,8 @@ namespace slv
 			this->dimensions_.height = height;
 		}
 
+		/*
+		// TO DO ROUNDNESS
 		float roundness = 0.f; // 0 - 1
 
 		enum class outline
@@ -51,6 +53,7 @@ namespace slv
 		float outline_alpha = 1.f;
 		slv::rgb outline_color = slv::color::red;
 		outline outline_type = outline::MIDDLE;
+		*/
 
 	protected:
 		inline bool init(const slv::game_context& ctx) override
@@ -59,13 +62,15 @@ namespace slv
 			return true;
 		}
 
-		void update(float dt, const slv::game_context& ctx) override;
+		// void update(float dt, const slv::game_context& ctx) override;
 		void draw(const slv::game_context& ctx) const override;
 
+		/*
 	private:
 		int m_roundness_segments = 0;
 		float m_world_outline_alpha = 0.f;
 		float m_outline_offset_factor = 0.f;
 		slv::vec2<float> m_outline_offsets{};
+		*/
 	};
 }

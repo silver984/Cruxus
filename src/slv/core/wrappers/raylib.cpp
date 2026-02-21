@@ -1,7 +1,10 @@
 #include <slv/core/wrappers/raylib.hpp>
+#include <slv/core/math.hpp>
 #include <raylib.h>
 #include <rlgl.h>
 #include <algorithm>
+#include <cmath>
+#include <cstdint>
 
 namespace
 {
@@ -67,7 +70,7 @@ namespace
 		return { texture.id, texture.width, texture.height, texture.mipmaps, texture.format };
 	}
 
-	void push_matrix(const slv::mat3& matrix)
+	void rl_push_mult_matrix(const slv::mat3& matrix)
 	{
 		rlPushMatrix();
 		Matrix rm = rl_matrix(matrix);
@@ -79,49 +82,143 @@ namespace slv::raylib
 {
 	void draw_rectangle(const slv::mat3& matrix, const slv::size<float>& size, const slv::rgb& color, float alpha)
 	{
-		push_matrix(matrix);
+		rl_push_mult_matrix(matrix);
 		DrawRectanglePro(Rectangle(0.f, 0.f, size.width, size.height), Vector2(0.f, 0.f), 0.f, rl_color(color, alpha));
 		rlPopMatrix();
 	}
 
+	/*
 	void draw_round_rectangle(const slv::mat3& matrix, const slv::size<float>& size, const slv::rgb& color, float alpha, float roundness, int segments)
 	{
-		push_matrix(matrix);
-		DrawRectangleRounded(Rectangle(0.f, 0.f, size.width, size.height), roundness, segments, rl_color(color, alpha));
+		if (size.width <= 0.f || size.height <= 0.f)
+		{
+			return;
+		}
+
+		segments = std::max(1, segments);
+		float max_radius = std::min(size.width, size.height) * 0.5f;
+		float radius = std::clamp(roundness, 0.f, 1.f) * max_radius;
+
+		float left = 0.f;
+		float right = size.width;
+		float top = 0.f;
+		float bottom = size.height;
+
+		float inner_left = left + radius;
+		float inner_right = right - radius;
+		float inner_top = top + radius;
+		float inner_bottom = bottom - radius;
+
+		Color col = rl_color(color, alpha);
+
+		rl_push_mult_matrix(matrix);
+		rlColor4ub(col.r, col.g, col.b, col.a);
+		rlBegin(RL_TRIANGLES);
+
+		// ----- Center quad
+		rlVertex2f(inner_left, inner_top);
+		rlVertex2f(inner_right, inner_top);
+		rlVertex2f(inner_right, inner_bottom);
+
+		rlVertex2f(inner_left, inner_top);
+		rlVertex2f(inner_right, inner_bottom);
+		rlVertex2f(inner_left, inner_bottom);
+
+		// ----- Top strip
+		rlVertex2f(inner_left, top);
+		rlVertex2f(inner_right, top);
+		rlVertex2f(inner_right, inner_top);
+
+		rlVertex2f(inner_left, top);
+		rlVertex2f(inner_right, inner_top);
+		rlVertex2f(inner_left, inner_top);
+
+		// ----- Bottom strip
+		rlVertex2f(inner_left, inner_bottom);
+		rlVertex2f(inner_right, inner_bottom);
+		rlVertex2f(inner_right, bottom);
+
+		rlVertex2f(inner_left, inner_bottom);
+		rlVertex2f(inner_right, bottom);
+		rlVertex2f(inner_left, bottom);
+
+		// ----- Left strip
+		rlVertex2f(left, inner_top);
+		rlVertex2f(inner_left, inner_top);
+		rlVertex2f(inner_left, inner_bottom);
+
+		rlVertex2f(left, inner_top);
+		rlVertex2f(inner_left, inner_bottom);
+		rlVertex2f(left, inner_bottom);
+
+		// ----- Right strip
+		rlVertex2f(inner_right, inner_top);
+		rlVertex2f(right, inner_top);
+		rlVertex2f(right, inner_bottom);
+
+		rlVertex2f(inner_right, inner_top);
+		rlVertex2f(right, inner_bottom);
+		rlVertex2f(inner_right, inner_bottom);
+
+		// ----- Corner arcs
+		auto corner = [&](float cx, float cy, float start_angle)
+			{
+				float step = slv::math::pi * 0.5f / segments;
+
+				for (int i = 0; i < segments; ++i)
+				{
+					float a0 = start_angle + step * i;
+					float a1 = start_angle + step * (i + 1);
+
+					rlVertex2f(cx, cy);
+					rlVertex2f(cx + std::cos(a0) * radius, cy + std::sin(a0) * radius);
+					rlVertex2f(cx + std::cos(a1) * radius, cy + std::sin(a1) * radius);
+				}
+			};
+
+		corner(inner_left, inner_top, slv::math::pi);
+		corner(inner_right, inner_top, -slv::math::pi * 0.5f);
+		corner(inner_right, inner_bottom, 0.f);
+		corner(inner_left, inner_bottom, slv::math::pi * 0.5f);
+
+		rlEnd();
 		rlPopMatrix();
 	}
+	*/
 
 	void draw_rectangle_lines(const slv::mat3& matrix, const slv::vec2<float>& offset, const slv::size<float>& size, const slv::rgb& color, float alpha, float thickness)
 	{
-		push_matrix(matrix);
+		rl_push_mult_matrix(matrix);
 		DrawRectangleLinesEx(Rectangle(offset.x, offset.y, size.width, size.height), thickness, rl_color(color, alpha));
 		rlPopMatrix();
 	}
 
+	/*
 	void draw_round_rectangle_lines(const slv::mat3& matrix, const slv::vec2<float>& offset, const slv::size<float>& size, const slv::rgb& color, float alpha, float thickness, float roundness, int segments)
 	{
-		push_matrix(matrix);
+		rl_push_mult_matrix(matrix);
 		DrawRectangleRoundedLinesEx(Rectangle(offset.x, offset.y, size.width, size.height), roundness, segments, thickness, rl_color(color, alpha));
 		rlPopMatrix();
 	}
+	*/
 
 	void draw_texture(const slv::texture& texture, const slv::rect<float>& source, const slv::vec2<float>& offset, const slv::mat3& matrix, const slv::rgb& color, float alpha)
 	{
-		push_matrix(matrix);
+		rl_push_mult_matrix(matrix);
 		DrawTexturePro(rl_texture(texture), rl_rect(source), Rectangle(offset.x, offset.y, source.width, source.height), Vector2(0.f, 0.f), 0.f, rl_color(color, alpha));
 		rlPopMatrix();
 	}
 
 	void draw_line(const slv::mat3& matrix, const slv::vec2<float>& start_pos, const slv::vec2<float>& end_pos, const slv::rgb& color, float alpha, float thickness)
 	{
-		push_matrix(matrix);
+		rl_push_mult_matrix(matrix);
 		DrawLineEx(rl_vector(start_pos), rl_vector(end_pos), thickness, rl_color(color, alpha));
 		rlPopMatrix();
 	}
 
 	void draw_circle(const slv::mat3& matrix, const slv::rgb& color, float alpha, float radius)
 	{
-		push_matrix(matrix);
+		rl_push_mult_matrix(matrix);
 		DrawCircleV(Vector2(0.f, 0.f), radius, rl_color(color, alpha));
 		rlPopMatrix();
 	}

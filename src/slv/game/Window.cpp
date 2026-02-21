@@ -14,12 +14,6 @@
 namespace slv
 {
 	// private
-	Window::~Window()
-	{
-		uninit();
-	}
-
-	// private
 	bool Window::init(const std::string& title, const slv::size<int>& size, int fps, int settings)
 	{
 		if (m_is_initialized)

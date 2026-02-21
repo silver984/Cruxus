@@ -1,4 +1,5 @@
 #include <slv/game/Game.hpp>
+#include <slv/core/console/log.hpp>
 
 namespace slv
 {
@@ -41,5 +42,13 @@ namespace slv
 			m_scene_manager.draw(ctx);
 			m_window.end_draw();
 		}
+
+		// cleanup, close window
+
+		m_scene_manager.safely_destroy_scene();
+		m_input_manager.clean_cache();
+		m_resource_manager.clean_cache();
+		m_audio_manager.uninit();
+		m_window.uninit();
 	}
 }

@@ -40,6 +40,7 @@ namespace slv
 
 	private:
 		void update(float dt);
+		void clean_cache();
 		slv::sptr<slv::action_bind> get_bind(const std::string& name) const;
 
 		static constexpr inline const char* M_NAME = "InputManager";

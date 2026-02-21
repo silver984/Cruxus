@@ -1,8 +1,12 @@
 #include <slv/game/managers/ResourceManager.hpp>
 #include <slv/core/console/log.hpp>
+#include <slv/core/audio_config.hpp>
 #include <raylib.h>
 #include <tinyxml2.h>
+#include <miniaudio/miniaudio.h>
 #include <filesystem>
+#include <algorithm>
+#include <cstdint>
 
 namespace slv
 {
@@ -13,44 +17,61 @@ namespace slv
 
         while (m_since_cleanup >= M_CLEANUP_INTERVAL)
         {
-            // clean up textures
-            for (auto it = m_cached_textures.begin(); it != m_cached_textures.end(); /**/)
-            {
-                if (it->second.use_count() <= 1)
-                {
-                    std::string key = it->first;
-                    auto& ptr = it->second;
-
-                    if (ptr)
-                    {
-                        UnloadTexture(Texture(ptr->id, ptr->width, ptr->height, ptr->mipmaps, ptr->format));
-                        slv::log::trace(M_NAME, "Unloaded texture: \"{}\"", key);
-                    }
-
-                    it = m_cached_textures.erase(it);
-                }
-                else
-                {
-                    ++it;
-                }
-            }
-
-            // clean up atlases
-            for (auto it = m_cached_atlas_datas.begin(); it != m_cached_atlas_datas.end(); /**/)
-            {
-                if (it->second.use_count() <= 1)
-                {
-                    std::string key = it->first;
-                    it = m_cached_atlas_datas.erase(it);
-                    slv::log::trace(M_NAME, "Unloaded atlas data: \"{}\"", key);
-                }
-                else
-                {
-                    ++it;
-                }
-            }
-
+            clean_cache();
             m_since_cleanup -= M_CLEANUP_INTERVAL;
+        }
+    }
+
+    // private
+    void ResourceManager::clean_cache()
+    {
+        for (auto it = m_cached_textures.begin(); it != m_cached_textures.end();)
+        {
+            if (it->second.use_count() <= 1)
+            {
+                std::string key = it->first;
+                auto& ptr = it->second;
+
+                if (ptr)
+                {
+                    UnloadTexture(Texture(ptr->id, ptr->width, ptr->height, ptr->mipmaps, ptr->format));
+                    slv::log::trace(M_NAME, "Unloaded texture: \"{}\"", key);
+                }
+
+                it = m_cached_textures.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+
+        for (auto it = m_cached_atlas_datas.begin(); it != m_cached_atlas_datas.end();)
+        {
+            if (it->second.use_count() <= 1)
+            {
+                std::string key = it->first;
+                it = m_cached_atlas_datas.erase(it);
+                slv::log::trace(M_NAME, "Unloaded atlas data: \"{}\"", key);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+
+        for (auto it = m_cached_pcm_datas.begin(); it != m_cached_pcm_datas.end();)
+        {
+            if (it->second.use_count() <= 1)
+            {
+                std::string key = it->first;
+                it = m_cached_pcm_datas.erase(it);
+                slv::log::trace(M_NAME, "Unloaded PCM data: \"{}\"", key);
+            }
+            else
+            {
+                ++it;
+            }
         }
     }
     
@@ -77,6 +98,12 @@ namespace slv
     slv::sptr<slv::texture> ResourceManager::load_texture(const std::string& file_path)
 	{
         parsed_path parsed = get_parsed_path(file_path);
+
+        if (auto it = m_cached_textures.find(parsed.stitched); it != m_cached_textures.end())
+        {
+            return it->second;
+        }
+
         const std::string& ext = parsed.extension;
         bool is_format_supported = std::any_of(M_SUPPORTED_IMG_FORMATS.begin(), M_SUPPORTED_IMG_FORMATS.end(),
                                                [&](auto e) { return ext == e; });
@@ -84,11 +111,6 @@ namespace slv
         {
             slv::log::error(M_NAME, "Can't load texture with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched);
             return nullptr;
-        }
-
-        if (auto it = m_cached_textures.find(parsed.stitched); it != m_cached_textures.end())
-        {
-            return it->second;
         }
 
         Texture2D texture_rl = LoadTexture(parsed.stitched.c_str());
@@ -99,11 +121,7 @@ namespace slv
             return nullptr;
         }
 
-        slv::sptr<slv::texture> tex = std::make_shared<slv::texture>(texture_rl.id,
-                                                                           texture_rl.width,
-                                                                           texture_rl.height,
-                                                                           texture_rl.mipmaps,
-                                                                           texture_rl.format);
+        slv::sptr<slv::texture> tex = std::make_shared<slv::texture>(texture_rl.id, texture_rl.width, texture_rl.height, texture_rl.mipmaps, texture_rl.format);
         m_cached_textures.emplace(parsed.stitched, tex);
         slv::log::trace(M_NAME, "Loaded texture: \"{}\"", parsed.stitched);
 
@@ -113,6 +131,12 @@ namespace slv
     slv::sptr<slv::atlas_data> ResourceManager::load_atlas_data(const std::string& file_path)
     {
         parsed_path parsed = get_parsed_path(file_path);
+
+        if (auto it = m_cached_atlas_datas.find(parsed.stitched); it != m_cached_atlas_datas.end())
+        {
+            return it->second;
+        }
+
         const std::string& ext = parsed.extension;
         bool is_format_supported = std::any_of(M_SUPPORTED_DATA_FORMATS.begin(), M_SUPPORTED_DATA_FORMATS.end(),
                                                [&](auto e) { return ext == e; });
@@ -120,11 +144,6 @@ namespace slv
         {
             slv::log::error(M_NAME, "Can't load atlas data with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched);
             return nullptr;
-        }
-
-        if (auto it = m_cached_atlas_datas.find(parsed.stitched); it != m_cached_atlas_datas.end())
-        {
-            return it->second;
         }
 
         auto err = [&parsed]() { slv::log::error(M_NAME, "Failed to load atlas data: \"{}\"", parsed.stitched); };
@@ -215,28 +234,70 @@ namespace slv
 
         m_cached_atlas_datas.emplace(parsed.stitched, atlas_data);
         slv::log::trace(M_NAME, "Loaded atlas data: \"{}\"", parsed.stitched);
-
         return atlas_data;
     }
 
-    /*
-    slv::audio_decoder ResourceManager::create_audio_decoder(const std::string& file_path)
+    slv::sptr<slv::pcm_data> ResourceManager::load_pcm_data(const std::string& file_path)
     {
         parsed_path parsed = get_parsed_path(file_path);
+
+        if (auto it = m_cached_pcm_datas.find(parsed.stitched); it != m_cached_pcm_datas.end())
+        {
+            return it->second;
+        }
+
         const std::string& ext = parsed.extension;
-        bool is_format_supported = std::any_of(M_SUPPORTED_DATA_FORMATS.begin(), M_SUPPORTED_DATA_FORMATS.end(),
+        bool is_format_supported = std::any_of(M_SUPPORTED_AUDIO_FORMATS.begin(), M_SUPPORTED_AUDIO_FORMATS.end(),
                                                [&](auto e) { return ext == e; });
         if (!is_format_supported)
         {
-            slv::log::error(M_NAME, "Can't load audio decoder with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched);
-            return slv::audio_decoder();
+            slv::log::error(M_NAME, "Can't load PCM data with unsupported format: \"{}\" | file_path: \"{}\"", ext, parsed.stitched);
+            return nullptr;
         }
 
-        static unsigned int current_id = 0;
-        current_id++;
+        ma_format format = SLV_AUDIO_SAMPLEFORMAT;
+        ma_uint32 channels = slv::AUDIO_CHANNELS;
+        ma_uint32 rate = slv::AUDIO_SAMPLE_RATE;
 
-        slv::audio_decoder audio_decoder;
-        audio_decoder.id = current_id;
+        ma_decoder decoder;
+        ma_decoder_config config = ma_decoder_config_init(format, channels, rate);
+        ma_result result = ma_decoder_init_file(parsed.stitched.c_str(), &config, &decoder);
+
+        if (result != MA_SUCCESS)
+        {
+            slv::log::error(M_NAME, "Failed to load PCM data | file_path: \"{}\"", parsed.stitched);
+            slv::log::error(M_NAME, "ma_decoder_init_file -> ma_result: {}", static_cast<int>(result));
+            return nullptr;
+        }
+
+        ma_uint64 total_frames = 0;
+        ma_decoder_get_length_in_pcm_frames(&decoder, &total_frames);
+
+        slv::sptr<slv::pcm_data> pcm = slv::shared<slv::pcm_data>();
+        pcm->resize(static_cast<size_t>(total_frames * channels));
+
+        ma_uint64 total_read = 0;
+
+        while (total_read < total_frames)
+        {
+            ma_uint64 frames_read = 0;
+            ma_result r = ma_decoder_read_pcm_frames(&decoder, pcm->data() + total_read * channels, total_frames - total_read, &frames_read);
+
+            if (r != MA_SUCCESS || frames_read == 0)
+            {
+                slv::log::warning(M_NAME, "ma_decoder_read_pcm_frames -> ma_result: {}", static_cast<int>(r));
+                break;
+            }
+
+            total_read += frames_read;
+        }
+
+        ma_decoder_uninit(&decoder);
+
+        // shrink if decoder returned fewer frames than expected
+        pcm->resize(static_cast<size_t>(total_read * channels));
+        m_cached_pcm_datas.emplace(parsed.stitched, pcm);
+        slv::log::trace(M_NAME, "Loaded PCM data: \"{}\" ({} frames)", parsed.stitched, static_cast<uint64_t>(total_read));
+        return pcm;
     }
-    */
 }

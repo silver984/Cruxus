@@ -6,6 +6,7 @@
 
 namespace slv
 {
+		/*
 	void Rectangle::update(float dt, const slv::game_context& ctx)
 	{
 		roundness = std::clamp(roundness, 0.f, 1.f);
@@ -46,6 +47,7 @@ namespace slv
 
 		m_outline_offsets = -slv::vec2<float>(m_outline_offset_factor, m_outline_offset_factor) / 2.f;
 	}
+		*/
 
 	// protected
 	void Rectangle::draw(const slv::game_context& ctx) const
@@ -53,13 +55,15 @@ namespace slv
 		auto world_transform = this->world_transform();
 		auto world_alpha = this->world_alpha();
 
+		slv::raylib::draw_rectangle(world_transform, this->dimensions_, this->color, world_alpha);
+		
+		/*
 		if (roundness == 0.f)
 		{
-			slv::raylib::draw_rectangle(world_transform, this->dimensions_, this->color, world_alpha);
 		}
 		else // with roundness
 		{
-			slv::raylib::draw_round_rectangle(world_transform, this->dimensions_, this->color, world_alpha, roundness, m_roundness_segments);
+			slv::raylib::draw_round_rectangle(world_transform, this->dimensions_, this->color, world_alpha, roundness, 4);
 		}
 
 		// draw outline
@@ -74,5 +78,6 @@ namespace slv
 				slv::raylib::draw_round_rectangle_lines(world_transform, -m_outline_offsets, this->dimensions_ - m_outline_offset_factor, this->outline_color, m_world_outline_alpha, outline_thickness, roundness, m_roundness_segments);
 			}
 		}
+		*/
 	}
 }

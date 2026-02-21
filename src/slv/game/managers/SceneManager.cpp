@@ -14,12 +14,7 @@ namespace slv
 
 		if (m_destroying_current_scene)
 		{
-			if (m_current_scene)
-			{
-				m_current_scene->destroy();
-				m_current_scene.reset();
-			}
-
+			safely_destroy_scene();
 			m_destroying_current_scene = false;
 		}
 
@@ -34,6 +29,15 @@ namespace slv
 		if (m_current_scene)
 		{
 			m_current_scene->base_draw(ctx);
+		}
+	}
+
+	void SceneManager::safely_destroy_scene()
+	{
+		if (m_current_scene)
+		{
+			m_current_scene->destroy();
+			m_current_scene.reset();
 		}
 	}
 

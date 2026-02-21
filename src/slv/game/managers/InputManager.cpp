@@ -14,23 +14,7 @@ namespace slv
 		m_since_cleanup += dt;
 		while (m_since_cleanup >= M_CLEANUP_INTERVAL)
 		{
-			// clean up binds
-			for (auto it = m_binds.begin(); it != m_binds.end(); /**/)
-			{
-				if (it->use_count() <= 1)
-				{
-					auto bind_ptr = it->get();
-					std::string name = bind_ptr->name;
-					int key = static_cast<int>(bind_ptr->key);
-					it = m_binds.erase(it);
-					slv::log::trace(M_NAME, "Erased bind: \"{}\" | key: {}", name, key);
-				}
-				else
-				{
-					++it;
-				}
-			}
-
+			clean_cache();
 			m_since_cleanup -= M_CLEANUP_INTERVAL;
 		}
 
@@ -44,6 +28,25 @@ namespace slv
 			if (IsKeyPressed(static_cast<int>(key)))
 			{
 				m_current_key_pressed = key;
+			}
+		}
+	}
+
+	void InputManager::clean_cache()
+	{
+		for (auto it = m_binds.begin(); it != m_binds.end();)
+		{
+			if (it->use_count() <= 1)
+			{
+				auto bind_ptr = it->get();
+				std::string name = bind_ptr->name;
+				int key = static_cast<int>(bind_ptr->key);
+				it = m_binds.erase(it);
+				slv::log::trace(M_NAME, "Erased bind: \"{}\" | key: {}", name, key);
+			}
+			else
+			{
+				++it;
 			}
 		}
 	}

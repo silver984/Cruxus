@@ -16,7 +16,7 @@ namespace slv
 
     private:
         Window() = default;
-        ~Window();
+        ~Window() = default;
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
         Window(Window&&) = delete;

@@ -1,6 +1,9 @@
 #pragma once
 
+#include <slv/core/types/audio.hpp>
+#include <slv/core/types/pointers.hpp>
 #include <string>
+#include <vector>
 
 namespace slv
 {
@@ -12,14 +15,14 @@ namespace slv
 
 	private:
 		AudioManager() = default;
-		~AudioManager();
+		~AudioManager() = default;
 		AudioManager(const AudioManager&) = delete;
 		AudioManager& operator=(const AudioManager&) = delete;
 		AudioManager(AudioManager&&) = delete;
 		AudioManager& operator=(AudioManager&&) = delete;
 	
 	public:
-		bool play_audio(const std::string& file_path) const;
+		bool push_pcm_data(const slv::sptr<slv::pcm_data>& pcm) const;
 
 	private:
 		static constexpr inline const char* M_NAME = "AudioManager";

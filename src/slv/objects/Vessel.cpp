@@ -164,11 +164,9 @@ namespace slv
 
 		if (m_is_dirty)
 		{
-			auto anchor_offset = slv::vec2<float>(anchor.x * dimensions_.width,
-												  anchor.y * dimensions_.height);
-			auto skew_rad = slv::vec2<float>(slv::math::deg_to_rad(skew.x),
-											 slv::math::deg_to_rad(skew.y));
-			float rotation_rad = slv::math::deg_to_rad(rotation);
+			auto anchor_offset = slv::vec2<float>(anchor.x * dimensions_.width, anchor.y * dimensions_.height);
+			auto skew_rad = slv::vec2<float>(slv::math::deg2rad(skew.x), slv::math::deg2rad(skew.y));
+			float rotation_rad = slv::math::deg2rad(rotation);
 
 			slv::mat3 T = slv::mat3::translation(pos);
 			slv::mat3 R = slv::mat3::rotation(rotation_rad);
