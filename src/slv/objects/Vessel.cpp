@@ -94,6 +94,65 @@ namespace slv
 		}
 	}
 
+	size_t Vessel::count() const
+	{
+		size_t c = m_children.size();
+
+		for (const auto& child : m_children)
+		{
+			if (child)
+			{
+				c += child->count();
+			}
+		}
+
+		return c;
+	}
+
+	size_t Vessel::count_active() const
+	{
+		size_t c = 0;
+
+		for (const auto& child : m_children)
+		{
+			if (!child)
+			{
+				continue;
+			}
+
+			if (child->is_active)
+			{
+				c++;
+			}
+
+			c += child->count_active();
+		}
+
+		return c;
+	}
+
+	size_t Vessel::count_visible() const
+	{
+		size_t c = 0;
+
+		for (const auto& child : m_children)
+		{
+			if (!child)
+			{
+				continue;
+			}
+
+			if (child->is_visible)
+			{
+				c++;
+			}
+
+			c += child->count_visible();
+		}
+
+		return c;
+	}
+
 	float Vessel::world_rotation() const
 	{
 		return std::atan2(m_world_transform.m_[1][0], m_world_transform.m_[0][0]);

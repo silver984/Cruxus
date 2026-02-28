@@ -10,7 +10,7 @@ namespace slv
 			return true;
 		}
 
-		if (!m_window.init(window_title, window_size, fps, window_settings))
+		if (!m_window.init(window_title, window_size, fps, window_settings, context()))
 		{
 			return false;
 		}
@@ -25,22 +25,23 @@ namespace slv
 
 	void Game::run()
 	{
+		auto ctx = context();
+
 		while (m_window.is_open())
 		{
 			// update
 
 			float dt = m_window.delta_time();
-			m_window.update(dt);
+			m_window.update(dt, ctx);
 			m_input_manager.update(dt);
 			m_resource_manager.update(dt);
-			auto ctx = context();
 			m_scene_manager.update(dt, ctx);
 			
 			// draw
 
 			m_window.start_draw();
 			m_scene_manager.draw(ctx);
-			m_window.end_draw();
+			m_window.end_draw(ctx);
 		}
 
 		// cleanup, close window

@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <string>
 #include <array>
+#include <cstdint>
 
 namespace slv
 {
@@ -25,9 +26,15 @@ namespace slv
 		ResourceManager& operator=(ResourceManager&&) = delete;
 
 	public:
+		size_t cache_count();
 		slv::sptr<slv::texture> load_texture(const std::string& file_path);
 		slv::sptr<slv::atlas_data> load_atlas_data(const std::string& file_path);
 		slv::sptr<slv::pcm_data> load_pcm_data(const std::string& file_path);
+
+		inline float since_cleanup() const
+		{
+			return m_since_cleanup;
+		}
 
 	private:
 		struct parsed_path
@@ -43,7 +50,7 @@ namespace slv
 		parsed_path get_parsed_path(const std::string& file_path) const;
 
 		static constexpr inline const char* M_NAME = "ResourceManager";
-		static constexpr inline float M_CLEANUP_INTERVAL = 1.f;
+		static constexpr inline float M_CLEANUP_INTERVAL = 10.f;
 		static constexpr inline std::array<const char*, 3> M_SUPPORTED_IMG_FORMATS{ "png", "jpg", "jpeg" };
 		static constexpr inline std::array<const char*, 2> M_SUPPORTED_AUDIO_FORMATS{ "mp3", "wav" };
 		static constexpr inline std::array<const char*, 1> M_SUPPORTED_DATA_FORMATS{ "xml" };

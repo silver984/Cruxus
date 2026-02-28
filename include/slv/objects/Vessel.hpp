@@ -41,6 +41,9 @@ namespace slv
 		void add(const slv::sptr<Vessel>& vessel);
 		void remove(const slv::sptr<Vessel>& vessel);
 		void destroy();
+		size_t count() const;
+		size_t count_active() const;
+		size_t count_visible() const;
 		float world_rotation() const;
 		slv::vec2<float> world_position() const;
 		slv::vec2<float> world_scale() const;
@@ -49,11 +52,6 @@ namespace slv
 		inline float world_alpha() const
 		{
 			return m_world_alpha;
-		}
-
-		inline size_t count() const
-		{
-			return m_children.size();
 		}
 
 		inline slv::size<float> dimensions() const

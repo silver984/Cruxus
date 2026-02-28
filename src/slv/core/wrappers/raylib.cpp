@@ -15,7 +15,7 @@ namespace
 
 	Color rl_color(const slv::rgb& color, float alpha)
 	{
-		return { color.r, color.g, color.b, static_cast<unsigned char>(255.0F * alpha) };
+		return { color.r, color.g, color.b, static_cast<unsigned char>(255.f * alpha) };
 	}
 
 	Texture rl_texture(const slv::texture& texture)
@@ -30,30 +30,15 @@ namespace
 
 	Matrix rl_matrix(const slv::mat3& matrix)
 	{
-		return Matrix(// column 0
-					  matrix.m_[0][0],  // m0
-					  matrix.m_[1][0],  // m1
-					  0.0f,        // m2
-					  0.0f,        // m3
-
-					  // column 1
-					  matrix.m_[0][1],  // m4
-					  matrix.m_[1][1],  // m5
-					  0.0f,        // m6
-					  0.0f,        // m7
-
-					  // column 2
-					  0.0f,        // m8
-					  0.0f,        // m9
-					  1.0f,        // m10
-					  0.0f,        // m11
-
-					  // column 3 (translation)
-					  matrix.m_[0][2],  // m12 (x)
-					  matrix.m_[1][2],  // m13 (y)
-					  0.0f,        // m14
-					  1.0f         // m15
-		);
+		return
+		{
+			matrix.m_[0][0], matrix.m_[1][0],
+			0.0f, 0.0f,
+			matrix.m_[0][1], matrix.m_[1][1],
+			0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+			matrix.m_[0][2], matrix.m_[1][2],
+			0.0f, 1.0f
+		};
 	}
 
 	/*
@@ -80,6 +65,21 @@ namespace
 
 namespace slv::raylib
 {
+	bool init_window(int width, int height, int fps, const char* title)
+	{
+		InitWindow(width, height, title);
+
+		if (!IsWindowReady() || !GetWindowHandle())
+		{
+			return false;
+		}
+
+		SetTargetFPS(fps);
+		SetExitKey(KEY_NULL);
+
+		return true;
+	}
+
 	void draw_rectangle(const slv::mat3& matrix, const slv::size<float>& size, const slv::rgb& color, float alpha)
 	{
 		rl_push_mult_matrix(matrix);

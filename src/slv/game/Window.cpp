@@ -2,6 +2,9 @@
 #include <fmt/format.h>
 #include <slv/core/console/log.hpp>
 #include <slv/core/wrappers/raylib.hpp>
+#include <slv/core/heap_alloc.hpp>
+#include <slv/game/managers/SceneManager.hpp>
+#include <slv/game/managers/ResourceManager.hpp>
 #ifdef _WIN32
 #include <platform/windows/console.hpp>
 #include <platform/windows/memory_usage.hpp>
@@ -14,7 +17,7 @@
 namespace slv
 {
 	// private
-	bool Window::init(const std::string& title, const slv::size<int>& size, int fps, int settings)
+	bool Window::init(const std::string& title, const slv::size<int>& size, int fps, int settings, const slv::game_context& ctx)
 	{
 		if (m_is_initialized)
 		{
@@ -23,34 +26,29 @@ namespace slv
 		
 		// disable raylib's logs
 		SetTraceLogCallback([](int, const char*, va_list) {});
+		
 		m_title = title;
+
 #if (defined(SLV_DEBUG) || defined(SLV_RELWITHDEBINFO)) && defined(_WIN32)
 		open_console();
 #endif
 		
 		configure_settings(settings);
 
-		m_default_size.width = std::max(M_LOWEST_SIZE_PX, size.width);
-		m_default_size.height = std::max(M_LOWEST_SIZE_PX, size.height);
-		InitWindow(m_default_size.width, m_default_size.height, title.c_str());
+		m_default_size.width = std::max(1, size.width);
+		m_default_size.height = std::max(1, size.height);
+		m_target_fps = std::max(1, fps);
 
-		if (!IsWindowReady() || !GetWindowHandle())
+		if (!slv::raylib::init_window(m_default_size.width, m_default_size.height, m_target_fps, title.c_str()))
 		{
 			slv::log::error(M_NAME, "Failed to initialize window");
-			m_default_size = slv::size<int>(0, 0);
-			m_title = "";
 			return false;
 		}
-	
-		// set the minimum and maximum size of the window
-		reset_minimum_size();
-
-		m_target_fps = std::max(1, fps);
-		SetTargetFPS(m_target_fps);
-		SetExitKey(KEY_NULL); // disable closing the window when ESC is pressed
 
 		m_is_initialized = true;
-		update(0.f);
+
+		update(0.f, ctx);
+		
 		slv::log::info(M_NAME, "Window initialized");
 
 		return true;
@@ -76,7 +74,7 @@ namespace slv
 	}
 	
 	// private
-	void Window::update(float dt)
+	void Window::update(float dt, const slv::game_context& ctx)
 	{
 		if (!m_is_initialized)
 		{
@@ -116,12 +114,21 @@ namespace slv
 		m_elapsed += dt;
 		m_frame_count++;
 
-		while (m_elapsed >= 1.0f)
+		while (m_elapsed >= 1.f)
 		{
 			m_running_fps = m_frame_count;
 			m_frame_count = 0;
-			m_elapsed -= 1.0f;
+			m_elapsed -= 1.f;
 		}
+
+#if (defined(SLV_DEBUG) || defined(SLV_RELWITHDEBINFO))
+#ifdef _WIN32
+		m_memory_usage = slv::win32::get_memory_mb();
+		m_max_memory_usage = std::max(m_memory_usage, m_max_memory_usage);
+#endif
+		m_heap_alloc = slv::heap::mb();
+		m_max_heap_alloc = std::max(m_heap_alloc, m_max_heap_alloc);
+#endif
 	}
 
 	// private
@@ -145,7 +152,7 @@ namespace slv
 	}
 
 	// private
-	void Window::end_draw() const
+	void Window::end_draw(const slv::game_context& ctx) const
 	{
 		if (!m_is_initialized)
 		{
@@ -154,18 +161,42 @@ namespace slv
 
 #if defined(SLV_DEBUG) || defined(SLV_RELWITHDEBINFO)
 		int text_size = 10;
-		int text_padding = text_size;
 		int text_border_padding = 5;
-		DrawText(fmt::format("FPS: {}", running_fps()).c_str(), text_border_padding, text_border_padding, text_size, WHITE);
+		
+		std::string debug_text = fmt::format("FPS: {} / {:.0f}ms", running_fps(), delta_time() * 1000.f);
 
-		float memory_usage = 0.f;
-#ifdef _WIN32
-		memory_usage = slv::win32::get_memory_mb();
-#endif
-		if (memory_usage != 0.f)
+		if (m_memory_usage != 0.f)
 		{
-			DrawText(fmt::format("MEM: {:.2f}MB", memory_usage).c_str(), text_border_padding, text_border_padding + text_padding, text_size, WHITE);
+			debug_text = debug_text + fmt::format("\nMEM: {:.2f}mb / {:.2f}mb", m_memory_usage, m_max_memory_usage);
 		}
+
+		if (m_heap_alloc != 0.f)
+		{
+			debug_text = debug_text + fmt::format("\nHEAP: ~{:.2f}mb / ~{:.2f}mb", m_heap_alloc, m_max_heap_alloc);
+		}
+
+		float since_cache_cleanup = ctx.resource_manager ? ctx.resource_manager->since_cleanup() * 1000.f : 0.f;
+		size_t cache_count = ctx.resource_manager ? ctx.resource_manager->cache_count() : 0;
+		
+		debug_text = debug_text + fmt::format("\nCACHED: {} / {:.0f}ms", cache_count, since_cache_cleanup);
+
+		size_t obj_total = 0;
+		size_t obj_active_total = 0;
+		size_t obj_visible_total = 0;
+
+		if (auto scene_manager = ctx.scene_manager)
+		{
+			if (auto current_scene = scene_manager->current_scene().lock())
+			{
+				obj_total = current_scene->count();
+				obj_active_total = current_scene->count_active();
+				obj_visible_total = current_scene->count_visible();
+			}
+		}
+
+		debug_text = debug_text + fmt::format("\nOBJs: {} active / {} visible / {} total", obj_total, obj_active_total, obj_visible_total);
+
+		DrawText(debug_text.c_str(), text_border_padding, text_border_padding, text_size, WHITE);
 #endif
 		
 		EndScissorMode();
@@ -213,11 +244,10 @@ namespace slv
 
 		if (set_as_default)
 		{
-			m_default_size.width = std::max(M_LOWEST_SIZE_PX, width);
+			m_default_size.width = std::max(1, width);
 		}
 
-		reset_minimum_size(); // reset minimum size of the window
-		SetWindowSize(set_as_default ? m_default_size.width : std::max(M_LOWEST_SIZE_PX, width), m_default_size.height);
+		SetWindowSize(set_as_default ? m_default_size.width : std::max(1, width), m_default_size.height);
 		m_was_resized = true;
 	}
 
@@ -230,11 +260,10 @@ namespace slv
 
 		if (set_as_default)
 		{
-			m_default_size.height = std::max(M_LOWEST_SIZE_PX, height);
+			m_default_size.height = std::max(1, height);
 		}
 
-		reset_minimum_size(); // reset minimum size of the window
-		SetWindowSize(m_default_size.width, set_as_default ? m_default_size.height : std::max(M_LOWEST_SIZE_PX, height));
+		SetWindowSize(m_default_size.width, set_as_default ? m_default_size.height : std::max(1, height));
 		m_was_resized = true;
 	}
 
@@ -464,13 +493,5 @@ namespace slv
 		}
 
 		SetConfigFlags(flags);
-	}
-
-	// private
-	void Window::reset_minimum_size()
-	{
-		m_minimum_size.width = std::min(m_default_size.width, M_LOW_SIZE.width);
-		m_minimum_size.height = std::min(m_default_size.height, M_LOW_SIZE.height);
-		SetWindowMinSize(m_minimum_size.width, m_minimum_size.height);
 	}
 }

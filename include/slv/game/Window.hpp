@@ -3,6 +3,7 @@
 #include <slv/core/types/window_settings.hpp>
 #include <slv/core/types/primitives.hpp>
 #include <slv/core/types/texture.hpp>
+#include <slv/core/types/game_context.hpp>
 #include <string>
 #include <vector>
 
@@ -65,11 +66,6 @@ namespace slv
             return m_current_size;
         }
 
-        inline slv::size<int> minimum_size() const
-        {
-            return m_minimum_size;
-        }
-
         inline slv::size<int> default_size() const
         {
             return m_default_size;
@@ -91,21 +87,17 @@ namespace slv
         }
 
     private:
-        bool init(const std::string& title, const slv::size<int>& size, int fps, int settings);
+        bool init(const std::string& title, const slv::size<int>& size, int fps, int settings, const slv::game_context& ctx);
         void uninit();
-        void update(float dt);
+        void update(float dt, const slv::game_context& ctx);
         void start_draw() const;
-        void end_draw() const;
+        void end_draw(const slv::game_context& ctx) const;
         void configure_settings(int settings);
-        void reset_minimum_size();
 
         static constexpr inline const char* M_NAME = "Window";
-        static constexpr inline int M_LOWEST_SIZE_PX = 400;
-        static constexpr inline slv::size<int> M_LOW_SIZE{ 800, 600 };
         slv::vec2<int> m_pos{};
         slv::size<int> m_default_size{};
         slv::size<int> m_current_size{};
-        slv::size<int> m_minimum_size{};
         slv::size<int> m_last_current_size{};
         slv::size<int> m_unmaximized_size{};
         std::string m_title;
@@ -113,6 +105,12 @@ namespace slv
         int m_running_fps = 0;
         int m_frame_count = 0;
         float m_elapsed = 0.f;
+#ifdef SLV_DEBUG
+        float m_memory_usage = 0.f;
+        float m_max_memory_usage = 0.f;
+        float m_heap_alloc = 0.f;
+        float m_max_heap_alloc = 0.f;
+#endif
         bool m_invoked_fullscreen = false;
         bool m_was_resized = false;
         bool m_is_initialized = false;

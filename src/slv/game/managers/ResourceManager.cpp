@@ -95,6 +95,17 @@ namespace slv
                            ext);
     }
 
+    size_t ResourceManager::cache_count()
+    {
+        size_t c = 0;
+
+        c += m_cached_textures.size();
+        c += m_cached_atlas_datas.size();
+        c += m_cached_pcm_datas.size();
+
+        return c;
+    }
+
     slv::sptr<slv::texture> ResourceManager::load_texture(const std::string& file_path)
 	{
         parsed_path parsed = get_parsed_path(file_path);

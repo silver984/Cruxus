@@ -24,6 +24,11 @@ namespace slv
 		void change_scene(slv::sptr<slv::Vessel>&& new_scene);
 		void destroy_current_scene();
 
+		slv::wptr<slv::Vessel> current_scene()
+		{
+			return m_current_scene;
+		}
+
 	private:
 		void update(float dt, const slv::game_context& ctx);
 		void draw(const slv::game_context& ctx);
