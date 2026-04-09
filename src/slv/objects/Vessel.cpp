@@ -1,329 +1,380 @@
 #include <slv/objects/Vessel.hpp>
-#include <slv/game/Window.hpp>
+#include <slv/game/managers/WindowManager.hpp>
 #include <slv/core/math.hpp>
 #include <algorithm>
 #include <cmath>
 #include <limits>
 
-namespace slv
-{
-	void Vessel::add(const slv::sptr<Vessel>& vessel)
-	{
-		if (!vessel)
-		{
-			return;
-		}
+namespace slv {
 
-		auto self = shared_from_this();
+Vessel::Vessel() :
+	color(255, 255, 255),
+	pos(0.f, 0.f),
+	anchor(0.5f, 0.5f),
+	scale(1.f, 1.f),
+	skew(0.f, 0.f),
+	rotation(0.f),
+	alpha(1.f),
+	time_scale(1.f),
+	is_visible(true),
+	is_active(true),
+	content_size_(0.f, 0.f),
+	local_transform_(mat3::identity()),
+	world_transform_(mat3::identity()),
+	world_alpha_(1.f),
+	last_rotation_(-1.f),
+	last_alpha_(-1.f),
+	last_content_size_(-1.f, -1.f),
+	last_pos_(-1.f, -1.f),
+	last_anchor_(-1.f, -1.f),
+	last_scale_(-1.f, -1.f),
+	last_skew_(-1.f, -1.f),
+	is_dirty_(false),
+	is_initialized_(false)
+{}
 
-		if (vessel == self)
-		{
-			// prevent self-parenting
-			return;
-		}
+Vessel::~Vessel() = default;
 
-		if (vessel->has_ancestor(self))
-		{
-			// prevent hierarchy cycle
-			return;
-		}
-
-		if (std::find(m_children.begin(), m_children.end(), vessel) != m_children.end())
-		{
-			// prevent duplicates
-			return;
-		}
-
-		if (auto old_parent = vessel->parent().lock())
-		{
-			// remove from old parent
-			old_parent->remove(vessel);
-		}
-
-		vessel->m_parent = weak_from_this();
-		m_children.push_back(vessel);
+void Vessel::add(sptr<Vessel> vessel) {
+	if (!vessel) {
+		return;
 	}
 
-	void Vessel::remove(const slv::sptr<Vessel>& vessel)
-	{
-		if (!vessel)
-		{
-			return;
-		}
+	vec2<float> huh;
 
-		auto self = shared_from_this();
+	auto self = shared_from_this();
 
-		if (vessel == self)
-		{
-			// prevent self-remove
-			return;
-		}
-
-		auto it = std::find(m_children.begin(), m_children.end(), vessel);
-		if (it == m_children.end())
-		{
-			return;
-		}
-
-		vessel->m_parent.reset();
-		m_children.erase(it);
+	if (vessel == self) {
+		// prevent self-parenting
+		return;
 	}
 
-	void Vessel::destroy()
-	{
-		if (!m_is_initialized)
-		{
-			return;
-		}
-
-		m_is_initialized = false;
-
-		if (auto parent = m_parent.lock())
-		{
-			parent->remove(shared_from_this());
-		}
-
-		// recursively destroy children
-		while (!m_children.empty())
-		{
-			auto child = m_children.back();
-			m_children.pop_back();
-
-			child->m_parent.reset();
-			child->destroy();
-		}
+	if (vessel->has_ancestor(self)) {
+		// prevent hierarchy cycle
+		return;
 	}
 
-	size_t Vessel::count() const
-	{
-		size_t c = m_children.size();
+	if (std::find(children_.begin(), children_.end(), vessel) != children_.end()) {
+		// prevent duplicates
+		return;
+	}
 
-		for (const auto& child : m_children)
-		{
-			if (child)
-			{
-				c += child->count();
-			}
+	if (auto old_parent = vessel->parent().lock()) {
+		// remove from old parent
+		old_parent->remove(vessel);
+	}
+
+	vessel->parent_ = weak_from_this();
+	children_.push_back(vessel);
+}
+
+void Vessel::remove(sptr<Vessel> vessel) {
+	if (!vessel) {
+		return;
+	}
+
+	auto self = shared_from_this();
+
+	if (vessel == self) {
+		// prevent self-remove
+		return;
+	}
+
+	auto it = std::find(children_.begin(), children_.end(), vessel);
+	if (it == children_.end()) {
+		return;
+	}
+
+	vessel->parent_.reset();
+	children_.erase(it);
+}
+
+void Vessel::destroy() {
+	if (!is_initialized_) {
+		return;
+	}
+
+	is_initialized_ = false;
+
+	if (auto parent = parent_.lock()) {
+		parent->remove(shared_from_this());
+	}
+
+	// recursively destroy children
+	while (!children_.empty()) {
+		auto child = children_.back();
+		children_.pop_back();
+		child->parent_.reset();
+		child->destroy();
+	}
+}
+
+size_t Vessel::count() const {
+	size_t c = children_.size();
+
+	for (auto const& child : children_) {
+		if (!child) {
+			continue;
+		}
+		
+		c += child->count();
+	}
+
+	return c;
+}
+
+size_t Vessel::count_active() const {
+	size_t c = 0;
+
+	for (auto const& child : children_) {
+		if (!child) {
+			continue;
 		}
 
-		return c;
-	}
-
-	size_t Vessel::count_active() const
-	{
-		size_t c = 0;
-
-		for (const auto& child : m_children)
-		{
-			if (!child)
-			{
-				continue;
-			}
-
-			if (child->is_active)
-			{
-				c++;
-			}
-
-			c += child->count_active();
+		if (child->is_active) {
+			c++;
 		}
 
-		return c;
+		c += child->count_active();
 	}
 
-	size_t Vessel::count_visible() const
-	{
-		size_t c = 0;
+	return c;
+}
 
-		for (const auto& child : m_children)
-		{
-			if (!child)
-			{
-				continue;
-			}
+size_t Vessel::count_visible() const {
+	size_t c = 0;
 
-			if (child->is_visible)
-			{
-				c++;
-			}
-
-			c += child->count_visible();
+	for (auto const& child : children_) {
+		if (!child) {
+			continue;
 		}
 
-		return c;
-	}
-
-	float Vessel::world_rotation() const
-	{
-		return std::atan2(m_world_transform.m_[1][0], m_world_transform.m_[0][0]);
-	}
-
-	slv::vec2<float> Vessel::world_position() const
-	{
-		return m_world_transform.translation();
-	}
-
-	slv::vec2<float> Vessel::world_scale() const
-	{
-		float sx = std::sqrt(m_world_transform.m_[0][0] * m_world_transform.m_[0][0] +
-							 m_world_transform.m_[0][1] * m_world_transform.m_[0][1]);
-
-		float sy = std::sqrt(m_world_transform.m_[1][0] * m_world_transform.m_[1][0] +
-							 m_world_transform.m_[1][1] * m_world_transform.m_[1][1]);
-
-		return slv::vec2<float>(sx, sy);
-	}
-
-	slv::size<float> Vessel::world_dimensions() const
-	{
-		return slv::size<float>(dimensions_.width * world_scale().x, dimensions_.height * world_scale().y);
-	}
-
-	// protected
-	bool Vessel::base_init(const slv::game_context& ctx)
-	{
-		if (m_is_initialized)
-		{
-			return true;
+		if (child->is_visible) {
+			c++;
 		}
 
-		if (!init(ctx))
-		{
-			return false;
-		}
+		c += child->count_visible();
+	}
 
-		m_is_initialized = true;
+	return c;
+}
 
+float Vessel::world_rotation() const {
+	return std::atan2(world_transform_.m[1][0], world_transform_.m[0][0]);
+}
+
+vec2<float> Vessel::world_position() const {
+	return world_transform_.translation();
+}
+
+vec2<float> Vessel::world_scale() const {
+	float sx = std::sqrt(
+		world_transform_.m[0][0] * world_transform_.m[0][0] +
+		world_transform_.m[0][1] * world_transform_.m[0][1]
+	);
+
+	float sy = std::sqrt(
+		world_transform_.m[1][0] * world_transform_.m[1][0] +
+		world_transform_.m[1][1] * world_transform_.m[1][1]
+	);
+
+	return vec2<float>(sx, sy);
+}
+
+size<float> Vessel::world_size() const {
+	return size<float>(
+		content_size_.width * world_scale().x,
+		content_size_.height * world_scale().y
+	);
+}
+
+float Vessel::world_alpha() const {
+	return world_alpha_;
+}
+
+size<float> Vessel::content_size() const {
+	return content_size_;
+}
+
+wptr<Vessel> Vessel::parent() const {
+	return parent_;
+}
+
+void Vessel::set_name(std::string_view name) {
+	name_ = std::string(name);
+}
+
+std::string_view Vessel::name() const {
+	return name_;
+}
+
+std::string_view Vessel::type() const {
+	return "Vessel";
+}
+
+// protected
+bool Vessel::init(game_context const& ctx) {
+	return true;
+}
+
+// protected
+void Vessel::update(float dt, game_context const& ctx) {}
+
+// protected
+void Vessel::draw(game_context const& ctx) const {}
+
+// protected
+mat3 Vessel::world_transform() const {
+	return world_transform_;
+}
+
+// private
+bool Vessel::base_init(game_context const& ctx) {
+	if (is_initialized_) {
 		return true;
 	}
 
-	// protected
-	void Vessel::base_update(float dt, const slv::game_context& ctx)
-	{
-		if (!m_is_initialized || !is_active)
-		{
-			return;
-		}
-
-		alpha = std::clamp(alpha, 0.f, 1.f);
-
-		bool window_was_resized = ctx.window ? ctx.window->was_resized() : false;
-		if (window_was_resized || m_last_pos != pos || m_last_alpha != alpha || m_last_anchor != anchor ||
-			m_last_rotation != rotation || m_last_scale != scale || m_last_dimensions != dimensions_ || m_last_skew != skew)
-		{
-			m_last_pos = pos;
-			m_last_alpha = alpha;
-			m_last_anchor = anchor;
-			m_last_rotation = rotation;
-			m_last_scale = scale;
-			m_last_dimensions = dimensions_;
-			m_last_skew = skew;
-			mark_dirty();
-		}
-
-		if (m_is_dirty)
-		{
-			auto anchor_offset = slv::vec2<float>(anchor.x * dimensions_.width, anchor.y * dimensions_.height);
-			auto skew_rad = slv::vec2<float>(slv::math::deg2rad(skew.x), slv::math::deg2rad(skew.y));
-			float rotation_rad = slv::math::deg2rad(rotation);
-
-			slv::mat3 T = slv::mat3::translation(pos);
-			slv::mat3 R = slv::mat3::rotation(rotation_rad);
-			slv::mat3 S = slv::mat3::scale(scale);
-			slv::mat3 K = slv::mat3::skew(skew_rad);
-			slv::mat3 A = slv::mat3::translation(-anchor_offset);
-
-			m_local_transform = T * R * S * K * A;
-
-			if (auto p = m_parent.lock())
-			{
-				m_world_transform = p->m_world_transform * m_local_transform;
-				m_world_alpha = std::clamp(alpha * p->m_world_alpha, 0.f, 1.f);
-			}
-			else
-			{
-				float ui_scale = ctx.window ? ctx.window->ui_scale() : 1.f;
-				slv::mat3 UI = slv::mat3::scale(slv::vec2<float>(ui_scale, ui_scale));
-				m_world_transform = UI * m_local_transform;
-				m_world_alpha = alpha;
-			}
-
-			m_is_dirty = false;
-		}
-
-		float world_dt = dt * time_scale;
-		update(world_dt, ctx);
-
-		for (const auto& vessel : m_children)
-		{
-			if (!vessel)
-			{
-				continue;
-			}
-			
-			vessel->base_update(world_dt, ctx);
-		}
-	}
-
-	// protected
-	void Vessel::base_draw(const slv::game_context& ctx) const
-	{
-		if (!m_is_initialized || !is_visible || m_world_alpha == 0.f)
-		{
-			return;
-		}
-
-		draw(ctx);
-
-		for (const auto& v : m_children)
-		{
-			if (!v)
-			{
-				continue;
-			}
-
-			v->base_draw(ctx);
-		}
-	}
-
-	// private
-	bool Vessel::has_ancestor(const slv::sptr<Vessel>& vessel) const
-	{
-		auto p = parent().lock();
-
-		while (p)
-		{
-			if (p == vessel)
-			{
-				return true;
-			}
-
-			p = p->parent().lock();
-		}
-
+	if (!init(ctx)) {
 		return false;
 	}
 
-	// private
-	void Vessel::clean_children()
-	{
-		m_children.erase(std::remove(m_children.begin(), m_children.end(), nullptr), m_children.end());
+	is_initialized_ = true;
+	return true;
+}
+
+// private
+void Vessel::base_update(float dt, game_context const& ctx) {
+	if (!is_initialized_ || !is_active) {
+		return;
 	}
 
-	// private
-	void Vessel::mark_dirty()
-	{
-		if (!m_is_dirty)
-		{
-			m_is_dirty = true;
+	alpha = std::clamp(alpha, 0.f, 1.f);
+	bool window_was_resized = ctx.window ? ctx.window->was_resized() : false;
 
-			for (auto& child : m_children)
-			{
-				if (child)
-				{
-					child->mark_dirty();
-				}
+	if (
+		window_was_resized ||
+		last_pos_ != pos ||
+		last_alpha_ != alpha ||
+		last_anchor_ != anchor ||
+		last_rotation_ != rotation ||
+		last_scale_ != scale ||
+		last_content_size_ != content_size_ ||
+		last_skew_ != skew
+	) {
+		last_pos_ = pos;
+		last_alpha_ = alpha;
+		last_anchor_ = anchor;
+		last_rotation_ = rotation;
+		last_scale_ = scale;
+		last_content_size_ = content_size_;
+		last_skew_ = skew;
+		mark_dirty();
+	}
+
+	if (is_dirty_) {
+		auto anchor_offset = vec2<float>(
+			anchor.x * content_size_.width,
+			anchor.y * content_size_.height
+		);
+		
+		auto skew_rad = vec2<float>(
+			slv::math::deg2rad(skew.x),
+			slv::math::deg2rad(skew.y)
+		);
+		
+		float rotation_rad = slv::math::deg2rad(rotation);
+
+		mat3 T = mat3::translation(pos);
+		mat3 R = mat3::rotation(rotation_rad);
+		mat3 S = mat3::scale(scale);
+		mat3 K = mat3::skew(skew_rad);
+		mat3 A = mat3::translation(-anchor_offset);
+
+		local_transform_ = T * R * S * K * A;
+
+		if (auto p = parent_.lock()) {
+			world_transform_ = p->world_transform_ * local_transform_;
+			world_alpha_ = std::clamp(alpha * p->world_alpha_, 0.f, 1.f);
+		} else {
+			float ui_scale = ctx.window ? ctx.window->ui_scale() : 1.f;
+			mat3 UI = mat3::scale(vec2<float>(ui_scale, ui_scale));
+			world_transform_ = UI * local_transform_;
+			world_alpha_ = alpha;
+		}
+
+		is_dirty_ = false;
+	}
+
+	float world_dt = dt * time_scale;
+	update(world_dt, ctx);
+
+	for (auto const& vessel : children_) {
+		if (!vessel) {
+			continue;
+		}
+
+		vessel->base_update(world_dt, ctx);
+	}
+}
+
+// private
+void Vessel::base_draw(game_context const& ctx) const {
+	if (
+		!is_initialized_ ||
+		!is_visible ||
+		world_alpha_ == 0.f
+	) {
+		return;
+	}
+
+	draw(ctx);
+
+	for (auto const& v : children_) {
+		if (!v) {
+			continue;
+		}
+
+		v->base_draw(ctx);
+	}
+}
+
+// private
+bool Vessel::has_ancestor(sptr<Vessel> vessel) const {
+	auto p = parent().lock();
+
+	while (p) {
+		if (p == vessel) {
+			return true;
+		}
+
+		p = p->parent().lock();
+	}
+
+	return false;
+}
+
+// private
+void Vessel::clean_children() {
+	children_.erase(
+		std::remove(
+			children_.begin(),
+			children_.end(),
+			nullptr),
+		children_.end()
+	);
+}
+
+// private
+void Vessel::mark_dirty() {
+	if (!is_dirty_) {
+		is_dirty_ = true;
+
+		for (auto& child : children_) {
+			if (child) {
+				child->mark_dirty();
 			}
 		}
 	}
 }
+
+} // namespace slv

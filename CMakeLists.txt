@@ -13,13 +13,15 @@ if (WIN32)
 endif()
 
 add_library(${PROJECT_NAME}
-    STATIC
+    SHARED
         ${SLV_SOURCES}
         ${MINIAUDIO_SOURCES}
         ${PLATFORM_SOURCES}
 )
 
 target_compile_definitions(${PROJECT_NAME}
+    PRIVATE
+        SLV_EXPORTS
     PUBLIC
         $<$<CONFIG:Debug>:SLV_DEBUG>
         $<$<CONFIG:RelWithDebInfo>:SLV_RELWITHDEBINFO>

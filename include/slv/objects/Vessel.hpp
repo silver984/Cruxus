@@ -1,138 +1,99 @@
 #pragma once
-
-#include <slv/core/types/primitives.hpp>
-#include <slv/core/types/colors.hpp>
-#include <slv/core/types/pointers.hpp>
-#include <slv/core/types/game_context.hpp>
+#include <slv/core/dll.hpp>
+#include <slv/types/primitives.hpp>
+#include <slv/types/colors.hpp>
+#include <slv/types/pointers.hpp>
+#include <slv/types/game_context.hpp>
 #include <vector>
 #include <string>
+#include <string_view>
 #include <memory>
 #include <utility>
 #include <cstdint>
 
-namespace slv
-{
-	class SceneManager; // forward declare
+namespace slv {
 
-	class Vessel : public std::enable_shared_from_this<Vessel>
-	{
-		friend class slv::SceneManager;
+class SceneManager; // forward declare
+class SLV_DLL Vessel : public std::enable_shared_from_this<Vessel> {
+	friend class SceneManager;
 
-	public:
-		Vessel() = default;
-		inline virtual ~Vessel() = default;
+public:
+	Vessel();
+	virtual ~Vessel();
 
-		template<typename T, typename... args>
-		static inline slv::sptr<T> create(const slv::game_context& ctx, args&&... _args)
-		{
-			static_assert(std::is_base_of_v<Vessel, T>);
+	template<typename Derived, typename... Args>
+	static inline sptr<Derived> create(game_context const& ctx, Args&&... args) {
+		static_assert(std::is_base_of_v<Vessel, Derived>);
 
-			slv::sptr<T> v = slv::shared<T>(std::forward<args>(_args)...);
+		sptr<Derived> ptr = shared<Derived>(std::forward<Args>(args)...);
 
-			if (!v->base_init(ctx))
-			{
-				v.reset();
-				return nullptr;
-			}
-
-			return v;
+		if (!ptr->base_init(ctx)) {
+			ptr.reset();
+			return nullptr;
 		}
 
-		void add(const slv::sptr<Vessel>& vessel);
-		void remove(const slv::sptr<Vessel>& vessel);
-		void destroy();
-		size_t count() const;
-		size_t count_active() const;
-		size_t count_visible() const;
-		float world_rotation() const;
-		slv::vec2<float> world_position() const;
-		slv::vec2<float> world_scale() const;
-		slv::size<float> world_dimensions() const;
+		return ptr;
+	}
 
-		inline float world_alpha() const
-		{
-			return m_world_alpha;
-		}
+	void add(sptr<Vessel> vessel);
+	void remove(sptr<Vessel> vessel);
+	void destroy();
+	size_t count() const;
+	size_t count_active() const;
+	size_t count_visible() const;
+	float world_rotation() const;
+	vec2<float> world_position() const;
+	vec2<float> world_scale() const;
+	size<float> world_size() const;
+	float world_alpha() const;
+	size<float> content_size() const;
+	wptr<Vessel> parent() const;
+	void set_name(std::string_view name);
+	std::string_view name() const;
+	virtual std::string_view type() const;
 
-		inline slv::size<float> dimensions() const
-		{
-			return dimensions_;
-		}
+	rgb color;
+	vec2<float> pos;
+	vec2<float> anchor;
+	vec2<float> scale;
+	vec2<float> skew; // degrees
+	float rotation; // degrees
+	float alpha; // 0 - 1
+	float time_scale;
+	bool is_visible;
+	bool is_active;
 
-		slv::vec2<float> anchor_pos() const
-		{
-			return slv::vec2<float>(dimensions_.width * anchor.x, dimensions_.height * anchor.y);
-		}
+protected:
+	virtual bool init(game_context const& ctx);
+	virtual void update(float dt, game_context const& ctx);
+	virtual void draw(game_context const& ctx) const;
+	mat3 world_transform() const;
 
-		inline slv::wptr<Vessel> parent() const
-		{
-			return m_parent;
-		}
+	size<float> content_size_;
 
-		inline void set_name(const std::string& name)
-		{
-			m_name = name;
-		}
+private:
+	bool base_init(game_context const& ctx);
+	void base_update(float dt, game_context const& ctx);
+	void base_draw(game_context const& ctx) const;
+	bool has_ancestor(sptr<Vessel> vessel) const;
+	void clean_children();
+	void mark_dirty();
 
-		inline std::string name() const
-		{
-			return m_name;
-		}
+	wptr<Vessel> parent_;
+	std::vector<sptr<Vessel>> children_;
+	std::string name_;
+	mat3 local_transform_;
+	mat3 world_transform_;
+	float world_alpha_;
+	float last_rotation_;
+	float last_alpha_;
+	size<float> last_content_size_;
+	vec2<float> last_pos_;
+	vec2<float> last_anchor_;
+	vec2<float> last_scale_;
+	vec2<float> last_skew_;
+	bool is_dirty_;
+	bool is_initialized_;
+};
 
-		inline virtual std::string type() const
-		{
-			return "Vessel";
-		}
-
-		slv::rgb color = slv::color::white;
-		slv::vec2<float> pos{};
-		slv::vec2<float> anchor{ 0.5f, 0.5f };
-		slv::vec2<float> scale{ 1.f, 1.f };
-		slv::vec2<float> skew{ 0.f, 0.f }; // degrees
-		float rotation = 0.f; // degrees
-		float alpha = 1.f; // 0 - 1
-		float time_scale = 1.f;
-		bool is_visible = true;
-		bool is_active = true;
-
-	protected:
-		virtual void update(float dt, const slv::game_context& ctx) {}
-		virtual void draw(const slv::game_context& ctx) const {}
-
-		inline virtual bool init(const slv::game_context& ctx)
-		{
-			return true;
-		}
-
-		inline slv::mat3 world_transform() const
-		{
-			return m_world_transform;
-		}
-
-		slv::size<float> dimensions_;
-
-	private:
-		bool base_init(const slv::game_context& ctx);
-		void base_update(float dt, const slv::game_context& ctx);
-		void base_draw(const slv::game_context& ctx) const;
-		bool has_ancestor(const slv::sptr<Vessel>& vessel) const;
-		void clean_children();
-		void mark_dirty();
-
-		slv::wptr<Vessel> m_parent;
-		std::vector<slv::sptr<Vessel>> m_children;
-		std::string m_name;
-		slv::mat3 m_local_transform = slv::mat3::identity();
-		slv::mat3 m_world_transform = slv::mat3::identity();
-		float m_world_alpha = 1.f;
-		slv::size<float> m_last_dimensions{ -1.f, -1.f };
-		slv::vec2<float> m_last_pos{ -1.f, -1.f };
-		slv::vec2<float> m_last_anchor{ -1.f, -1.f };
-		slv::vec2<float> m_last_scale{ -1.f, -1.f };
-		slv::vec2<float> m_last_skew{ -1.f, -1.f };
-		float m_last_rotation = -1.f;
-		float m_last_alpha = -1.f;
-		bool m_is_dirty = false;
-		bool m_is_initialized = false;
-	};
 }
