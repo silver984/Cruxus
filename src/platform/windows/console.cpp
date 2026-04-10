@@ -1,28 +1,25 @@
 #include <platform/windows/console.hpp>
-#include <fmt/format.h>
 #include <windows.h>
-#include <io.h>
-#include <fcntl.h>
-#include <iostream>
-#include <string>
 
 namespace slv::win32 {
 
-bool create_console(std::string_view title_prefix) {
-    if (GetConsoleWindow()) {
-        return true;
+bool enable_console_colors() {
+    HANDLE h_out = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (h_out == INVALID_HANDLE_VALUE) {
+        return false;
     }
 
-    AllocConsole();
-    slv::win32::rename_console(title_prefix);
+    DWORD dw_mode = 0;
+    if (!GetConsoleMode(h_out, &dw_mode)) {
+        return false;
+    }
 
-    FILE* fp;
-    freopen_s(&fp, "CONOUT$", "w", stdout);
-    freopen_s(&fp, "CONOUT$", "w", stderr);
-    freopen_s(&fp, "CONIN$", "r", stdin);
+    dw_mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(h_out, dw_mode);
+    return true;
+}
 
-    std::ios::sync_with_stdio(true);
-
+bool is_console_colors_enabled() {
     HANDLE h_out = GetStdHandle(STD_OUTPUT_HANDLE);
     if (h_out == INVALID_HANDLE_VALUE) {
         return false;
@@ -33,28 +30,11 @@ bool create_console(std::string_view title_prefix) {
         return false;
     }
 
-    mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-
-    SetConsoleMode(h_out, mode);
-
-    return true;
-}
-
-void destroy_console() {
-    if (GetConsoleWindow()) {
-        FreeConsole();
-    }
-}
-
-void rename_console(std::string_view title_prefix) {
-    if (GetConsoleWindow()) {
-        std::string title = fmt::format("\"{}\" Debug Console", title_prefix);
-        SetConsoleTitleA(title.c_str());
-    }
+    return (mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING) != 0;
 }
 
 bool is_console_open() {
-    return GetConsoleWindow() != nullptr;
+    return GetConsoleWindow() != NULL;
 }
 
 } // namespace slv::win32

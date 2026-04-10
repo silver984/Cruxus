@@ -48,10 +48,6 @@ public:
     void set_pos_x(int x);
     void set_pos_y(int y);
     void toggle_fullscreen(bool val);
-#ifdef _WIN32
-    void open_console(std::string_view title_prefix) const;
-    void close_console() const;
-#endif
     [[nodiscard]] bool is_open() const;
     [[nodiscard]] bool is_fullscreen() const;
     [[nodiscard]] bool is_transparent() const;

@@ -1,7 +1,7 @@
 #include <slv/game/managers/WindowManager.hpp>
 #include <fmt/format.h>
-#include <slv/console/log.hpp>
-#include <slv/core/wrappers/raylib.hpp>
+#include <slv/engine/log.hpp>
+#include <slv/core/raylib.hpp>
 #include <slv/game/managers/SceneManager.hpp>
 #include <slv/game/managers/ResourceManager.hpp>
 #ifdef _WIN32
@@ -47,10 +47,6 @@ bool WindowManager::init(
 
 	title_ = std::string(title);
 
-#if (defined(SLV_DEBUG) || defined(SLV_RELWITHDEBINFO)) && defined(_WIN32)
-	open_console(title_);
-#endif
-
 	configure_settings(settings);
 
 	default_screen_size_.width = std::max(1, size.width);
@@ -69,12 +65,10 @@ bool WindowManager::init(
 		return false;
 	}
 
+	win32::enable_console_colors();
 	is_initialized_ = true;
-
 	update(0.f, ctx);
-
 	log::info(class_name_, "Window initialized");
-
 	return true;
 }
 
@@ -89,10 +83,6 @@ void WindowManager::uninit() {
 	log::info(class_name_, "Destroying window...");
 
 	CloseWindow();
-
-#ifdef _WIN32
-	close_console();
-#endif
 }
 
 // private
@@ -281,12 +271,6 @@ void WindowManager::set_title(std::string_view title) {
 	if (is_initialized_) {
 		title_ = title;
 		SetWindowTitle(title_.c_str());
-
-#ifdef _WIN32
-		if (win32::is_console_open()) {
-			win32::rename_console(title_);
-		}
-#endif
 	}
 }
 
@@ -446,21 +430,6 @@ int WindowManager::target_fps() const {
 vec2<int> WindowManager::pos() const {
 	return pos_;
 }
-
-#ifdef _WIN32
-void WindowManager::open_console(std::string_view title_prefix) const {
-	if (win32::create_console(title_prefix)) {
-		log::info(class_name_, "Windows console initialized");
-	}
-}
-
-void WindowManager::close_console() const {
-	if (win32::is_console_open()) {
-		log::info(class_name_, "Destroying console...");
-		win32::destroy_console();
-	}
-}
-#endif
 
 // private
 void WindowManager::configure_settings(int settings) {

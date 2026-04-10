@@ -1,19 +1,19 @@
 #include <slv/core/raylib.hpp>
-#include <slv/core/math.hpp>
 #include <raylib.h>
 #include <rlgl.h>
+#include <slv/core/math.hpp>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 
 namespace {
 
-Rectangle rl_rect(slv::rect<float> const& rect) {
+Rectangle rl_rect(slv::vec2<float> const& p, slv::size<float> const& s) {
 	return {
-		rect.x,
-		rect.y,
-		rect.width,
-		rect.height
+		p.x,
+		p.y,
+		s.width,
+		s.height
 	};
 }
 
@@ -128,7 +128,8 @@ void draw_rectangle_lines(
 
 void draw_texture(
 	texture const& texture,
-	rect<float> const& source,
+	vec2<float> const& source_pos,
+	size<float> const& source_size,
 	vec2<float> const& offset,
 	mat3 const& matrix,
 	rgb const& color,
@@ -138,8 +139,13 @@ void draw_texture(
 	
 	DrawTexturePro(
 		rl_texture(texture),
-		rl_rect(source),
-		Rectangle(offset.x, offset.y, source.width, source.height),
+		rl_rect(source_pos, source_size),
+		Rectangle(
+			offset.x,
+			offset.y,
+			source_size.width,
+			source_size.height
+		),
 		Vector2(0.f, 0.f),
 		0.f,
 		rl_color(color, alpha)
@@ -175,12 +181,22 @@ void draw_circle(
 	float radius
 ) {
 	rl_push_mult_matrix(matrix);
-	DrawCircleV(Vector2(0.f, 0.f), radius, rl_color(color, alpha));
+	
+	DrawCircleV(
+		Vector2(0.f, 0.f),
+		radius,
+		rl_color(color, alpha)
+	);
+	
 	rlPopMatrix();
 }
 
 void set_texture_antialiasing(texture const& texture, bool val) {
-	SetTextureFilter(rl_texture(texture), val ? TEXTURE_FILTER_BILINEAR : TEXTURE_FILTER_POINT);
+	SetTextureFilter(
+		rl_texture(texture), val
+		? TEXTURE_FILTER_BILINEAR
+		: TEXTURE_FILTER_POINT
+	);
 }
 
 }
