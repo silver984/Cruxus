@@ -81,7 +81,7 @@ private:
     void end_draw(game_context const& ctx) const;
     void configure_settings(int settings);
 
-    std::string class_name_ = "WindowManager";
+    std::string class_name_;
     vec2<int> pos_;
     size<int> default_screen_size_;
     size<int> draw_size_;

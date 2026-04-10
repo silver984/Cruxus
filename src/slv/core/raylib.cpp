@@ -1,4 +1,4 @@
-#include <slv/core/wrappers/raylib.hpp>
+#include <slv/core/raylib.hpp>
 #include <slv/core/math.hpp>
 #include <raylib.h>
 #include <rlgl.h>

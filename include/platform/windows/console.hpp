@@ -8,4 +8,4 @@ void destroy_console();
 void rename_console(std::string_view title_prefix);
 bool is_console_open();
 
-} // namespace slv::win32
+}

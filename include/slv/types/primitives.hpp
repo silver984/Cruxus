@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <concepts>
 #include <type_traits>
+#include <algorithm>
 
 namespace slv {
 
@@ -19,41 +20,123 @@ struct SLV_DLL rgb final {
     rgb operator-() const;
     rgb operator*(rgb const& rhs) const;
     rgb operator/(rgb const& rhs) const;
+    rgb& operator+=(rgb const& rhs);
+    rgb& operator-=(rgb const& rhs);
+    rgb& operator*=(rgb const& rhs);
+    rgb& operator/=(rgb const& rhs);
+    bool operator==(rgb const& rhs) const;
+    bool operator!=(rgb const& rhs) const;
+    bool operator<=(rgb const& rhs) const;
+    bool operator>=(rgb const& rhs) const;
+    bool operator<(rgb const& rhs) const;
+    bool operator>(rgb const& rhs) const;
 
     template <numeric U>
     constexpr rgb operator+(U rhs) const {
+        auto evaluate = [](uint8_t c, U v) {
+            int result = c + v;
+            return static_cast<uint8_t>(std::clamp(result, 0, 255));
+            };
+
         return {
-            static_cast<uint8_t>(r + rhs),
-            static_cast<uint8_t>(g + rhs),
-            static_cast<uint8_t>(b + rhs)
+            evaluate(r, rhs),
+            evaluate(g, rhs),
+            evaluate(b, rhs)
         };
     }
 
     template<numeric U>
     constexpr rgb operator-(U rhs) const {
+        auto evaluate = [](uint8_t c, U v) {
+            int result = c - v;
+            return static_cast<uint8_t>(std::clamp(result, 0, 255));
+            };
+
         return {
-            static_cast<uint8_t>(r - rhs),
-            static_cast<uint8_t>(g - rhs),
-            static_cast<uint8_t>(b - rhs)
+            evaluate(r, rhs),
+            evaluate(g, rhs),
+            evaluate(b, rhs)
         };
     }
 
     template<numeric U>
     constexpr rgb operator*(U rhs) const {
+        auto evaluate = [](uint8_t c, U v) {
+            int result = c * v;
+            return static_cast<uint8_t>(std::clamp(result, 0, 255));
+            };
+
         return {
-            static_cast<uint8_t>(r * rhs),
-            static_cast<uint8_t>(g * rhs),
-            static_cast<uint8_t>(b * rhs)
+            evaluate(r, rhs),
+            evaluate(g, rhs),
+            evaluate(b, rhs)
         };
     }
 
     template<numeric U>
     constexpr rgb operator/(U rhs) const {
+        auto evaluate = [](uint8_t c, U v) {
+            int result = c / v;
+            return static_cast<uint8_t>(std::clamp(result, 0, 255));
+            };
+
         return {
-            static_cast<uint8_t>(r / rhs),
-            static_cast<uint8_t>(g / rhs),
-            static_cast<uint8_t>(b / rhs)
+            evaluate(r, rhs),
+            evaluate(g, rhs),
+            evaluate(b, rhs)
         };
+    }
+
+    template <numeric U>
+    constexpr rgb& operator+=(U rhs) {
+        auto evaluate = [](uint8_t c, U v) {
+            int result = c + v;
+            return static_cast<uint8_t>(std::clamp(result, 0, 255));
+            };
+
+        r = evaluate(r, rhs);
+        g = evaluate(g, rhs);
+        b = evaluate(b, rhs);
+        return *this;
+    }
+
+    template<numeric U>
+    constexpr rgb& operator-=(U rhs) {
+        auto evaluate = [](uint8_t c, U v) {
+            int result = c - v;
+            return static_cast<uint8_t>(std::clamp(result, 0, 255));
+            };
+
+        r = evaluate(r, rhs);
+        g = evaluate(g, rhs);
+        b = evaluate(b, rhs);
+        return *this;
+    }
+
+    template<numeric U>
+    constexpr rgb& operator*=(U rhs) {
+        auto evaluate = [](uint8_t c, U v) {
+            int result = c * v;
+            return static_cast<uint8_t>(std::clamp(result, 0, 255));
+            };
+
+        r = evaluate(r, rhs);
+        g = evaluate(g, rhs);
+        b = evaluate(b, rhs);
+        return *this;
+    }
+
+    template<numeric U>
+    constexpr rgb& operator/=(U rhs) {
+        auto evaluate = [](uint8_t c, U v) {
+            int result = c / v;
+            return static_cast<uint8_t>(std::clamp(result, 0, 255));
+            };
+
+        r = evaluate(r, rhs);
+        g = evaluate(g, rhs);
+        b = evaluate(b, rhs);
+        return *this;
     }
 };
 
@@ -329,52 +412,21 @@ struct vec2 {
     }
 };
 
-struct mat3 {
-    mat3() {
-        m[0][0] = 1; m[0][1]; m[0][2];
-        m[1][0]; m[1][1] = 1; m[1][2];
-        m[2][0]; m[2][1]; m[2][2] = 1;
-    }
-
+struct SLV_DLL mat3 final {
+    mat3();
     mat3(
         float m00, float m01, float m02,
         float m10, float m11, float m12,
         float m20, float m21, float m22
-    ) {
-        m[0][0] = m00; m[0][1] = m01; m[0][2] = m02;
-        m[1][0] = m10; m[1][1] = m11; m[1][2] = m12;
-        m[2][0] = m20; m[2][1] = m21; m[2][2] = m22;
-    }
+    );
 
     static mat3 rotation(float radians);
-    static mat3 skew(const vec2<float>& radians);
-    static inline mat3 identity() {
-        return {
-            1.f, 0.f, 0,
-            0.f, 1.f, 0,
-            0.f, 0.f, 1
-        };
-    }
-
-    static inline mat3 translation(const vec2<float>& t) {
-        return {
-            1.f, 0.f, t.x,
-            0.f, 1.f, t.y,
-            0.f, 0.f, 1.f
-        };
-    }
-
-    static inline mat3 scale(const vec2<float>& s) {
-        return {
-            s.x, 0.f, 0,
-            0.f, s.y, 0,
-            0.f, 0.f, 1.f
-        };
-    }
-    vec2<float> transform_point(const vec2<float>& p) const;
-    inline vec2<float> translation() const {
-        return { m[0][2], m[1][2] };
-    }
+    static mat3 skew(vec2<float> const& radians);
+    static mat3 identity();
+    static mat3 translation(vec2<float> const& t);
+    static mat3 scale(vec2<float> const& s);
+    vec2<float> transform_point(vec2<float> const& p) const;
+    vec2<float> translation() const;
     mat3 operator*(const mat3& o) const;
 
     float m[3][3];

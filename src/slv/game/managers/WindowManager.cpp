@@ -1,6 +1,6 @@
 #include <slv/game/managers/WindowManager.hpp>
 #include <fmt/format.h>
-#include <slv/core/console/log.hpp>
+#include <slv/console/log.hpp>
 #include <slv/core/wrappers/raylib.hpp>
 #include <slv/game/managers/SceneManager.hpp>
 #include <slv/game/managers/ResourceManager.hpp>
@@ -16,6 +16,7 @@
 namespace slv {
 
 WindowManager::WindowManager() :
+	class_name_("WindowManager"),
 	target_fps_(0),
 	running_fps_(0),
 	frame_count_(0),
@@ -64,7 +65,7 @@ bool WindowManager::init(
 			title_.c_str()
 		)
 	) {
-		log::error(NAME_, "Failed to initialize window");
+		log::error(class_name_, "Failed to initialize window");
 		return false;
 	}
 
@@ -72,7 +73,7 @@ bool WindowManager::init(
 
 	update(0.f, ctx);
 
-	log::info(NAME_, "Window initialized");
+	log::info(class_name_, "Window initialized");
 
 	return true;
 }
@@ -85,7 +86,7 @@ void WindowManager::uninit() {
 
 	is_initialized_ = false;
 
-	log::info(NAME_, "Destroying window...");
+	log::info(class_name_, "Destroying window...");
 
 	CloseWindow();
 
@@ -171,15 +172,21 @@ void WindowManager::end_draw(game_context const& ctx) const {
 	}
 
 #if defined(SLV_DEBUG) || defined(SLV_RELWITHDEBINFO)
-	int text_size = 10;
-	int text_border_padding = 5;
-
-	std::string debug_text = fmt::format("FPS: {} / {:.0f}ms", running_fps(), delta_time() * 1000.f);
+	std::string debug_text = fmt::format(
+		"FPS: {} / {:.0f}ms",
+		running_fps(),
+		delta_time() * 1000.f
+	);
 
 	if (memory_usage_ != 0.f) {
-		debug_text = debug_text + fmt::format("\nMEM: {:.2f}mb / {:.2f}mb", memory_usage_, max_memory_usage_);
+		debug_text += fmt::format(
+			"\nMEM: {:.2f}mb / {:.2f}mb",
+			memory_usage_,
+			max_memory_usage_
+		);
 	}
 
+	/*
 	float since_cache_cleanup = ctx.resource_manager ? ctx.resource_manager->since_cleanup() * 1000.f : 0.f;
 	size_t cache_count = ctx.resource_manager ? ctx.resource_manager->cache_count() : 0;
 
@@ -198,8 +205,17 @@ void WindowManager::end_draw(game_context const& ctx) const {
 	}
 
 	debug_text = debug_text + fmt::format("\nOBJs: {} active / {} visible / {} total", obj_total, obj_active_total, obj_visible_total);
+	*/
 
-	DrawText(debug_text.c_str(), text_border_padding, text_border_padding, text_size, WHITE);
+	int text_size = 10;
+	int text_border_padding = 5;
+	DrawText(
+		debug_text.c_str(),
+		text_border_padding,
+		text_border_padding,
+		text_size,
+		WHITE
+	);
 #endif
 
 	EndScissorMode();
@@ -434,13 +450,13 @@ vec2<int> WindowManager::pos() const {
 #ifdef _WIN32
 void WindowManager::open_console(std::string_view title_prefix) const {
 	if (win32::create_console(title_prefix)) {
-		log::info(NAME_, "Windows console initialized");
+		log::info(class_name_, "Windows console initialized");
 	}
 }
 
 void WindowManager::close_console() const {
 	if (win32::is_console_open()) {
-		log::info(NAME_, "Destroying console...");
+		log::info(class_name_, "Destroying console...");
 		win32::destroy_console();
 	}
 }
