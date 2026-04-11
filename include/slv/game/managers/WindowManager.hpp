@@ -1,8 +1,7 @@
 #pragma once
 #include <slv/internal/config.hpp>
 #include <slv/types/primitives.hpp>
-#include <slv/types/texture.hpp>
-#include <slv/types/game_context.hpp>
+#include <slv/types/context.hpp>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -27,9 +26,9 @@ private:
     ~WindowManager();
 
 public:
-    WindowManager(const WindowManager&) = delete;
+    WindowManager(WindowManager const&) = delete;
     WindowManager(WindowManager&&) = delete;
-    WindowManager& operator=(const WindowManager&) = delete;
+    WindowManager& operator=(WindowManager const&) = delete;
     WindowManager& operator=(WindowManager&&) = delete;
 
     [[nodiscard]] vec2<float> screen_center() const;
@@ -68,11 +67,11 @@ private:
         size<int> const& size,
         int fps,
         window_settings settings,
-        game_context const& ctx
+        context const& ctx
     );
 
     void uninit();
-    void update(float dt, game_context const& ctx);
+    void update(float dt, context const& ctx);
     void start_draw() const;
     void end_draw() const;
     void configure_settings(window_settings settings);

@@ -10,10 +10,10 @@ class ResourceManager; // forward declare
 
 struct context final {
 	WindowManager* window;
-	SceneManager* scene_manager;
-	InputManager* input_manager;
-	AudioManager* audio_manager;
-	ResourceManager* resource_manager;
+	SceneManager* scene;
+	InputManager* input;
+	AudioManager* audio;
+	ResourceManager* resource;
 };
 
 }

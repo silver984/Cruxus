@@ -34,7 +34,7 @@ bool WindowManager::init(
 	size<int> const& size,
 	int fps,
 	window_settings settings,
-	game_context const& ctx
+	context const& ctx
 ) {
 	if (is_initialized_) {
 		return true;
@@ -85,7 +85,7 @@ void WindowManager::uninit() {
 }
 
 // private
-void WindowManager::update(float dt, game_context const& ctx) {
+void WindowManager::update(float dt, context const& ctx) {
 	if (!is_initialized_) {
 		return;
 	}

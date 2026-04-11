@@ -1,55 +1,71 @@
 #include <slv/game/Game.hpp>
-#include <slv/core/console/log.hpp>
+#include <slv/engine/log.hpp>
 
-namespace slv
-{
-	bool Game::init(const std::string& window_title, const slv::size<int>& window_size, int fps, int window_settings)
-	{
-		if (m_is_initialized)
-		{
-			return true;
-		}
+namespace slv {
+Game::Game() :
+	is_initialized_(false)
+{}
 
-		if (!m_window.init(window_title, window_size, fps, window_settings, context()))
-		{
-			return false;
-		}
+Game::~Game() = default;
 
-		m_audio_manager.init();
-		m_crash_manager.init();
-
-		m_is_initialized = true;
-
+bool Game::init(
+	std::string_view win_title,
+	size<int> const& win_size,
+	int win_fps,
+	window_settings win_settings
+) {
+	if (is_initialized_) {
 		return true;
 	}
 
-	void Game::run()
-	{
-		auto ctx = context();
-
-		while (m_window.is_open())
-		{
-			// update
-
-			float dt = m_window.delta_time();
-			m_window.update(dt, ctx);
-			m_input_manager.update(dt);
-			m_resource_manager.update(dt);
-			m_scene_manager.update(dt, ctx);
-			
-			// draw
-
-			m_window.start_draw();
-			m_scene_manager.draw(ctx);
-			m_window.end_draw(ctx);
-		}
-
-		// cleanup, close window
-
-		m_scene_manager.safely_destroy_scene();
-		m_input_manager.clean_cache();
-		m_resource_manager.clean_cache();
-		m_audio_manager.uninit();
-		m_window.uninit();
+	if (!window_.init(win_title, win_size, win_fps, win_settings, ctx())) {
+		return false;
 	}
+
+	audio_.init();
+	crash_.init();
+
+	is_initialized_ = true;
+
+	return true;
+}
+
+void Game::run() {
+	auto ctx = context();
+
+	while (window_.is_open()) {
+		// update
+
+		float dt = window_.delta_time();
+		window_.update(dt, ctx);
+		input_.update(dt);
+		resource_.update(dt);
+		scene_.update(dt, ctx);
+
+		// draw
+
+		window_.start_draw();
+		scene_.draw(ctx);
+		window_.end_draw();
+	}
+
+	// cleanup, close window
+
+	scene_.safely_destroy_scene();
+	input_.clean_cache();
+	resource_.clean_cache();
+	audio_.uninit();
+	window_.uninit();
+}
+
+context Game::ctx() {
+	return {
+		&window_,
+		&scene_,
+		&input_,
+		&audio_,
+		&resource_
+	};
+}
+
 }
