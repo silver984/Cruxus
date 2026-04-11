@@ -8,6 +8,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <source_location>
 
 namespace slv {
 
@@ -48,9 +49,13 @@ private:
 	void update(float dt);
 	void clean_cache();
 	[[nodiscard]] bool is_format_supported(format_type type, std::string_view format);
-	void log_unsupported(std::string_view format, std::string_view path);
-	void log_fail(std::string_view path);
-	void log_load(std::string_view path);
+	void log_unsupported_format(
+		std::string_view format,
+		std::string_view path,
+		std::source_location loc = std::source_location::current()
+	);
+	void log_fail(std::string_view path, std::source_location loc = std::source_location::current());
+	void log_load(std::string_view path, std::source_location loc = std::source_location::current());
 
 	enum_array<std::vector<std::string>, format_type, format_type::count> supported_formats_;
 	string_map<sptr<texture>> cached_textures_;

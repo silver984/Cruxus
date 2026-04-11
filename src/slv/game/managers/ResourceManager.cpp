@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <algorithm>
 #include <cstddef>
+#include <cstring>
 
 namespace slv {
 
@@ -35,12 +36,12 @@ parsed_path parsed_path::parse(std::string_view file) {
 ResourceManager::ResourceManager() :
     since_cleanup_(0.f) {
     using enum format_type;
-    supported_formats_[IMAGE].emplace_back("png");
-    supported_formats_[IMAGE].emplace_back("jpg");
-    supported_formats_[IMAGE].emplace_back("jpeg");
-    supported_formats_[AUDIO].emplace_back("mp3");
-    supported_formats_[AUDIO].emplace_back("wav");
-    supported_formats_[DATA].emplace_back("xml");
+    supported_formats_.at(IMAGE).emplace_back("png");
+    supported_formats_.at(IMAGE).emplace_back("jpg");
+    supported_formats_.at(IMAGE).emplace_back("jpeg");
+    supported_formats_.at(AUDIO).emplace_back("mp3");
+    supported_formats_.at(AUDIO).emplace_back("wav");
+    supported_formats_.at(DATA).emplace_back("xml");
 }
 
 // private
@@ -59,7 +60,7 @@ sptr<texture> ResourceManager::load_texture(std::string_view path) {
 
     const auto& ext = parsed.extension;
     if (!is_format_supported(format_type::IMAGE, ext)) {
-        log_unsupported(ext, abs_path);
+        log_unsupported_format(ext, abs_path);
         return nullptr;
     }
 
@@ -89,51 +90,64 @@ sptr<texture> ResourceManager::load_texture(std::string_view path) {
 }
 
 sptr<atlas_data> ResourceManager::load_atlas_data(std::string_view path) {
-    parsed_path parsed = parsed_path::parse(path);
+    auto parsed = parsed_path::parse(path);
+    const auto& abs_path = parsed.stitched;
 
-    if (auto it = cached_atlas_datas_.find(parsed.stitched); it != cached_atlas_datas_.end()) {
+    if (
+        auto it = cached_atlas_datas_.find(abs_path);
+        it != cached_atlas_datas_.end()
+    ) {
         return it->second;
     }
 
-    const std::string& ext = parsed.extension;
-    bool is_format_supported = std::any_of(M_SUPPORTED_DATA_FORMATS.begin(), M_SUPPORTED_DATA_FORMATS.end(),
-                                           [&](auto e) { return ext == e; });
-    if (!is_format_supported) {
-        log::error(M_NAME, "Can't load atlas data with unsupported format: \"{}\" | path: \"{}\"", ext, parsed.stitched);
+    const auto& ext = parsed.extension;
+    if (!is_format_supported(format_type::DATA, ext)) {
+        log_unsupported_format(ext, abs_path);
         return nullptr;
     }
 
-    auto err = [&parsed]() { log::error(M_NAME, "Failed to load atlas data: \"{}\"", parsed.stitched); };
+    // TODO: support other formats than just XML
+    // when that happens, move XML parsing somewhere else
 
     tinyxml2::XMLDocument doc;
-    tinyxml2::XMLError result = doc.LoadFile(parsed.stitched.c_str());
+    tinyxml2::XMLError result = doc.LoadFile(abs_path.c_str());
 
     if (result != tinyxml2::XML_SUCCESS) {
-        err();
+        log_fail(abs_path);
         return nullptr;
     }
 
     tinyxml2::XMLElement* root = doc.RootElement();
 
     if (!root) {
-        err();
+        log_fail(abs_path);
         return nullptr;
     }
 
-    sptr<atlas_data> atlas_data = shared<atlas_data>();
+    auto data = shared<atlas_data>();
 
-    if (std::string(root->Name()) == "TextureAtlas") // Adobe Animate or Flash
-    {
-        atlas_data->format = atlas_format::flash_xml;
+    // Adobe Animate or Flash
+    if (strcmp(root->Name(), "TextureAtlas")) {
+        data->format = atlas_format::FLASH_XML;
     } else {
-        log::error(M_NAME, "Can't load atlas data with unsupported data. | path: \"{}\"", parsed.stitched);
+        log::error(
+            fmt::format(
+                "Can't load atlas data with unsupported data. | path: \"{}\"",
+                abs_path
+            )
+        );
         return nullptr;
     }
 
-    switch (atlas_data->format) {
+    switch (data->format) {
         using enum atlas_format;
-    case flash_xml:
-        for (tinyxml2::XMLElement* elem = root->FirstChildElement("SubTexture"); elem != nullptr; elem = elem->NextSiblingElement("SubTexture")) {
+    case FLASH_XML:
+    {
+        for (
+            tinyxml2::XMLElement* elem = root->FirstChildElement("SubTexture");
+            elem != nullptr;
+            elem = elem->NextSiblingElement("SubTexture")
+        ) {
             if (!elem->Attribute("name")) {
                 continue;
             }
@@ -141,7 +155,6 @@ sptr<atlas_data> ResourceManager::load_atlas_data(std::string_view path) {
             std::string full_name = elem->Attribute("name");
             std::string name = full_name.substr(0, full_name.find_last_not_of("0123456789") + 1);
             size_t frame_index = std::stoull(full_name.substr(full_name.size() - 4));
-
             atlas_frame frame;
 
             elem->QueryIntAttribute("x", &frame.pos_on_sheet.x);
@@ -149,7 +162,10 @@ sptr<atlas_data> ResourceManager::load_atlas_data(std::string_view path) {
             elem->QueryIntAttribute("width", &frame.size_on_sheet.width);
             elem->QueryIntAttribute("height", &frame.size_on_sheet.height);
 
-            if (frame.size_on_sheet.width == 0 || frame.size_on_sheet.height == 0) {
+            if (
+                frame.size_on_sheet.width == 0 ||
+                frame.size_on_sheet.height == 0
+            ) {
                 continue;
             }
 
@@ -157,31 +173,54 @@ sptr<atlas_data> ResourceManager::load_atlas_data(std::string_view path) {
             elem->QueryIntAttribute("frameY", &frame.offsets.y);
             elem->QueryBoolAttribute("rotated", &frame.is_rotated);
 
-            auto& current_frames = atlas_data->frames[name];
+            auto [it, inserted] = data->frames.try_emplace(name);
+            if (!inserted) {
+                continue;
+            }
 
+            auto& current_frames = it->second;
             if (current_frames.size() <= frame_index) {
                 current_frames.resize(frame_index + 1);
             }
 
-            current_frames[frame_index] = frame;
-            current_frames[frame_index].is_valid = true;
+            current_frames.emplace(current_frames.begin() + frame_index, frame);
+            current_frames.at(frame_index).is_valid = true;
         }
 
-        for (auto& [name, frames] : atlas_data->frames) {
+        for (auto& [name, frames] : data->frames) {
             // remove empty spots in vector
-            frames.erase(std::remove_if(frames.begin(), frames.end(),
-                [](const auto& frame) { return !frame.is_valid; }),
-                         frames.end());
+            frames.erase(
+                std::remove_if(
+                    frames.begin(),
+                    frames.end(),
+                    [](const auto& frame) {
+                        return !frame.is_valid;
+                    }
+                ),
+                frames.end()
+            );
         }
 
         break;
+    }
     default:
+        log::error(
+            fmt::format(
+                "Failed to parse atlas data with unknown atlas format | path: \"{}\"",
+                abs_path
+            )
+        );
+        
         return nullptr;
     }
 
-    cached_atlas_datas_.emplace(parsed.stitched, atlas_data);
-    log::trace(M_NAME, "Loaded atlas data: \"{}\"", parsed.stitched);
-    return atlas_data;
+    auto [it, inserted] = cached_atlas_datas_.emplace(abs_path, data);
+    if (!inserted) {
+        return it->second;
+    }
+
+    log_load(abs_path);
+    return it->second;
 }
 
 sptr<pcm_data> ResourceManager::load_pcm_data(std::string_view path) {
@@ -307,24 +346,29 @@ bool ResourceManager::is_format_supported(format_type type, std::string_view for
 }
 
 // private
-void ResourceManager::log_unsupported(std::string_view format, std::string_view path) {
+void ResourceManager::log_unsupported_format(
+    std::string_view format,
+    std::string_view path,
+    std::source_location loc
+) {
     log::error(
         fmt::format(
             "Can't load unsupported format: \"{}\" | path: \"{}\"",
             format,
             path
-        )
+        ),
+        loc
     );
 }
 
 // private
-void ResourceManager::log_fail(std::string_view path) {
-    log::error(fmt::format("Failed to load: \"{}\"", path));
+void ResourceManager::log_fail(std::string_view path, std::source_location loc) {
+    log::error(fmt::format("Failed to load: \"{}\"", path), loc);
 }
 
 // private
-void ResourceManager::log_load(std::string_view path) {
-    log::trace(fmt::format("Loaded texture: \"{}\"", path));
+void ResourceManager::log_load(std::string_view path, std::source_location loc) {
+    log::trace(fmt::format("Loaded texture: \"{}\"", path), loc);
 }
 
 }
