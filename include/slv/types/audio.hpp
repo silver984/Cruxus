@@ -5,8 +5,10 @@
 
 namespace slv {
 
+using pcm_data = std::vector<float>;
+
 struct audio_hnd final {
-	sptr<std::vector<float>> pcm = nullptr;
+	sptr<pcm_data> pcm = nullptr;
 	uint64_t cursor = 0;
 };
 

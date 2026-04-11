@@ -1,24 +1,25 @@
 #pragma once
+#include <slv/internal/config.hpp>
 
-namespace slv
-{
-	class Game; // forward declare
+namespace slv {
 
-	class CrashManager
-	{
-		friend class slv::Game;
+class Game; // forward declare
+class SLV_DLL CrashManager final {
+	friend class Game;
 
-	private:
-		CrashManager() = default;
-		~CrashManager() = default;
-		CrashManager(const CrashManager&) = delete;
-		CrashManager& operator=(const CrashManager&) = delete;
-		CrashManager(CrashManager&&) = delete;
-		CrashManager& operator=(CrashManager&&) = delete;
+private:
+	CrashManager();
+	~CrashManager();
 
-		bool init();
+public:
+	CrashManager(CrashManager const&) = delete;
+	CrashManager& operator=(CrashManager const&) = delete;
+	CrashManager(CrashManager&&) = delete;
+	CrashManager& operator=(CrashManager&&) = delete;
 
-		static constexpr inline const char* M_NAME = "CrashHandler";
-		bool m_is_init = false;
-	};
+private:
+	bool init();
+	bool is_initialized_;
+};
+
 }

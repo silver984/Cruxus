@@ -1,4 +1,8 @@
 #include <slv/engine/log.hpp>
+#include <fmt/format.h>
+#ifdef SLV_COLORED_LOGS
+#include <fmt/color.h>
+#endif
 #include <chrono>
 #include <ctime>
 #include <string>
@@ -25,16 +29,82 @@ std::string time() {
 	return std::string(buf);
 }
 
-}
-
-namespace slv::log::impl {
-
-void print_time_and_messenger(std::string_view messenger) {
+void print_time_and_location(std::source_location const& location) {
 #ifdef SLV_COLORED_LOGS
 	fmt::print(fmt::fg(fmt::color::dim_gray), "{:<10} ", time());
-	fmt::print(fmt::fg(fmt::color::light_blue), "[{}] ", messenger);
+	fmt::print(fmt::fg(fmt::color::light_blue), "[{}] ", location.function_name());
 #else
-	fmt::print("{:<10} [{}] ", time(), messenger);
+	fmt::print("{:<10} [{}] ", time(), location.function_name());
+#endif
+}
+
+#ifdef SLV_COLORED_LOGS
+void colored_print(
+	std::source_location const& location,
+	std::string_view level_name,
+	std::string_view message,
+	fmt::color level_color
+) {
+	print_time_and_location(location);
+	fmt::print(fmt::fg(level_color), "[{}] ", level_name);
+	fmt::print("{}\n", fmt::runtime(message));
+}
+#else
+void regular_print(
+	std::source_location const& location,
+	std::string_view level_name,
+	std::string_view message
+) {
+	print_time_and_location(location);
+	fmt::print("[{}] {}\n", level_name, fmt::runtime(message));
+}
+#endif
+
+}
+
+namespace slv::log {
+
+void trace(
+	std::string_view message,
+	const std::source_location& loc
+) {
+#ifdef SLV_COLORED_LOGS
+	colored_print(loc, "TRACE", message, fmt::color::lemon_chiffon);
+#else
+	regular_print(loc, "TRACE", message);
+#endif
+}
+
+void info(
+	std::string_view message,
+	const std::source_location& loc
+) {
+#ifdef SLV_COLORED_LOGS
+	colored_print(loc, "INFO", message, fmt::color::green_yellow);
+#else
+	regular_print(loc, "INFO", message);
+#endif
+}
+
+void warning(
+	std::string_view message,
+	const std::source_location& loc
+) {
+#ifdef SLV_COLORED_LOGS
+	colored_print(loc, "WARNING", message, fmt::color::gold);
+#else
+	regular_print(loc, "WARNING", message);
+#endif
+}
+
+void error(
+	std::string_view message,
+	const std::source_location& loc
+) {
+#ifdef SLV_COLORED_LOGS
+	colored_print(loc, "ERROR", message, fmt::color::crimson);
+#else
+	regular_print(loc, "ERROR", message);
 #endif
 }
 

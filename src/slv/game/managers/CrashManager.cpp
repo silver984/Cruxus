@@ -1,27 +1,32 @@
 #include <slv/game/managers/CrashManager.hpp>
-#include <slv/core/console/log.hpp>
+#include <slv/engine/log.hpp>
 #ifdef _WIN32
-#include <platform/windows/crash.hpp>
+#include <platforms/windows.hpp>
 #endif
 
-namespace slv
-{
-	// private
-	bool CrashManager::init()
-	{
-		if (m_is_init)
-		{
-			return true;
-		}
+namespace slv {
 
-#ifdef _WIN32
-		slv::win32::init_mem_dump();
-		m_is_init = true;
+// private
+CrashManager::CrashManager() :
+	is_initialized_(false)
+{}
+
+// private
+CrashManager::~CrashManager() = default;
+
+// private
+bool CrashManager::init() {
+	if (is_initialized_) {
 		return true;
+	}
+
+#ifdef _WIN32
+	win32::init_mem_dump();
+	is_initialized_ = true;
+	return true;
 #endif
 
-		slv::log::warning(M_NAME, "SLV's CrashManager is not available on the current platform");
+	return false;
+}
 
-		return false;
-	}
 }

@@ -2,6 +2,7 @@
 #include <slv/engine/log.hpp>
 
 namespace slv {
+
 Game::Game() :
 	is_initialized_(false)
 {}
@@ -19,11 +20,15 @@ bool Game::init(
 	}
 
 	if (!window_.init(win_title, win_size, win_fps, win_settings, ctx())) {
+		log::error("Failed to initialize window");
 		return false;
 	}
 
 	audio_.init();
-	crash_.init();
+
+	if (!crash_.init()) {
+		log::warning("Failed to initialize the crash manager, it may be unsupported on this platform");
+	}
 
 	is_initialized_ = true;
 

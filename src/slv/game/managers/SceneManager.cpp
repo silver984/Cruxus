@@ -4,10 +4,12 @@
 
 namespace slv {
 
+// private
 SceneManager::SceneManager() :
 	is_destroying_current_scene_(false)
 {};
 
+// private
 SceneManager::~SceneManager() = default;
 
 void SceneManager::change_scene(sptr<Vessel>&& new_scene) {

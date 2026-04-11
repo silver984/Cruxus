@@ -57,17 +57,17 @@ bool WindowManager::init(
 			title_.c_str()
 		)
 	) {
-		log::error("Failed to initialize window");
 		return false;
 	}
 
+#if (defined(SLV_DEBUG) || defined(SLV_RELWITHDEBINFO))
 	if (!win32::enable_console_colors()) {
 		log::warning("Couldn't enable console colors");
 	}
+#endif
 
 	is_initialized_ = true;
 	update(0.f, ctx);
-	log::info("Window initialized");
 	return true;
 }
 
@@ -78,9 +78,7 @@ void WindowManager::uninit() {
 	}
 
 	is_initialized_ = false;
-
 	log::info("Destroying window...");
-
 	CloseWindow();
 }
 
@@ -162,14 +160,14 @@ void WindowManager::end_draw() const {
 
 #if defined(SLV_DEBUG) || defined(SLV_RELWITHDEBINFO)
 	std::string debug_text = fmt::format(
-		"FPS: {} / {:.0f}ms",
+		"FPS: {} / {:.0f}MS",
 		running_fps(),
 		delta_time() * 1000.f
 	);
 
 	if (memory_usage_ != 0.f) {
 		debug_text += fmt::format(
-			"\nMEM: {:.2f}mb / {:.2f}mb",
+			"\nMEM: {:.2f}MB / {:.2f}MB",
 			memory_usage_,
 			max_memory_usage_
 		);
