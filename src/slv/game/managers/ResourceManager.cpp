@@ -70,7 +70,7 @@ sptr<texture> ResourceManager::load_texture(std::string_view path) {
         return nullptr;
     }
 
-    auto [it, inserted] = cached_textures_.try_emplace(
+    auto [it, _] = cached_textures_.try_emplace(
         abs_path,
         shared<texture>(
             texture_rl.id,
@@ -79,11 +79,6 @@ sptr<texture> ResourceManager::load_texture(std::string_view path) {
             texture_rl.format
         )
     );
-
-    if (!inserted) {
-        UnloadTexture(Texture(texture_rl.id));
-        return it->second;
-    }
 
     log_load(abs_path);
     return it->second;
@@ -127,7 +122,7 @@ sptr<atlas_data> ResourceManager::load_atlas_data(std::string_view path) {
     auto data = shared<atlas_data>();
 
     // Adobe Animate or Flash
-    if (strcmp(root->Name(), "TextureAtlas")) {
+    if (strcmp(root->Name(), "TextureAtlas") == 0) {
         data->format = atlas_format::FLASH_XML;
     } else {
         log::error(
@@ -148,17 +143,13 @@ sptr<atlas_data> ResourceManager::load_atlas_data(std::string_view path) {
             elem != nullptr;
             elem = elem->NextSiblingElement("SubTexture")
         ) {
-            if (!elem->Attribute("name")) {
+            char const* name_attr = elem->Attribute("name");
+            if (!name_attr) {
                 continue;
             }
 
-            std::string full_name = elem->Attribute("name");
-            std::string name = full_name.substr(0, full_name.find_last_not_of("0123456789") + 1);
-            size_t frame_index = std::stoull(full_name.substr(full_name.size() - 4));
             atlas_frame frame;
 
-            elem->QueryIntAttribute("x", &frame.pos_on_sheet.x);
-            elem->QueryIntAttribute("y", &frame.pos_on_sheet.y);
             elem->QueryIntAttribute("width", &frame.size_on_sheet.width);
             elem->QueryIntAttribute("height", &frame.size_on_sheet.height);
 
@@ -169,22 +160,30 @@ sptr<atlas_data> ResourceManager::load_atlas_data(std::string_view path) {
                 continue;
             }
 
+            elem->QueryIntAttribute("x", &frame.pos_on_sheet.x);
+            elem->QueryIntAttribute("y", &frame.pos_on_sheet.y);
             elem->QueryIntAttribute("frameX", &frame.offsets.x);
             elem->QueryIntAttribute("frameY", &frame.offsets.y);
             elem->QueryBoolAttribute("rotated", &frame.is_rotated);
 
-            auto [it, inserted] = data->frames.try_emplace(name);
-            if (!inserted) {
+            std::string full_frame_name = name_attr;
+            auto split = full_frame_name.find_last_not_of("0123456789");
+            if (split == std::string::npos) {
                 continue;
             }
 
-            auto& current_frames = it->second;
+            std::string frame_name = full_frame_name.substr(0, split + 1);
+            std::string index_str = full_frame_name.substr(split + 1);
+            size_t frame_index = std::stoull(index_str);
+
+            auto& current_frames = data->frames[frame_name];
+
             if (current_frames.size() <= frame_index) {
                 current_frames.resize(frame_index + 1);
             }
 
-            current_frames.emplace(current_frames.begin() + frame_index, frame);
-            current_frames.at(frame_index).is_valid = true;
+            current_frames[frame_index] = frame;
+            current_frames[frame_index].is_valid = true;
         }
 
         for (auto& [name, frames] : data->frames) {
@@ -214,11 +213,7 @@ sptr<atlas_data> ResourceManager::load_atlas_data(std::string_view path) {
         return nullptr;
     }
 
-    auto [it, inserted] = cached_atlas_datas_.emplace(abs_path, data);
-    if (!inserted) {
-        return it->second;
-    }
-
+    auto [it, _] = cached_atlas_datas_.emplace(abs_path, data);
     log_load(abs_path);
     return it->second;
 }
