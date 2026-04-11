@@ -31,21 +31,21 @@ bool Game::init(
 }
 
 void Game::run() {
-	auto ctx = context();
+	auto ctx_val = ctx();
 
 	while (window_.is_open()) {
 		// update
 
 		float dt = window_.delta_time();
-		window_.update(dt, ctx);
+		window_.update(dt, ctx_val);
 		input_.update(dt);
 		resource_.update(dt);
-		scene_.update(dt, ctx);
+		scene_.update(dt, ctx_val);
 
 		// draw
 
 		window_.start_draw();
-		scene_.draw(ctx);
+		scene_.draw(ctx_val);
 		window_.end_draw();
 	}
 

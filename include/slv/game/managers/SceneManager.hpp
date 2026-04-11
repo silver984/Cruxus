@@ -1,42 +1,37 @@
 #pragma once
+#include <slv/internal/config.hpp>
+#include <slv/game/objects/Vessel.hpp>
+#include <slv/types/context.hpp>
+#include <slv/types/memory.hpp>
 
-#include <slv/objects/Vessel.hpp>
-#include <slv/core/types/game_context.hpp>
-#include <slv/core/types/pointers.hpp>
+namespace slv {
 
-namespace slv
-{
-	class Game; // forward declare
+class Game; // forward declare
+class SLV_DLL SceneManager final {
+	friend class Game;
 
-	class SceneManager
-	{
-		friend class slv::Game;
+private:
+	SceneManager();
+	~SceneManager();
 
-	private:
-		SceneManager() = default;
-		~SceneManager() = default;
-		SceneManager(const SceneManager&) = delete;
-		SceneManager& operator=(const SceneManager&) = delete;
-		SceneManager(SceneManager&&) = delete;
-		SceneManager& operator=(SceneManager&&) = delete;
+public:
+	SceneManager(const SceneManager&) = delete;
+	SceneManager& operator=(const SceneManager&) = delete;
+	SceneManager(SceneManager&&) = delete;
+	SceneManager& operator=(SceneManager&&) = delete;
 
-	public:
-		void change_scene(slv::sptr<slv::Vessel>&& new_scene);
-		void destroy_current_scene();
+	void change_scene(sptr<Vessel>&& new_scene);
+	void destroy_current_scene();
+	[[nodiscard]] wptr<Vessel> current_scene();
 
-		slv::wptr<slv::Vessel> current_scene()
-		{
-			return m_current_scene;
-		}
+private:
+	void update(float dt, context const& ctx);
+	void draw(context const& ctx);
+	void safely_destroy_scene();
 
-	private:
-		void update(float dt, const slv::game_context& ctx);
-		void draw(const slv::game_context& ctx);
-		void safely_destroy_scene();
+	sptr<Vessel> current_scene_;
+	sptr<Vessel> pending_scene_;
+	bool is_destroying_current_scene_;
+};
 
-		static constexpr inline const char* M_NAME = "SceneManager";
-		slv::sptr<slv::Vessel> m_current_scene = nullptr;
-		slv::sptr<slv::Vessel> m_pending_scene = nullptr;
-		bool m_destroying_current_scene = false;
-	};
 }
