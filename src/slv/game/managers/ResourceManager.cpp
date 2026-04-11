@@ -36,12 +36,12 @@ parsed_path parsed_path::parse(std::string_view file) {
 ResourceManager::ResourceManager() :
     since_cleanup_(0.f) {
     using enum format_type;
-    supported_formats_.at(IMAGE).emplace_back("png");
-    supported_formats_.at(IMAGE).emplace_back("jpg");
-    supported_formats_.at(IMAGE).emplace_back("jpeg");
-    supported_formats_.at(AUDIO).emplace_back("mp3");
-    supported_formats_.at(AUDIO).emplace_back("wav");
-    supported_formats_.at(DATA).emplace_back("xml");
+    supported_formats_[IMAGE].emplace_back("png");
+    supported_formats_[IMAGE].emplace_back("jpg");
+    supported_formats_[IMAGE].emplace_back("jpeg");
+    supported_formats_[AUDIO].emplace_back("mp3");
+    supported_formats_[AUDIO].emplace_back("wav");
+    supported_formats_[DATA].emplace_back("xml");
 }
 
 // private
