@@ -17,6 +17,14 @@ public:
 		return data_[static_cast<size_t>(e)];
 	}
 
+	T& at(enum_t e) {
+		return data_.at(static_cast<size_t>(e));
+	}
+
+	T const& at(enum_t e) const {
+		return data_.at(static_cast<size_t>(e));
+	}
+
 private:
 	std::array<T, static_cast<size_t>(N)> data_;
 };

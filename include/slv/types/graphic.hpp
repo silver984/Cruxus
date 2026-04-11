@@ -1,5 +1,7 @@
 #pragma once
-#include <slv/types/primitives.hpp>
+#include <slv/internal/config.hpp>
+#include <slv/types/size.hpp>
+#include <slv/types/vec2.hpp>
 #include <slv/types/string_map.hpp>
 #include <cstdint>
 #include <vector>
@@ -7,7 +9,7 @@
 namespace slv {
 
 enum class atlas_format : int {
-    FLASH_XML = 0
+    FLASH_XML
 };
 
 struct atlas_frame final {
@@ -24,11 +26,10 @@ struct atlas_data final {
 };
 
 struct texture final {
-    uint32_t id{};
-    int width{};
-    int height{};
-    int mipmaps{};
-    int format{};
+    uint32_t id;
+    size<int> resolution;
+    int mipmaps;
+    int format;
 };
 
 }

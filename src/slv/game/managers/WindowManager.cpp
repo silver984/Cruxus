@@ -14,6 +14,7 @@
 
 namespace slv {
 
+// private
 WindowManager::WindowManager() :
 	target_fps_(0),
 	running_fps_(0),
@@ -26,6 +27,7 @@ WindowManager::WindowManager() :
 	is_initialized_(false)
 {}
 
+// private
 WindowManager::~WindowManager() = default;
 
 // private

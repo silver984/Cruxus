@@ -8,7 +8,6 @@
 #include <string>
 #include <string_view>
 #include <vector>
-#include <cstddef>
 
 namespace slv {
 
@@ -41,19 +40,17 @@ public:
 	ResourceManager(ResourceManager&&) = delete;
 	ResourceManager& operator=(ResourceManager&&) = delete;
 
-	sptr<texture> load_texture(std::string_view file_path);
-	sptr<atlas_data> load_atlas_data(std::string_view file_path);
-	sptr<pcm_data> load_pcm_data(std::string_view file_path);
+	[[nodiscard]] sptr<texture> load_texture(std::string_view file);
+	[[nodiscard]] sptr<atlas_data> load_atlas_data(std::string_view file);
+	[[nodiscard]] sptr<pcm_data> load_pcm_data(std::string_view file);
 
 private:
 	void update(float dt);
 	void clean_cache();
-	
-	/*
-	static constexpr inline std::array<const char*, 3> M_SUPPORTED_IMG_FORMATS{ "png", "jpg", "jpeg" };
-	static constexpr inline std::array<const char*, 2> M_SUPPORTED_AUDIO_FORMATS{ "mp3", "wav" };
-	static constexpr inline std::array<const char*, 1> M_SUPPORTED_DATA_FORMATS{ "xml" };
-	*/
+	[[nodiscard]] bool is_format_supported(format_type type, std::string_view format);
+	void log_unsupported(std::string_view format, std::string_view path);
+	void log_fail(std::string_view path);
+	void log_load(std::string_view path);
 
 	enum_array<std::vector<std::string>, format_type, format_type::count> supported_formats_;
 	string_map<sptr<texture>> cached_textures_;
