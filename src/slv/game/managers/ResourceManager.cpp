@@ -344,7 +344,7 @@ bool ResourceManager::is_format_supported(format_type type, std::string_view for
 void ResourceManager::log_unsupported_format(
     std::string_view format,
     std::string_view path,
-    std::source_location loc
+    std::source_location const& loc
 ) {
     log::error(
         fmt::format(
@@ -357,12 +357,18 @@ void ResourceManager::log_unsupported_format(
 }
 
 // private
-void ResourceManager::log_fail(std::string_view path, std::source_location loc) {
+void ResourceManager::log_fail(
+    std::string_view path,
+    std::source_location const& loc
+) {
     log::error(fmt::format("Failed to load: \"{}\"", path), loc);
 }
 
 // private
-void ResourceManager::log_load(std::string_view path, std::source_location loc) {
+void ResourceManager::log_load(
+    std::string_view path,
+    std::source_location const& loc
+) {
     log::trace(fmt::format("Loaded texture: \"{}\"", path), loc);
 }
 

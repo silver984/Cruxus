@@ -52,10 +52,16 @@ private:
 	void log_unsupported_format(
 		std::string_view format,
 		std::string_view path,
-		std::source_location loc = std::source_location::current()
+		std::source_location const& loc = std::source_location::current()
 	);
-	void log_fail(std::string_view path, std::source_location loc = std::source_location::current());
-	void log_load(std::string_view path, std::source_location loc = std::source_location::current());
+	void log_fail(
+		std::string_view path,
+		std::source_location const& loc = std::source_location::current()
+	);
+	void log_load(
+		std::string_view path,
+		std::source_location const& loc = std::source_location::current()
+	);
 
 	enum_array<std::vector<std::string>, format_type, format_type::count> supported_formats_;
 	string_map<sptr<texture>> cached_textures_;
