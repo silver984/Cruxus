@@ -1,7 +1,7 @@
-#include <slv/core/raylib.hpp>
+#include <slv/internal/raylib.hpp>
+#include <slv/engine/math.hpp>
 #include <raylib.h>
 #include <rlgl.h>
-#include <slv/core/math.hpp>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -29,15 +29,18 @@ Color rl_color(slv::rgb const& color, float alpha) {
 Texture rl_texture(slv::texture const& texture) {
 	return {
 		texture.id,
-		texture.width,
-		texture.height,
+		texture.resolution.width,
+		texture.resolution.height,
 		texture.mipmaps,
 		texture.format
 	};
 }
 
 Vector2 rl_vector(slv::vec2<float> const& vec2) {
-	return { vec2.x, vec2.y };
+	return {
+		vec2.x,
+		vec2.y
+	};
 }
 
 Matrix rl_matrix(slv::mat3 const& matrix) {
@@ -64,7 +67,7 @@ slv::texture slv_texture(const Texture& texture) {
 void rl_push_mult_matrix(slv::mat3 const& matrix) {
 	rlPushMatrix();
 	Matrix rm = rl_matrix(matrix);
-	rlMultMatrixf((const float*)&rm);
+	rlMultMatrixf(&rm.m0);
 }
 
 }
