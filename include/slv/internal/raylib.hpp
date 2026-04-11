@@ -1,7 +1,6 @@
 #pragma once
 #include <slv/types/primitives.hpp>
 #include <slv/types/texture.hpp>
-#include <slv/types/colors.hpp>
 
 namespace slv::raylib {
 

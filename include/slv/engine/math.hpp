@@ -1,5 +1,7 @@
 #pragma once
-#include <slv/types/primitives.hpp>
+#include <slv/internal/config.hpp>
+#include <slv/types/numeric.hpp>
+#include <slv/types/vec2.hpp>
 #include <cmath>
 #include <numbers>
 #include <algorithm>
@@ -69,17 +71,12 @@ vec2<T> damp(const vec2<T>& current, const vec2<T>& target, T lambda, T dt) {
     return lerp(current, target, t);
 }
 
-float deg2rad(float deg) {
-    return deg * (pi / 180.f);
-}
-
-float rad2deg(float rad) {
-    return rad * (180.f / pi);
-}
+SLV_DLL float deg2rad(float deg);
+SLV_DLL float rad2deg(float rad);
 
 template <numeric T>
 vec2<T> rotate(vec2<T> point, vec2<T> origin, T rotation_deg) {
-    T rad = deg_to_rad(rotation_deg);
+    T rad = deg2rad(rotation_deg);
     vec2<T> unrotated = vec2<T>(point.x - origin.x, point.y - origin.y);
     vec2<T> rotated = vec2<T>(
         unrotated.x * std::cos(rad) - unrotated.y * std::sin(rad),

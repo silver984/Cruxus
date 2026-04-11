@@ -1,5 +1,5 @@
 #pragma once
-#include <slv/core/dll.hpp>
+#include <slv/internal/config.hpp>
 #include <slv/types/primitives.hpp>
 #include <slv/types/texture.hpp>
 #include <slv/types/game_context.hpp>
@@ -67,17 +67,16 @@ private:
         std::string_view title,
         size<int> const& size,
         int fps,
-        int settings,
+        window_settings settings,
         game_context const& ctx
     );
 
     void uninit();
     void update(float dt, game_context const& ctx);
     void start_draw() const;
-    void end_draw(game_context const& ctx) const;
-    void configure_settings(int settings);
+    void end_draw() const;
+    void configure_settings(window_settings settings);
 
-    std::string class_name_;
     vec2<int> pos_;
     size<int> default_screen_size_;
     size<int> draw_size_;

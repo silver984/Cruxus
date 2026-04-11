@@ -14,13 +14,13 @@ template<typename T>
 using uptr = std::unique_ptr<T>;
 
 template<typename T, typename... Args>
-inline sptr<T> shared(Args&&... args) {
+sptr<T> shared(Args&&... args) {
 	return std::make_shared<T>(std::forward<Args>(args)...);
 }
 
 template<typename T, typename... Args>
-inline uptr<T> unique(Args&&... args) {
+uptr<T> unique(Args&&... args) {
 	return std::make_unique<T>(std::forward<Args>(args)...);
 }
 
-} // namespace slv
+}

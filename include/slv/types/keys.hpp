@@ -1,5 +1,4 @@
 #pragma once
-#include <string>
 
 namespace slv {
 
@@ -234,9 +233,4 @@ constexpr const key all_keys[] =
     key::KP_EQUAL,
 };
 
-struct action_bind {
-    std::string name;
-    slv::key key = slv::key::NULL_KEY;
-};
-
-} // namespace slv
+}

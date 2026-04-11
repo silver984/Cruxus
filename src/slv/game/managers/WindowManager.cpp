@@ -1,12 +1,11 @@
 #include <slv/game/managers/WindowManager.hpp>
 #include <fmt/format.h>
 #include <slv/engine/log.hpp>
-#include <slv/core/raylib.hpp>
+#include <slv/internal/raylib.hpp>
 #include <slv/game/managers/SceneManager.hpp>
 #include <slv/game/managers/ResourceManager.hpp>
 #ifdef _WIN32
-#include <platform/windows/console.hpp>
-#include <platform/windows/memory_usage.hpp>
+#include <platforms/windows.hpp>
 #endif
 #include <raylib.h>
 #include <algorithm>
@@ -16,7 +15,6 @@
 namespace slv {
 
 WindowManager::WindowManager() :
-	class_name_("WindowManager"),
 	target_fps_(0),
 	running_fps_(0),
 	frame_count_(0),
@@ -35,7 +33,7 @@ bool WindowManager::init(
 	std::string_view title,
 	size<int> const& size,
 	int fps,
-	int settings,
+	window_settings settings,
 	game_context const& ctx
 ) {
 	if (is_initialized_) {
@@ -44,11 +42,9 @@ bool WindowManager::init(
 
 	// disable raylib's logs
 	SetTraceLogCallback([](int, char const*, va_list){});
-
-	title_ = std::string(title);
-
 	configure_settings(settings);
 
+	title_ = std::string(title);
 	default_screen_size_.width = std::max(1, size.width);
 	default_screen_size_.height = std::max(1, size.height);
 	target_fps_ = std::max(1, fps);
@@ -61,14 +57,17 @@ bool WindowManager::init(
 			title_.c_str()
 		)
 	) {
-		log::error(class_name_, "Failed to initialize window");
+		log::error("Failed to initialize window");
 		return false;
 	}
 
-	win32::enable_console_colors();
+	if (!win32::enable_console_colors()) {
+		log::warning("Couldn't enable console colors");
+	}
+
 	is_initialized_ = true;
 	update(0.f, ctx);
-	log::info(class_name_, "Window initialized");
+	log::info("Window initialized");
 	return true;
 }
 
@@ -80,7 +79,7 @@ void WindowManager::uninit() {
 
 	is_initialized_ = false;
 
-	log::info(class_name_, "Destroying window...");
+	log::info("Destroying window...");
 
 	CloseWindow();
 }
@@ -133,7 +132,7 @@ void WindowManager::update(float dt, game_context const& ctx) {
 	}
 
 #if (defined(SLV_DEBUG) || defined(SLV_RELWITHDEBINFO)) && _WIN32
-	memory_usage_ = win32::get_memory_mb();
+	memory_usage_ = win32::proc_memory_mb();
 	max_memory_usage_ = std::max(memory_usage_, max_memory_usage_);
 #endif
 }
@@ -156,7 +155,7 @@ void WindowManager::start_draw() const {
 }
 
 // private
-void WindowManager::end_draw(game_context const& ctx) const {
+void WindowManager::end_draw() const {
 	if (!is_initialized_) {
 		return;
 	}
@@ -175,27 +174,6 @@ void WindowManager::end_draw(game_context const& ctx) const {
 			max_memory_usage_
 		);
 	}
-
-	/*
-	float since_cache_cleanup = ctx.resource_manager ? ctx.resource_manager->since_cleanup() * 1000.f : 0.f;
-	size_t cache_count = ctx.resource_manager ? ctx.resource_manager->cache_count() : 0;
-
-	debug_text = debug_text + fmt::format("\nCACHED: {} / {:.0f}ms", cache_count, since_cache_cleanup);
-
-	size_t obj_total = 0;
-	size_t obj_active_total = 0;
-	size_t obj_visible_total = 0;
-
-	if (auto scene_manager = ctx.scene_manager) {
-		if (auto current_scene = scene_manager->current_scene().lock()) {
-			obj_total = current_scene->count();
-			obj_active_total = current_scene->count_active();
-			obj_visible_total = current_scene->count_visible();
-		}
-	}
-
-	debug_text = debug_text + fmt::format("\nOBJs: {} active / {} visible / {} total", obj_total, obj_active_total, obj_visible_total);
-	*/
 
 	int text_size = 10;
 	int text_border_padding = 5;
@@ -222,8 +200,10 @@ bool WindowManager::is_open() const {
 
 vec2<float> WindowManager::screen_center() const {
 	float ui_scale_val = ui_scale();
-	return vec2<float>((draw_size_.width / 2.f) / ui_scale_val,
-							(draw_size_.height / 2.f) / ui_scale_val);
+	return vec2<float>(
+		(draw_size_.width / 2.f) / ui_scale_val,
+		(draw_size_.height / 2.f) / ui_scale_val
+	);
 }
 
 size<float> WindowManager::screen_size() const {
@@ -432,7 +412,7 @@ vec2<int> WindowManager::pos() const {
 }
 
 // private
-void WindowManager::configure_settings(int settings) {
+void WindowManager::configure_settings(window_settings settings) {
 	using enum window_settings;
 	bool is_vsync = (settings & VSYNC) != NONE;
 	bool is_unresizable = (settings & UNRESIZABLE) != NONE;

@@ -1,9 +1,8 @@
-#include <slv/objects/Vessel.hpp>
+#include <slv/game/objects/Vessel.hpp>
 #include <slv/game/managers/WindowManager.hpp>
-#include <slv/core/math.hpp>
+#include <slv/engine/math.hpp>
 #include <algorithm>
 #include <cmath>
-#include <limits>
 
 namespace slv {
 
@@ -39,8 +38,6 @@ void Vessel::add(sptr<Vessel> vessel) {
 	if (!vessel) {
 		return;
 	}
-
-	vec2<float> huh;
 
 	auto self = shared_from_this();
 
@@ -213,15 +210,15 @@ std::string_view Vessel::type() const {
 }
 
 // protected
-bool Vessel::init(game_context const& ctx) {
+bool Vessel::init(context const& ctx) {
 	return true;
 }
 
 // protected
-void Vessel::update(float dt, game_context const& ctx) {}
+void Vessel::update(float dt, context const& ctx) {}
 
 // protected
-void Vessel::draw(game_context const& ctx) const {}
+void Vessel::draw(context const& ctx) const {}
 
 // protected
 mat3 Vessel::world_transform() const {
@@ -229,7 +226,7 @@ mat3 Vessel::world_transform() const {
 }
 
 // private
-bool Vessel::base_init(game_context const& ctx) {
+bool Vessel::base_init(context const& ctx) {
 	if (is_initialized_) {
 		return true;
 	}
@@ -243,7 +240,7 @@ bool Vessel::base_init(game_context const& ctx) {
 }
 
 // private
-void Vessel::base_update(float dt, game_context const& ctx) {
+void Vessel::base_update(float dt, context const& ctx) {
 	if (!is_initialized_ || !is_active) {
 		return;
 	}
@@ -318,7 +315,7 @@ void Vessel::base_update(float dt, game_context const& ctx) {
 }
 
 // private
-void Vessel::base_draw(game_context const& ctx) const {
+void Vessel::base_draw(context const& ctx) const {
 	if (
 		!is_initialized_ ||
 		!is_visible ||

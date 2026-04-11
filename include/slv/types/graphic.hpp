@@ -1,6 +1,7 @@
 #pragma once
 #include <slv/types/primitives.hpp>
 #include <slv/types/string_map.hpp>
+#include <cstdint>
 #include <vector>
 
 namespace slv {
@@ -20,6 +21,14 @@ struct atlas_frame final {
 struct atlas_data final {
     atlas_format format;
     string_map<std::vector<atlas_frame>> frames;
+};
+
+struct texture final {
+    uint32_t id{};
+    int width{};
+    int height{};
+    int mipmaps{};
+    int format{};
 };
 
 }

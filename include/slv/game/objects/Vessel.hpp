@@ -1,19 +1,18 @@
 #pragma once
-#include <slv/core/dll.hpp>
+#include <slv/internal/config.hpp>
 #include <slv/types/primitives.hpp>
-#include <slv/types/colors.hpp>
-#include <slv/types/pointers.hpp>
-#include <slv/types/game_context.hpp>
+#include <slv/types/memory.hpp>
+#include <slv/types/context.hpp>
 #include <vector>
 #include <string>
 #include <string_view>
-#include <memory>
 #include <utility>
-#include <cstdint>
+#include <cstddef>
+#include <type_traits>
 
 namespace slv {
 
-class SceneManager; // forward declare
+class SceneManager;
 class SLV_DLL Vessel : public std::enable_shared_from_this<Vessel> {
 	friend class SceneManager;
 
@@ -21,11 +20,10 @@ public:
 	Vessel();
 	virtual ~Vessel();
 
-	template<typename Derived, typename... Args>
-	static inline sptr<Derived> create(game_context const& ctx, Args&&... args) {
-		static_assert(std::is_base_of_v<Vessel, Derived>);
-
-		sptr<Derived> ptr = shared<Derived>(std::forward<Args>(args)...);
+	template<typename derived, typename... va_args>
+	requires std::is_base_of_v<Vessel, derived>
+	static sptr<derived> create(context const& ctx, va_args&&... args) {
+		sptr<derived> ptr = shared<derived>(std::forward<va_args>(args)...);
 
 		if (!ptr->base_init(ctx)) {
 			ptr.reset();
@@ -58,23 +56,23 @@ public:
 	vec2<float> scale;
 	vec2<float> skew; // degrees
 	float rotation; // degrees
-	float alpha; // 0 - 1
+	float alpha;
 	float time_scale;
 	bool is_visible;
 	bool is_active;
 
 protected:
-	virtual bool init(game_context const& ctx);
-	virtual void update(float dt, game_context const& ctx);
-	virtual void draw(game_context const& ctx) const;
+	virtual bool init(context const& ctx);
+	virtual void update(float dt, context const& ctx);
+	virtual void draw(context const& ctx) const;
 	mat3 world_transform() const;
 
 	size<float> content_size_;
 
 private:
-	bool base_init(game_context const& ctx);
-	void base_update(float dt, game_context const& ctx);
-	void base_draw(game_context const& ctx) const;
+	bool base_init(context const& ctx);
+	void base_update(float dt, context const& ctx);
+	void base_draw(context const& ctx) const;
 	bool has_ancestor(sptr<Vessel> vessel) const;
 	void clean_children();
 	void mark_dirty();

@@ -9,7 +9,7 @@ file(GLOB_RECURSE SLV_SOURCES CONFIGURE_DEPENDS "src/slv/*.cpp")
 file(GLOB MINIAUDIO_SOURCES CONFIGURE_DEPENDS "src/miniaudio/*.cpp")
 set(PLATFORM_SOURCES "")
 if (WIN32)
-    file(GLOB_RECURSE PLATFORM_SOURCES CONFIGURE_DEPENDS "src/platform/windows/*.cpp")
+    file(GLOB_RECURSE PLATFORM_SOURCES CONFIGURE_DEPENDS "src/platforms/windows.cpp")
 endif()
 
 add_library(${PROJECT_NAME}

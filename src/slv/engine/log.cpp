@@ -1,24 +1,11 @@
 #include <slv/engine/log.hpp>
-#include <platform/windows/console.hpp>
 #include <chrono>
 #include <ctime>
+#include <string>
 
-namespace slv::log {
+namespace {
 
-bool is_console_open() {
-#ifdef _WIN32
-	return win32::is_console_open();
-#else
-#if defined(SLV_DEBUG) || defined(SLV_RELWITHDEBINFO)
-	return true;
-#endif
-#endif
-	return false;
-}
-
-namespace impl {
-
-std::string get_time() {
+std::string time() {
 	using clock = std::chrono::system_clock;
 	const auto now = clock::now();
 	const auto t = clock::to_time_t(now);
@@ -38,15 +25,17 @@ std::string get_time() {
 	return std::string(buf);
 }
 
-void print_time_and_messenger(const std::string& messenger) {
-#ifdef _WIN32
-	fmt::print(fmt::fg(fmt::color::dim_gray), "{:<10} ", get_time());
-	fmt::print(fmt::fg(fmt::color::light_blue), "[{}] ", messenger);
-#else
-	fmt::print("{:<10} [{}] ", get_time(), messenger);
-#endif
 }
 
+namespace slv::log::impl {
+
+void print_time_and_messenger(std::string_view messenger) {
+#ifdef SLV_COLORED_LOGS
+	fmt::print(fmt::fg(fmt::color::dim_gray), "{:<10} ", time());
+	fmt::print(fmt::fg(fmt::color::light_blue), "[{}] ", messenger);
+#else
+	fmt::print("{:<10} [{}] ", time(), messenger);
+#endif
 }
 
 }

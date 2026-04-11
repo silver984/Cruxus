@@ -1,8 +1,8 @@
 #pragma once
-#include <slv/objects/Vessel.hpp>
-#include <slv/core/console/log.hpp>
-#include <slv/core/math.hpp>
-#include <slv/core/types/primitives.hpp>
-#include <slv/core/types/keys.hpp>
-#include <slv/core/types/pointers.hpp>
-#include <slv/core/types/colors.hpp>
+#include <slv/game/objects/Vessel.hpp>
+#include <slv/engine/log.hpp>
+#include <slv/engine/math.hpp>
+#include <slv/types/primitives.hpp>
+#include <slv/types/keys.hpp>
+#include <slv/types/memory.hpp>
+#include <slv/types/colors.hpp>
