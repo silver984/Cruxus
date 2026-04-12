@@ -1,32 +1,19 @@
 #include <slv/engine/log.hpp>
 #include <fmt/format.h>
+#include <fmt/chrono.h>
 #ifdef SLV_COLORED_LOGS
 #include <fmt/color.h>
 #endif
 #include <chrono>
-#include <ctime>
 #include <string>
 
 namespace {
 
 std::string time() {
-	using clock = std::chrono::system_clock;
-	const auto now = clock::now();
-	const auto t = clock::to_time_t(now);
-	const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
-
-	std::tm tm;
-#ifdef _WIN32
-	localtime_s(&tm, &t);
-#else
-	localtime_r(&t, &tm);
-#endif
-
-	char buf[13]; // HH:MM:SS.mmm\0
-	std::strftime(buf, sizeof(buf), "%H:%M:%S", &tm);
-	std::snprintf(buf + 8, sizeof(buf) - 8, ".%03d", static_cast<int>(ms.count()));
-
-	return std::string(buf);
+	const auto now = std::chrono::system_clock::now();
+	const auto seconds = floor<std::chrono::seconds>(now);
+	const auto ms = duration_cast<std::chrono::milliseconds>(now - seconds).count();
+	return fmt::format("{:%H:%M:%S}.{:03}", seconds, ms);
 }
 
 void print_time_and_location(std::source_location const& location) {
@@ -47,7 +34,7 @@ void colored_print(
 ) {
 	print_time_and_location(location);
 	fmt::print(fmt::fg(level_color), "[{}] ", level_name);
-	fmt::print("{}\n", fmt::runtime(message));
+	fmt::print("{}\n", message);
 }
 #else
 void regular_print(
@@ -56,7 +43,7 @@ void regular_print(
 	std::string_view message
 ) {
 	print_time_and_location(location);
-	fmt::print("[{}] {}\n", level_name, fmt::runtime(message));
+	fmt::print("[{}] {}\n", level_name, message);
 }
 #endif
 

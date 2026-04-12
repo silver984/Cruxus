@@ -144,6 +144,7 @@ sptr<atlas_data> ResourceManager::load_atlas_data(std::string_view path) {
             elem = elem->NextSiblingElement("SubTexture")
         ) {
             char const* name_attr = elem->Attribute("name");
+
             if (!name_attr) {
                 continue;
             }
