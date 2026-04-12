@@ -120,6 +120,34 @@ struct vec2 {
         return *this;
     }
 
+    constexpr vec2<T>& operator++() {
+        ++x;
+        ++y;
+        return *this;
+    }
+
+    template<numeric U>
+    constexpr vec2<T> operator++(U) {
+        vec2<T> temp = *this;
+        ++x;
+        ++y;
+        return temp;
+    }
+
+    constexpr vec2<T>& operator--() {
+        --x;
+        --y;
+        return *this;
+    }
+
+    template<numeric U>
+    constexpr vec2<T> operator--(U) {
+        vec2<T> temp = *this;
+        --x;
+        --y;
+        return temp;
+    }
+
     constexpr bool operator==(vec2<T> const& rhs) const {
         return x == rhs.x && y == rhs.y;
     }
