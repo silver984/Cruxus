@@ -1,211 +1,202 @@
-#include <slv/objects/AnimatedSprite.hpp>
-#include <slv/game/managers/ResourceManager.hpp>
-#include <slv/core/wrappers/raylib.hpp>
-#include <slv/core/console/log.hpp>
+#include <slv/engine/game/objects/AnimatedSprite.hpp>
+#include <slv/engine/game/managers/ResourceManager.hpp>
+#include <slv/internal/raylib.hpp>
+#include <slv/engine/log.hpp>
+#include <fmt/format.h>
 #include <algorithm>
 
-namespace slv
-{
-	// protected
-	bool AnimatedSprite::init(const slv::game_context& ctx)
-	{
-		auto resource = ctx.resource_manager;
+namespace slv {
 
-		if (!resource)
-		{
-			return false;
-		}
+AnimatedSprite::AnimatedSprite(std::string_view texture_file_path, std::string_view data_file_path) :
+	Sprite(texture_file_path),
+	fps(0.f),
+	frame_elapsed_(0.f),
+	is_looping_(false),
+	cur_frame_index_(0),
+	atlas_data_(nullptr),
+	data_file_path_(data_file_path)
+{}
 
-		m_texture = resource->load_texture(m_texture_file_path);
-		m_atlas_data = resource->load_atlas_data(m_data_file_path);
+AnimatedSprite::~AnimatedSprite() = default;
 
-		if (!m_texture || !m_atlas_data)
-		{
-			return false;
-		}
-
-		init_size();
-
-		if (!m_atlas_data->frames.empty())
-		{
-			m_current_anim = m_atlas_data->frames.begin()->first;
-		}
-
-		for (const auto& [name, frames] : m_atlas_data->frames)
-		{
-			m_offsets.insert({ name, slv::vec2<float>(0.f, 0.f) });
-		}
-
-		set_antialiasing(true);
-		update(0.f, ctx);
-		
-		return true;
+void AnimatedSprite::add_anim_alias(std::string_view alias, std::string_view anim_name) {
+	if (!atlas_data_) {
+		return;
 	}
 
-	// protected
-	void AnimatedSprite::update(float dt, const slv::game_context& ctx)
-	{
-		auto it = m_atlas_data->frames.find(m_current_anim);
-		if (it == m_atlas_data->frames.end() || it->second.empty())
-		{
-			return;
-		}
+	if (!atlas_data_->frames.contains(alias)) {
+		return;
+	}
 
-		const auto& current_frames = it->second;
+	if (auto it = aliases_.find(alias); it == aliases_.end()) {
+		// create it
+		aliases_.emplace(alias, anim_name);
+	} else {
+		it->second = anim_name;
+	}
+}
 
-		if (fps > 0.f)
-		{
-			m_frame_elapsed += dt;
-			float target_dt = 1.f / fps;
+void AnimatedSprite::play_anim(std::string_view name, float fps_val, bool is_looping) {
+	if (!atlas_data_) {
+		return;
+	}
 
-			while (m_frame_elapsed >= target_dt)
-			{
-				if (m_is_looping)
-				{
-					m_current_frame_index = (m_current_frame_index + 1) % current_frames.size();
-				}
-				else
-				{
-					m_current_frame_index = std::min(m_current_frame_index + 1, current_frames.size() - 1);
-				}
+	std::string_view resolved = name;
 
-				m_frame_elapsed -= target_dt;
+	if (auto it = aliases_.find(name); it != aliases_.end()) {
+		resolved = it->second;
+	}
+
+	if (!atlas_data_->frames.contains(resolved)) {
+		return;
+	}
+
+	cur_anim_ = std::string(resolved);
+	
+	if (fps_val > 0.f) {
+		fps = fps_val;
+	}
+
+	is_looping_ = is_looping;
+	cur_frame_index_ = 0;
+}
+
+void AnimatedSprite::set_anim_offsets(std::string_view name, vec2<float> const& offsets) {
+	std::string_view resolved = name;
+
+	if (auto it = aliases_.find(resolved); it != aliases_.end()) {
+		resolved = it->second;
+	}
+
+	if (auto it = offsets_.find(resolved); it != offsets_.end()) {
+		it->second = offsets;
+	}
+}
+
+std::string_view AnimatedSprite::type() const {
+	return "AnimatedSprite";
+}
+
+std::string_view AnimatedSprite::cur_anim() const {
+	return cur_anim_;
+}
+
+// protected
+bool AnimatedSprite::init(context const& ctx) {
+	auto& resource = ctx.resource;
+
+	if (!resource) {
+		return false;
+	}
+
+	texture_ = resource->load_texture(texture_file_path_);
+	atlas_data_ = resource->load_atlas_data(data_file_path_);
+
+	if (!texture_ || !atlas_data_) {
+		return false;
+	}
+
+	content_size_ = avg_frame_size(atlas_data_);
+
+	if (!atlas_data_->frames.empty()) {
+		cur_anim_ = atlas_data_->frames.begin()->first;
+	}
+
+	for (const auto& [name, _] : atlas_data_->frames) {
+		offsets_.emplace(name, vec2<float>(0.f, 0.f));
+	}
+
+	set_antialiasing(true);
+	update(ctx, 0.f);
+
+	return true;
+}
+
+// protected
+void AnimatedSprite::update(context const& ctx, float dt) {
+	if (!atlas_data_) {
+		return;
+	}
+
+	auto it = atlas_data_->frames.find(cur_anim_);
+	if (it == atlas_data_->frames.end() || it->second.empty()) {
+		return;
+	}
+
+	const auto& cur_frames = it->second;
+
+	if (fps > 0.f) {
+		frame_elapsed_ += dt;
+		float target_dt = 1.f / fps;
+
+		while (frame_elapsed_ >= target_dt) {
+			if (is_looping_) {
+				cur_frame_index_ = (cur_frame_index_ + 1) % cur_frames.size();
+			} else {
+				cur_frame_index_ = std::min(cur_frame_index_ + 1, cur_frames.size() - 1);
 			}
-		}
 
-		const auto& current_frame = current_frames[m_current_frame_index];
-
-		m_source = slv::rect<float>(static_cast<float>(current_frame.pos_on_sheet.x),
-									static_cast<float>(current_frame.pos_on_sheet.y),
-									static_cast<float>(current_frame.size_on_sheet.width),
-									static_cast<float>(current_frame.size_on_sheet.height));
-
-		auto atlas_offsets = slv::vec2<float>(static_cast<float>(current_frame.offsets.x), static_cast<float>(current_frame.offsets.y));
-		m_current_offsets = m_offsets[m_current_anim] - atlas_offsets;
-	}
-
-	// protected
-	void AnimatedSprite::draw(const slv::game_context& ctx) const
-	{
-		if (m_texture && m_source.width > 0.f && m_source.height > 0.f)
-		{
-			slv::raylib::draw_texture(*m_texture, m_source, m_current_offsets, this->world_transform(), this->color, this->world_alpha());
+			frame_elapsed_ -= target_dt;
 		}
 	}
 
-	// private
-	void AnimatedSprite::init_size()
-	{
-		slv::size<float> compounded_size;
-		size_t total = 0;
+	const auto& cur_frame = cur_frames[cur_frame_index_];
 
-		for (const auto& [name, f] : m_atlas_data->frames)
-		{
-			for (const auto& frames : f)
-			{
-				compounded_size.width += frames.size_on_sheet.width;
-				compounded_size.height += frames.size_on_sheet.height;
-				total++;
-			}
-		}
+	source_ = rect<float>(
+		cur_frame.pos_on_sheet.x,
+		cur_frame.pos_on_sheet.y,
+		cur_frame.size_on_sheet.width,
+		cur_frame.size_on_sheet.height
+	);
 
-		if (total != 0)
-		{
-			dimensions_ = compounded_size / total;
+	auto atlas_offsets = vec2<float>(
+		cur_frame.offsets.x,
+		cur_frame.offsets.y
+	);
+
+	cur_offsets_ = offsets_[cur_anim_] - atlas_offsets;
+}
+
+// protected
+void AnimatedSprite::draw(context const& ctx) const {
+	if (
+		texture_ &&
+		source_.dimensions.width > 0.f &&
+		source_.dimensions.height > 0.f
+	) {
+		raylib::draw_texture(
+			*texture_,
+			source_,
+			cur_offsets_,
+			world_transform(),
+			color,
+			world_alpha()
+		);
+	}
+}
+
+// private
+size<float> AnimatedSprite::avg_frame_size(sptr<atlas_data> data) {
+	if (!data) {
+		return {};
+	}
+
+	size<float> compounded_size;
+	size_t total = 0;
+	
+	for (auto& [_, frames] : data->frames) {
+		for (const auto& frame : frames) {
+			compounded_size.width += frame.size_on_sheet.width;
+			compounded_size.height += frame.size_on_sheet.height;
+			++total;
 		}
 	}
 
-	// private
-	bool AnimatedSprite::is_anim_found(const std::string& name) const
-	{
-		if (!m_atlas_data->frames.contains(name))
-		{
-			slv::log::warning(type(), "Animation \"{}\" not found", name);
-			return false;
-		}
-
-		return true;
+	if (total != 0) {
+		return compounded_size / total;
 	}
 
-	// private
-	bool AnimatedSprite::is_alias_found(const std::string& alias) const
-	{
-		if (!m_aliases.contains(alias))
-		{
-			slv::log::warning(type(), "Alias \"{}\" not found", alias);
-			return false;
-		}
+	return {};
+}
 
-		return true;
-	}
-
-	void AnimatedSprite::add_alias(const std::string& alias, const std::string& name)
-	{
-		if (!is_anim_found(name))
-		{
-			return;
-		}
-
-		m_aliases.insert_or_assign(alias, name);
-	}
-
-	void AnimatedSprite::remove_alias(const std::string& alias)
-	{
-		if (is_alias_found(alias))
-		{
-			m_aliases.erase(alias);
-		}
-	}
-
-	void AnimatedSprite::play_alias(const std::string& alias, float fps, bool is_looping)
-	{
-		if (!is_alias_found(alias))
-		{
-			return;
-		}
-
-		play_anim(m_aliases[alias], fps, is_looping);
-	}
-
-	void AnimatedSprite::play_anim(const std::string& name, float fps, bool is_looping)
-	{
-		if (!is_anim_found(name))
-		{
-			return;
-		}
-
-		m_current_anim = name;
-		float clamped_fps = std::max(0.f, fps);
-		this->fps = clamped_fps == 0.f ? this->fps : clamped_fps;
-		m_is_looping = is_looping;
-		m_current_frame_index = 0;
-	}
-
-	void AnimatedSprite::set_anim_offsets(const std::string& name, const slv::vec2<float>& offsets)
-	{
-		if (!is_anim_found(name))
-		{
-			return;
-		}
-
-		m_offsets[name] = offsets;
-	}
-
-	void AnimatedSprite::set_alias_offsets(const std::string& alias, const slv::vec2<float>& offsets)
-	{
-		if (!is_alias_found(alias))
-		{
-			return;
-		}
-
-		set_anim_offsets(m_aliases[alias], offsets);
-	}
-
-	void AnimatedSprite::set_antialiasing(bool val)
-	{
-		if (m_texture)
-		{
-			slv::raylib::set_texture_antialiasing(*m_texture, val);
-		}
-	}
 }

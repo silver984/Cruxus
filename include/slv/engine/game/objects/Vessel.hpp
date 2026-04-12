@@ -36,19 +36,19 @@ public:
 	void add(sptr<Vessel> vessel);
 	void remove(sptr<Vessel> vessel);
 	void destroy();
-	size_t count() const;
-	size_t count_active() const;
-	size_t count_visible() const;
-	float world_rotation() const;
-	vec2<float> world_position() const;
-	vec2<float> world_scale() const;
-	size<float> world_size() const;
-	float world_alpha() const;
-	size<float> content_size() const;
-	wptr<Vessel> parent() const;
+	[[nodiscard]] size_t count() const;
+	[[nodiscard]] size_t count_active() const;
+	[[nodiscard]] size_t count_visible() const;
+	[[nodiscard]] float world_rotation() const;
+	[[nodiscard]] vec2<float> world_position() const;
+	[[nodiscard]] vec2<float> world_scale() const;
+	[[nodiscard]] size<float> world_size() const;
+	[[nodiscard]] float world_alpha() const;
+	[[nodiscard]] size<float> content_size() const;
+	[[nodiscard]] wptr<Vessel> parent() const;
 	void set_name(std::string_view name);
-	std::string_view name() const;
-	virtual std::string_view type() const;
+	[[nodiscard]] std::string_view name() const;
+	[[nodiscard]] virtual std::string_view type() const;
 
 	rgb color;
 	vec2<float> pos;
@@ -63,7 +63,7 @@ public:
 
 protected:
 	virtual bool init(context const& ctx);
-	virtual void update(float dt, context const& ctx);
+	virtual void update(context const& ctx, float dt);
 	virtual void draw(context const& ctx) const;
 	mat3 world_transform() const;
 
@@ -71,7 +71,7 @@ protected:
 
 private:
 	bool base_init(context const& ctx);
-	void base_update(float dt, context const& ctx);
+	void base_update(context const& ctx, float dt);
 	void base_draw(context const& ctx) const;
 	bool has_ancestor(sptr<Vessel> vessel) const;
 	void clean_children();

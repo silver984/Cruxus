@@ -1,5 +1,5 @@
-#include <slv/game/objects/Vessel.hpp>
-#include <slv/game/managers/WindowManager.hpp>
+#include <slv/engine/game/objects/Vessel.hpp>
+#include <slv/engine/game/managers/WindowManager.hpp>
 #include <slv/engine/math.hpp>
 #include <algorithm>
 #include <cmath>
@@ -215,7 +215,7 @@ bool Vessel::init(context const& ctx) {
 }
 
 // protected
-void Vessel::update(float dt, context const& ctx) {}
+void Vessel::update(context const& ctx, float dt) {}
 
 // protected
 void Vessel::draw(context const& ctx) const {}
@@ -240,7 +240,7 @@ bool Vessel::base_init(context const& ctx) {
 }
 
 // private
-void Vessel::base_update(float dt, context const& ctx) {
+void Vessel::base_update(context const& ctx, float dt) {
 	if (!is_initialized_ || !is_active) {
 		return;
 	}
@@ -303,14 +303,14 @@ void Vessel::base_update(float dt, context const& ctx) {
 	}
 
 	float world_dt = dt * time_scale;
-	update(world_dt, ctx);
+	update(ctx, world_dt);
 
 	for (auto const& vessel : children_) {
 		if (!vessel) {
 			continue;
 		}
 
-		vessel->base_update(world_dt, ctx);
+		vessel->base_update(ctx, world_dt);
 	}
 }
 

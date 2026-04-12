@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <string>
 #include <string_view>
+#include <functional>
 #include <cstddef>
 
 namespace slv {
@@ -22,7 +23,20 @@ struct transparent_string_hash final {
     }
 };
 
+struct transparent_string_equal final {
+    using is_transparent = void;
+
+    bool operator()(std::string_view a, std::string_view b) const noexcept {
+        return a == b;
+    }
+};
+
 template <typename T>
-using string_map = std::unordered_map<std::string, T, transparent_string_hash, std::equal_to<>>;
+using string_map = std::unordered_map<
+    std::string,
+    T,
+    transparent_string_hash,
+    transparent_string_equal
+>;
 
 }

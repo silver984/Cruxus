@@ -1,76 +1,56 @@
 #pragma once
-
-#include <slv/objects/Vessel.hpp>
-#include <slv/core/types/pointers.hpp>
-#include <slv/core/types/primitives.hpp>
-#include <slv/core/types/texture.hpp>
-#include <slv/core/types/atlas.hpp>
+#include <slv/internal/config.hpp>
+#include <slv/engine/game/objects/Sprite.hpp>
+#include <slv/types/pointers.hpp>
+#include <slv/types/primitives.hpp>
+#include <slv/types/graphic.hpp>
+#include <slv/types/string_map.hpp>
+#include <cstddef>
 #include <string>
-#include <unordered_map>
-#include <cstdint>
+#include <string_view>
+#include <vector>
 
-namespace slv
-{
-	class AnimatedSprite : public slv::Vessel
-	{
-	public:
-		AnimatedSprite(const std::string& texture_file_path, const std::string& data_file_path)
-		{
-			m_texture_file_path = texture_file_path;
-			m_data_file_path = data_file_path;
-		}
+namespace slv {
 
-		void add_alias(const std::string& alias, const std::string& name);
-		void remove_alias(const std::string& alias);
-		// fps = 0.f (automatic)
-		void play_alias(const std::string& alias, float fps = 0.f, bool is_looping = true);
-		// fps = 0.f (automatic)
-		void play_anim(const std::string& name, float fps = 0.f, bool is_looping = true);
-		void set_anim_offsets(const std::string& name, const slv::vec2<float>& offsets);
-		void set_alias_offsets(const std::string& alias, const slv::vec2<float>& offsets);
-		void set_antialiasing(bool val);
+class SLV_DLL AnimatedSprite : public Sprite {
+public:
+	AnimatedSprite(std::string_view texture_file_path, std::string_view data_file_path);
+	~AnimatedSprite() override;
 
-		inline std::string type() const override
-		{
-			return "AnimatedSprite";
-		}
+	void add_anim_alias(std::string_view alias, std::string_view anim_name);
+	// fps = 0.f (automatic)
+	void play_anim(std::string_view name, float fps_val = 0.f, bool is_looping = true);
+	void set_anim_offsets(std::string_view name, vec2<float> const& offsets);
+	[[nodiscard]] std::string_view type() const override;
+	[[nodiscard]] std::string_view cur_anim() const;
 
-		inline std::string current_anim()
-		{
-			return m_current_anim;
-		}
+	/*
+	to implement later
+	std::string get_current_anim_alias();
+	float get_current_anim_fps();
+	bool is_current_anim_looping();
+	bool is_current_anim_playing();
+	*/
 
-		/* // to implement later
-		std::string get_current_anim_alias();
-		float get_current_anim_fps();
-		bool is_current_anim_looping();
-		bool is_current_anim_playing();
-		*/
+	float fps;
 
-		float fps = 24.f;
+protected:
+	bool init(context const& ctx) override;
+	void update(context const& ctx, float dt) override;
+	void draw(context const& ctx) const override;
 
-	protected:
-		bool init(const slv::game_context& ctx) override;
-		void update(float dt, const slv::game_context& ctx) override;
-		void draw(const slv::game_context& ctx) const override;
+private:
+	[[nodiscard]] size<float> avg_frame_size(sptr<atlas_data> data);
 
-	private:
-		void init_size();
-		bool is_anim_found(const std::string& name) const;
-		bool is_alias_found(const std::string& alias) const;
+	float frame_elapsed_;
+	bool is_looping_;
+	size_t cur_frame_index_;
+	std::string data_file_path_;
+	vec2<float> cur_offsets_;
+	sptr<atlas_data> atlas_data_;
+	string_map<std::string> aliases_;
+	string_map<vec2<float>> offsets_;
+	std::string cur_anim_;
+};
 
-		bool m_antialiasing_check = false;
-		float m_frame_elapsed = 0.f;
-		bool m_is_looping = false;
-		size_t m_current_frame_index = 0;
-		std::string m_texture_file_path;
-		std::string m_data_file_path;
-		slv::rect<float> m_source{};
-		slv::vec2<float> m_current_offsets{};
-		slv::sptr<slv::texture> m_texture = nullptr;
-		slv::sptr<slv::atlas_data> m_atlas_data = nullptr;
-		std::unordered_map<std::string, std::string> m_aliases;
-		std::unordered_map<std::string, slv::vec2<float>> m_offsets;
-		std::string m_current_anim;
-	};
 }

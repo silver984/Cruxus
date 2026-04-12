@@ -4,8 +4,8 @@
 
 namespace slv {
 
-Sprite::Sprite(std::string_view file_path) :
-	file_path_(file_path),
+Sprite::Sprite(std::string_view texture_file_path) :
+	texture_file_path_(texture_file_path),
 	texture_(nullptr)
 {}
 
@@ -29,7 +29,7 @@ bool Sprite::init(context const& ctx) {
 		return false;
 	}
 
-	texture_ = resource->load_texture(file_path_);
+	texture_ = resource->load_texture(texture_file_path_);
 
 	if (!texture_) {
 		return false;
@@ -47,7 +47,7 @@ bool Sprite::init(context const& ctx) {
 	);
 
 	set_antialiasing(true);
-	update(0.f, ctx);
+	update(ctx, 0.f);
 
 	return true;
 }
