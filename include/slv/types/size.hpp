@@ -133,6 +133,34 @@ struct size final {
         return *this;
     }
 
+    constexpr size<T>& operator++() {
+        ++width;
+        ++height;
+        return *this;
+    }
+
+    template<numeric U>
+    constexpr size<T> operator++(U) {
+        size<T> temp = *this;
+        ++width;
+        ++height;
+        return temp;
+    }
+
+    constexpr size<T>& operator--() {
+        --width;
+        --height;
+        return *this;
+    }
+
+    template<numeric U>
+    constexpr size<T> operator--(U) {
+        size<T> temp = *this;
+        --width;
+        --height;
+        return temp;
+    }
+
     constexpr bool operator==(size<T> const& rhs) const {
         return width == rhs.width && height == rhs.height;
     }
