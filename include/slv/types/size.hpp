@@ -142,8 +142,7 @@ struct size final {
     template<numeric U>
     constexpr size<T> operator++(int) {
         size<T> temp = *this;
-        ++width;
-        ++height;
+        ++(*this);
         return temp;
     }
 
@@ -156,8 +155,7 @@ struct size final {
     template<numeric U>
     constexpr size<T> operator--(int) {
         size<T> temp = *this;
-        --width;
-        --height;
+        --(*this);
         return temp;
     }
 

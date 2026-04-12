@@ -139,9 +139,7 @@ rgb& rgb::operator++() {
 
 rgb rgb::operator++(int) {
     rgb temp = *this;
-    ++r;
-    ++g;
-    ++b;
+    ++(*this);
     return temp;
 }
 
@@ -163,9 +161,7 @@ rgb& rgb::operator--() {
 
 rgb rgb::operator--(int) {
     rgb temp = *this;
-    --r;
-    --g;
-    --b;
+    --(*this);
     return temp;
 }
 

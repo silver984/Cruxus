@@ -129,8 +129,7 @@ struct vec2 {
     template<numeric U>
     constexpr vec2<T> operator++(int) {
         vec2<T> temp = *this;
-        ++x;
-        ++y;
+        ++(*this);
         return temp;
     }
 
@@ -143,8 +142,7 @@ struct vec2 {
     template<numeric U>
     constexpr vec2<T> operator--(int) {
         vec2<T> temp = *this;
-        --x;
-        --y;
+        --(*this);
         return temp;
     }
 
