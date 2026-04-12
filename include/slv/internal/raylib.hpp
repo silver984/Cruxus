@@ -24,9 +24,8 @@ void draw_rectangle_lines(
 
 void draw_texture(
 	texture const& texture,
-	vec2<float> const& source_pos,
-	size<float> const& source_size,
-	vec2<float> const& offset,
+	rect<float> const& source,
+	vec2<float> const& offsets,
 	mat3 const& matrix,
 	rgb const& color,
 	float alpha

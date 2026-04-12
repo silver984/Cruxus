@@ -1,35 +1,31 @@
 #pragma once
-
-#include <slv/objects/Vessel.hpp>
-#include <slv/core/types/pointers.hpp>
-#include <slv/core/types/primitives.hpp>
-#include <slv/core/types/texture.hpp>
+#include <slv/internal/config.hpp>
+#include <slv/engine/game/objects/Vessel.hpp>
+#include <slv/types/pointers.hpp>
+#include <slv/types/rect.hpp>
+#include <slv/types/graphic.hpp>
+#include <slv/types/context.hpp>
 #include <string>
+#include <string_view>
 
-namespace slv
-{
-	class Sprite : public slv::Vessel
-	{
-	public:
-		Sprite(const std::string& file_path)
-		{
-			m_file_path = file_path;
-		}
+namespace slv {
 
-		inline std::string type() const override
-		{
-			return "Sprite";
-		}
+class SLV_DLL Sprite : public Vessel {
+public:
+	Sprite(std::string_view file_path);
+	~Sprite() override;
 
-		void set_antialiasing(bool val);
+	std::string_view type() const override;
+	void set_antialiasing(bool val);
 
-	protected:
-		bool init(const slv::game_context& ctx) override;
-		void draw(const slv::game_context& ctx) const override;
+protected:
+	bool init(context const& ctx) override;
+	void draw(context const& ctx) const override;
 
-	private:
-		std::string m_file_path;
-		slv::rect<float> m_source{};
-		slv::sptr<slv::texture> m_texture = nullptr;
-	};
+private:
+	std::string file_path_;
+	rect<float> source_;
+	sptr<texture> texture_;
+};
+
 }

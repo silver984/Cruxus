@@ -1,48 +1,73 @@
-#include <slv/objects/sprite.hpp>
-#include <slv/core/wrappers/raylib.hpp>
-#include <slv/game/managers/ResourceManager.hpp>
+#include <slv/engine/game/objects/Sprite.hpp>
+#include <slv/engine/game/managers/ResourceManager.hpp>
+#include <slv/internal/raylib.hpp>
 
-namespace slv
-{
-	void Sprite::set_antialiasing(bool val)
-	{
-		if (m_texture)
-		{
-			slv::raylib::set_texture_antialiasing(*m_texture, val);
-		}
+namespace slv {
+
+Sprite::Sprite(std::string_view file_path) :
+	file_path_(file_path),
+	texture_(nullptr)
+{}
+
+Sprite::~Sprite() = default;
+
+std::string_view Sprite::type() const {
+	return "Sprite";
+}
+
+void Sprite::set_antialiasing(bool val) {
+	if (texture_) {
+		raylib::set_texture_antialiasing(*texture_, val);
+	}
+}
+
+// protected
+bool Sprite::init(context const& ctx) {
+	auto& resource = ctx.resource;
+
+	if (!resource) {
+		return false;
 	}
 
-	// protected
-	bool Sprite::init(const slv::game_context& ctx)
-	{
-		auto resource = ctx.resource_manager;
+	texture_ = resource->load_texture(file_path_);
 
-		if (!resource)
-		{
-			return false;
-		}
-
-		m_texture = resource->load_texture(m_file_path);
-
-		if (!m_texture)
-		{
-			return false;
-		}
-
-		this->dimensions_ = slv::size<float>(static_cast<float>(m_texture->width), static_cast<float>(m_texture->height));
-		m_source = slv::rect<float>(0.f, 0.f, this->dimensions_.width, this->dimensions_.height);
-		set_antialiasing(true);
-		update(0.f, ctx);
-
-		return true;
+	if (!texture_) {
+		return false;
 	}
 
-	// protected
-	void Sprite::draw(const slv::game_context& ctx) const
-	{
-		if (m_texture && m_source.width > 0.f && m_source.height > 0.f)
-		{
-			slv::raylib::draw_texture(*m_texture, m_source, slv::vec2<float>(0.f, 0.f), this->world_transform(), this->color, this->world_alpha());
-		}
+	content_size_ = size<float>(
+		static_cast<float>(texture_->resolution.width),
+		static_cast<float>(texture_->resolution.height)
+	);
+
+	source_ = rect<float>(
+		0.f, 0.f,
+		content_size_.width,
+		content_size_.height
+	);
+
+	set_antialiasing(true);
+	update(0.f, ctx);
+
+	return true;
+}
+
+// protected
+void Sprite::draw(context const& ctx) const {
+	if (
+		texture_ &&
+		source_.dimensions.width > 0.f &&
+		source_.dimensions.height > 0.f
+	) {
+		raylib::draw_texture(
+			*texture_,
+			source_,
+			vec2<float>(0.f, 0.f),
+			world_transform(),
+			color,
+			world_alpha()
+		);
 	}
+}
+
 }

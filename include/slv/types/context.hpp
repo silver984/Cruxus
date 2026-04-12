@@ -18,11 +18,11 @@ struct SLV_DLL context final {
 		ResourceManager* resource_manager
 	);
 
-	const WindowManager* const window;
-	const SceneManager* const scene;
-	const InputManager* const input;
-	const AudioManager* const audio;
-	const ResourceManager* const resource;
+	WindowManager* const window;
+	SceneManager* const scene;
+	InputManager* const input;
+	AudioManager* const audio;
+	ResourceManager* const resource;
 };
 
 }

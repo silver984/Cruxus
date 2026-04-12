@@ -1,7 +1,7 @@
 #pragma once
 #include <slv/internal/config.hpp>
 #include <slv/types/primitives.hpp>
-#include <slv/types/memory.hpp>
+#include <slv/types/pointers.hpp>
 #include <slv/types/context.hpp>
 #include <vector>
 #include <string>
