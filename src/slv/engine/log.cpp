@@ -9,7 +9,7 @@
 
 namespace {
 
-std::string time() {
+std::string current_time_str() {
 	const auto now = std::chrono::system_clock::now();
 	const auto seconds = floor<std::chrono::seconds>(now);
 	const auto ms = duration_cast<std::chrono::milliseconds>(now - seconds).count();
@@ -18,7 +18,7 @@ std::string time() {
 
 void print_time_and_location(std::source_location const& location) {
 #ifdef SLV_COLORED_LOGS
-	fmt::print(fmt::fg(fmt::color::dim_gray), "{:<10} ", time());
+	fmt::print(fmt::fg(fmt::color::dim_gray), "{:<10} ", current_time_str());
 	fmt::print(fmt::fg(fmt::color::light_blue), "[{}] ", location.function_name());
 #else
 	fmt::print("{:<10} [{}] ", time(), location.function_name());
