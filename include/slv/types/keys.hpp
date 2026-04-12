@@ -2,7 +2,7 @@
 
 namespace slv {
 
-enum class key {
+enum class key : int {
     NULL_KEY = 0, // NULL, used for no key pressed
 
     // alphanumeric keys
