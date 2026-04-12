@@ -23,6 +23,8 @@ target_compile_definitions(${PROJECT_NAME}
     PRIVATE
         SLV_EXPORTS
     PUBLIC
+        SLV_AUDIO_CHANNELS=2
+        SLV_AUDIO_SAMPLE_RATE=48000
         $<$<CONFIG:Debug>:SLV_DEBUG>
         $<$<CONFIG:RelWithDebInfo>:SLV_RELWITHDEBINFO>
 )

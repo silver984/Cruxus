@@ -14,19 +14,28 @@ enum class atlas_format : int {
 };
 
 struct atlas_frame final {
-    bool is_valid = false;
-    bool is_rotated = false;
+    atlas_frame();
+    bool is_valid;
+    bool is_rotated;
     vec2<int> pos_on_sheet;
     size<int> size_on_sheet;
     vec2<int> offsets;
 };
 
 struct atlas_data final {
-    atlas_format format = atlas_format::NONE;
+    atlas_data();
+    atlas_format format;
     string_map<std::vector<atlas_frame>> frames;
 };
 
 struct texture final {
+    texture();
+    explicit texture(
+        uint32_t id_val,
+        size<int> resolution_val,
+        int mipmaps_val,
+        int format_val
+    );
     uint32_t id;
     size<int> resolution;
     int mipmaps;
