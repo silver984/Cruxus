@@ -1,5 +1,5 @@
 #pragma once
-#include <slv/game/managers/SceneManager.hpp>
+#include <slv/engine/game/managers/SceneManager.hpp>
 #include <slv/engine/log.hpp>
 
 namespace slv {

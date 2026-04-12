@@ -2,7 +2,7 @@
 #include <slv/internal/config.hpp>
 #include <slv/game/objects/Vessel.hpp>
 #include <slv/types/context.hpp>
-#include <slv/types/memory.hpp>
+#include <slv/engine/memory.hpp>
 
 namespace slv {
 

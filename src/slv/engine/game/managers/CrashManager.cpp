@@ -1,4 +1,4 @@
-#include <slv/game/managers/CrashManager.hpp>
+#include <slv/engine/game/managers/CrashManager.hpp>
 #include <slv/engine/log.hpp>
 #ifdef _WIN32
 #include <platforms/windows.hpp>

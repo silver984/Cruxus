@@ -1,9 +1,9 @@
 #pragma once
 #include <slv/internal/config.hpp>
+#include <slv/engine/memory.hpp>
 #include <slv/types/string_map.hpp>
 #include <slv/types/enum_array.hpp>
 #include <slv/types/graphic.hpp>
-#include <slv/types/memory.hpp>
 #include <slv/types/audio.hpp>
 #include <string>
 #include <string_view>

@@ -1,9 +1,7 @@
-#include <slv/game/managers/WindowManager.hpp>
+#include <slv/engine/game/managers/WindowManager.hpp>
 #include <fmt/format.h>
 #include <slv/engine/log.hpp>
 #include <slv/internal/raylib.hpp>
-#include <slv/game/managers/SceneManager.hpp>
-#include <slv/game/managers/ResourceManager.hpp>
 #ifdef _WIN32
 #include <platforms/windows.hpp>
 #endif
