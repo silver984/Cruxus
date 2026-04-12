@@ -15,70 +15,70 @@ struct vec2 {
     T y{};
 
     [[nodiscard]] constexpr vec2<T> operator+(vec2<T> const& rhs) const {
-        return {
+        return vec2<T>(
             x + rhs.x,
             y + rhs.y
-        };
+        );
     }
 
     [[nodiscard]] constexpr vec2<T> operator-(vec2<T> const& rhs) const {
-        return {
+        return vec2<T>(
             x - rhs.x,
             y - rhs.y
-        };
+        );
     }
 
     [[nodiscard]] constexpr vec2<T> operator-() const {
-        return {
+        return vec2<T>(
             -x,
             -y
-        };
+        );
     }
 
     [[nodiscard]] constexpr vec2<T> operator*(vec2<T> const& rhs) const {
-        return {
+        return vec2<T>(
             x * rhs.x,
             y * rhs.y
-        };
+        );
     }
 
     [[nodiscard]] constexpr vec2<T> operator/(vec2<T> const& rhs) const {
-        return {
+        return vec2<T>(
             x / rhs.x,
             y / rhs.y
-        };
+        );
     }
 
     template<numeric U>
     [[nodiscard]] constexpr vec2<T> operator+(U rhs) const {
-        return {
+        return vec2<T>(
             x + rhs,
             y + rhs
-        };
+        );
     }
 
     template<numeric U>
     [[nodiscard]] constexpr vec2<T> operator-(U rhs) const {
-        return {
+        return vec2<T>(
             x - rhs,
             y - rhs
-        };
+        );
     }
 
     template<numeric U>
     [[nodiscard]] constexpr vec2<T> operator*(U rhs) const {
-        return {
+        return vec2<T>(
             x * rhs,
             y * rhs
-        };
+        );
     }
 
     template<numeric U>
     [[nodiscard]] constexpr vec2<T> operator/(U rhs) const {
-        return {
+        return vec2<T>(
             x / rhs,
             y / rhs
-        };
+        );
     }
 
     constexpr vec2<T>& operator+=(vec2<T> const& rhs) {
@@ -127,7 +127,7 @@ struct vec2 {
     }
 
     template<numeric U>
-    constexpr vec2<T> operator++(U) {
+    constexpr vec2<T> operator++(int) {
         vec2<T> temp = *this;
         ++x;
         ++y;
@@ -141,7 +141,7 @@ struct vec2 {
     }
 
     template<numeric U>
-    constexpr vec2<T> operator--(U) {
+    constexpr vec2<T> operator--(int) {
         vec2<T> temp = *this;
         --x;
         --y;

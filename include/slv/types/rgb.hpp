@@ -22,6 +22,10 @@ struct SLV_DLL rgb final {
     rgb& operator-=(rgb const& rhs);
     rgb& operator*=(rgb const& rhs);
     rgb& operator/=(rgb const& rhs);
+    rgb& operator++();
+    rgb operator++(int);
+    rgb& operator--();
+    rgb operator--(int);
     bool operator==(rgb const& rhs) const;
     bool operator!=(rgb const& rhs) const;
     bool operator<=(rgb const& rhs) const;
