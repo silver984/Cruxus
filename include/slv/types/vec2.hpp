@@ -5,38 +5,44 @@ namespace slv {
 
 template<numeric T>
 struct vec2 {
-    T x;
-    T y;
+    constexpr vec2() = default;
+    constexpr explicit vec2(T x_val, T y_val) :
+        x(x_val),
+        y(y_val)
+    {}
 
-    constexpr vec2<T> operator+(vec2<T> const& rhs) const {
+    T x{};
+    T y{};
+
+    [[nodiscard]] constexpr vec2<T> operator+(vec2<T> const& rhs) const {
         return {
             x + rhs.x,
             y + rhs.y
         };
     }
 
-    constexpr vec2<T> operator-(vec2<T> const& rhs) const {
+    [[nodiscard]] constexpr vec2<T> operator-(vec2<T> const& rhs) const {
         return {
             x - rhs.x,
             y - rhs.y
         };
     }
 
-    constexpr vec2<T> operator-() const {
+    [[nodiscard]] constexpr vec2<T> operator-() const {
         return {
             -x,
             -y
         };
     }
 
-    constexpr vec2<T> operator*(vec2<T> const& rhs) const {
+    [[nodiscard]] constexpr vec2<T> operator*(vec2<T> const& rhs) const {
         return {
             x * rhs.x,
             y * rhs.y
         };
     }
 
-    constexpr vec2<T> operator/(vec2<T> const& rhs) const {
+    [[nodiscard]] constexpr vec2<T> operator/(vec2<T> const& rhs) const {
         return {
             x / rhs.x,
             y / rhs.y
@@ -44,7 +50,7 @@ struct vec2 {
     }
 
     template<numeric U>
-    constexpr vec2<T> operator+(U rhs) const {
+    [[nodiscard]] constexpr vec2<T> operator+(U rhs) const {
         return {
             x + rhs,
             y + rhs
@@ -52,7 +58,7 @@ struct vec2 {
     }
 
     template<numeric U>
-    constexpr vec2<T> operator-(U rhs) const {
+    [[nodiscard]] constexpr vec2<T> operator-(U rhs) const {
         return {
             x - rhs,
             y - rhs
@@ -60,7 +66,7 @@ struct vec2 {
     }
 
     template<numeric U>
-    constexpr vec2<T> operator*(U rhs) const {
+    [[nodiscard]] constexpr vec2<T> operator*(U rhs) const {
         return {
             x * rhs,
             y * rhs
@@ -68,7 +74,7 @@ struct vec2 {
     }
 
     template<numeric U>
-    constexpr vec2<T> operator/(U rhs) const {
+    [[nodiscard]] constexpr vec2<T> operator/(U rhs) const {
         return {
             x / rhs,
             y / rhs
@@ -125,6 +131,5 @@ struct vec2 {
         return x > rhs.x && y > rhs.y;
     }
 };
-
 
 }

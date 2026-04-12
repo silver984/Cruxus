@@ -1,12 +1,8 @@
 #pragma once
 #include <slv/internal/config.hpp>
-#include <slv/game/managers/WindowManager.hpp>
-#include <slv/game/managers/CrashManager.hpp>
-#include <slv/game/managers/AudioManager.hpp>
-#include <slv/game/managers/InputManager.hpp>
-#include <slv/game/managers/SceneManager.hpp>
-#include <slv/game/managers/ResourceManager.hpp>
+#include <slv/game/managers/all.hpp>
 #include <slv/types/context.hpp>
+#include <slv/types/size.hpp>
 #include <string_view>
 
 namespace slv {
@@ -26,8 +22,8 @@ public:
 		int win_fps,
 		window_settings win_settings
 	);
-	void run();
-	[[nodiscard]] context ctx();
+	void run(context const& ctx);
+	[[nodiscard]] context get_ctx();
 
 private:
 	WindowManager window_;

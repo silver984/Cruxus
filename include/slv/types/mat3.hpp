@@ -12,14 +12,14 @@ struct SLV_DLL mat3 final {
         float m20, float m21, float m22
     );
 
-    static mat3 rotation(float radians);
-    static mat3 skew(vec2<float> const& radians);
-    static mat3 identity();
-    static mat3 translation(vec2<float> const& t);
-    static mat3 scale(vec2<float> const& s);
-    vec2<float> transform_point(vec2<float> const& p) const;
-    vec2<float> translation() const;
-    mat3 operator*(const mat3& o) const;
+    [[nodiscard]] static mat3 rotation(float radians);
+    [[nodiscard]] static mat3 skew(vec2<float> const& radians);
+    [[nodiscard]] static mat3 identity();
+    [[nodiscard]] static mat3 translation(vec2<float> const& t);
+    [[nodiscard]] static mat3 scale(vec2<float> const& s);
+    [[nodiscard]] vec2<float> transform_point(vec2<float> const& p) const;
+    [[nodiscard]] vec2<float> translation() const;
+    [[nodiscard]] mat3 operator*(const mat3& o) const;
 
     float m[3][3];
 };

@@ -7,15 +7,17 @@
 namespace slv {
 
 struct SLV_DLL rgb final {
+    rgb();
+    explicit rgb(uint8_t r_val, uint8_t g_val, uint8_t b_val);
     uint8_t r;
     uint8_t g;
     uint8_t b;
 
-    rgb operator+(rgb const& rhs) const;
-    rgb operator-(rgb const& rhs) const;
-    rgb operator-() const;
-    rgb operator*(rgb const& rhs) const;
-    rgb operator/(rgb const& rhs) const;
+    [[nodiscard]] rgb operator+(rgb const& rhs) const;
+    [[nodiscard]] rgb operator-(rgb const& rhs) const;
+    [[nodiscard]] rgb operator-() const;
+    [[nodiscard]] rgb operator*(rgb const& rhs) const;
+    [[nodiscard]] rgb operator/(rgb const& rhs) const;
     rgb& operator+=(rgb const& rhs);
     rgb& operator-=(rgb const& rhs);
     rgb& operator*=(rgb const& rhs);
@@ -28,7 +30,7 @@ struct SLV_DLL rgb final {
     bool operator>(rgb const& rhs) const;
 
     template <numeric U>
-    constexpr rgb operator+(U rhs) const {
+    [[nodiscard]] constexpr rgb operator+(U rhs) const {
         auto evaluate = [](uint8_t c, U v) {
             int result = c + v;
             return static_cast<uint8_t>(std::clamp(result, 0, 255));
@@ -42,7 +44,7 @@ struct SLV_DLL rgb final {
     }
 
     template<numeric U>
-    constexpr rgb operator-(U rhs) const {
+    [[nodiscard]] constexpr rgb operator-(U rhs) const {
         auto evaluate = [](uint8_t c, U v) {
             int result = c - v;
             return static_cast<uint8_t>(std::clamp(result, 0, 255));
@@ -56,7 +58,7 @@ struct SLV_DLL rgb final {
     }
 
     template<numeric U>
-    constexpr rgb operator*(U rhs) const {
+    [[nodiscard]] constexpr rgb operator*(U rhs) const {
         auto evaluate = [](uint8_t c, U v) {
             int result = c * v;
             return static_cast<uint8_t>(std::clamp(result, 0, 255));
@@ -70,7 +72,7 @@ struct SLV_DLL rgb final {
     }
 
     template<numeric U>
-    constexpr rgb operator/(U rhs) const {
+    [[nodiscard]] constexpr rgb operator/(U rhs) const {
         auto evaluate = [](uint8_t c, U v) {
             int result = c / v;
             return static_cast<uint8_t>(std::clamp(result, 0, 255));

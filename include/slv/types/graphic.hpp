@@ -9,6 +9,7 @@
 namespace slv {
 
 enum class atlas_format : int {
+    NONE,
     FLASH_XML
 };
 
@@ -21,7 +22,7 @@ struct atlas_frame final {
 };
 
 struct atlas_data final {
-    atlas_format format;
+    atlas_format format = atlas_format::NONE;
     string_map<std::vector<atlas_frame>> frames;
 };
 

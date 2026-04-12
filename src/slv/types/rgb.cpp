@@ -1,6 +1,17 @@
 #include <slv/types/rgb.hpp>
 
 namespace slv {
+rgb::rgb() :
+    r(0),
+    g(0),
+    b(0)
+{}
+
+rgb::rgb(uint8_t r_val, uint8_t g_val, uint8_t b_val) {
+    r = r_val;
+    g = g_val;
+    b = b_val;
+}
 
 rgb rgb::operator+(rgb const& rhs) const {
     auto evaluate = [](uint8_t c, uint8_t v) {

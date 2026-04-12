@@ -5,38 +5,44 @@ namespace slv {
 
 template<numeric T>
 struct size final {
-    T width;
-    T height;
+    constexpr size() = default;
+    constexpr size(T width_val, T height_val) :
+        width(width_val),
+        height(height_val)
+    {}
 
-    constexpr size<T> operator+(size<T> const& rhs) const {
+    T width{};
+    T height{};
+
+    [[nodiscard]] constexpr size<T> operator+(size<T> const& rhs) const {
         return {
             width + rhs.width,
             height + rhs.height
         };
     }
 
-    constexpr size<T> operator-(size<T> const& rhs) const {
+    [[nodiscard]] constexpr size<T> operator-(size<T> const& rhs) const {
         return {
             width - rhs.width,
             height - rhs.height
         };
     }
 
-    constexpr size<T> operator-() const {
+    [[nodiscard]] constexpr size<T> operator-() const {
         return {
             -width,
             -height
         };
     }
 
-    constexpr size<T> operator*(size<T> const& rhs) const {
+    [[nodiscard]] constexpr size<T> operator*(size<T> const& rhs) const {
         return {
             width * rhs.width,
             height * rhs.height
         };
     }
 
-    constexpr size<T> operator/(size<T> const& rhs) const {
+    [[nodiscard]] constexpr size<T> operator/(size<T> const& rhs) const {
         return {
             width / rhs.width,
             height / rhs.height
@@ -44,7 +50,7 @@ struct size final {
     }
 
     template<numeric U>
-    constexpr size<T> operator+(U rhs) const {
+    [[nodiscard]] constexpr size<T> operator+(U rhs) const {
         return {
             width + rhs,
             height + rhs
@@ -52,7 +58,7 @@ struct size final {
     }
 
     template<numeric U>
-    constexpr size<T> operator-(U rhs) const {
+    [[nodiscard]] constexpr size<T> operator-(U rhs) const {
         return {
             width - rhs,
             height - rhs
@@ -60,7 +66,7 @@ struct size final {
     }
 
     template<numeric U>
-    constexpr size<T> operator*(U rhs) const {
+    [[nodiscard]] constexpr size<T> operator*(U rhs) const {
         return {
             width * rhs,
             height * rhs
@@ -68,7 +74,7 @@ struct size final {
     }
 
     template<numeric U>
-    constexpr size<T> operator/(U rhs) const {
+    [[nodiscard]] constexpr size<T> operator/(U rhs) const {
         return {
             width / rhs,
             height / rhs

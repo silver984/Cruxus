@@ -19,7 +19,15 @@ bool Game::init(
 		return true;
 	}
 
-	if (!window_.init(win_title, win_size, win_fps, win_settings, ctx())) {
+	if (
+		!window_.init(
+			win_title,
+			win_size,
+			win_fps,
+			win_settings,
+			get_ctx()
+		)
+	) {
 		log::error("Failed to initialize window");
 		return false;
 	}
@@ -35,26 +43,26 @@ bool Game::init(
 	return true;
 }
 
-void Game::run() {
-	auto ctx_val = ctx();
+void Game::run(context const& ctx) {
+	if (!is_initialized_) {
+		return;
+	}
 
 	while (window_.is_open()) {
 		// update
 
 		float dt = window_.delta_time();
-		window_.update(dt, ctx_val);
+		window_.update(dt, ctx);
 		input_.update(dt);
 		resource_.update(dt);
-		scene_.update(dt, ctx_val);
+		scene_.update(dt, ctx);
 
 		// draw
 
 		window_.start_draw();
-		scene_.draw(ctx_val);
+		scene_.draw(ctx);
 		window_.end_draw();
 	}
-
-	// cleanup, close window
 
 	scene_.safely_destroy_scene();
 	input_.clean_cache();
@@ -63,14 +71,14 @@ void Game::run() {
 	window_.uninit();
 }
 
-context Game::ctx() {
-	return {
+context Game::get_ctx() {
+	return context(
 		&window_,
 		&scene_,
 		&input_,
 		&audio_,
 		&resource_
-	};
+	);
 }
 
 }
