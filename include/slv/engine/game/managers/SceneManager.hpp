@@ -1,8 +1,8 @@
 #pragma once
 #include <slv/internal/config.hpp>
-#include <slv/game/objects/Vessel.hpp>
+#include <slv/engine/game/objects/Vessel.hpp>
 #include <slv/types/context.hpp>
-#include <slv/engine/memory.hpp>
+#include <slv/types/pointers.hpp>
 
 namespace slv {
 

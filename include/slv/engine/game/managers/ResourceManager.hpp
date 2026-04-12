@@ -1,6 +1,6 @@
 #pragma once
 #include <slv/internal/config.hpp>
-#include <slv/engine/memory.hpp>
+#include <slv/types/pointers.hpp>
 #include <slv/types/string_map.hpp>
 #include <slv/types/enum_array.hpp>
 #include <slv/types/graphic.hpp>
