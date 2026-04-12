@@ -1,10 +1,9 @@
 #include <slv/game/managers/ResourceManager.hpp>
 #include <slv/engine/log.hpp>
-#include <slv/internal/audio_config.hpp>
-#include <fmt/format.h>
-#include <raylib.h>
-#include <tinyxml2.h>
 #include <miniaudio/miniaudio.h>
+#include <fmt/format.h>
+#include <tinyxml2.h>
+#include <raylib.h>
 #include <filesystem>
 #include <algorithm>
 #include <cstddef>
@@ -12,7 +11,7 @@
 
 namespace slv {
 
-parsed_path parsed_path::parse(std::string_view file) {
+ResourceManager::parsed_path ResourceManager::parsed_path::parse(std::string_view file) {
     std::filesystem::path abs = std::filesystem::absolute(file);
     std::string ext = abs.extension().string();
 
@@ -70,7 +69,7 @@ sptr<texture> ResourceManager::load_texture(std::string_view path) {
         return nullptr;
     }
 
-    auto [it, _] = cached_textures_.try_emplace(
+    auto [it, _] = cached_textures_.emplace(
         abs_path,
         shared<texture>(
             texture_rl.id,
@@ -211,48 +210,60 @@ sptr<atlas_data> ResourceManager::load_atlas_data(std::string_view path) {
 }
 
 sptr<pcm_data> ResourceManager::load_pcm_data(std::string_view path) {
-    parsed_path parsed = parsed_path::parse(path);
+    auto parsed = parsed_path::parse(path);
+    const auto& abs_path = parsed.stitched;
 
-    if (auto it = cached_pcm_datas_.find(parsed.stitched); it != cached_pcm_datas_.end()) {
+    if (
+        auto it = cached_pcm_datas_.find(abs_path);
+        it != cached_pcm_datas_.end()
+    ) {
         return it->second;
     }
 
     const std::string& ext = parsed.extension;
-    bool is_format_supported = std::any_of(M_SUPPORTED_AUDIO_FORMATS.begin(), M_SUPPORTED_AUDIO_FORMATS.end(),
-                                           [&](auto e) { return ext == e; });
-    if (!is_format_supported) {
-        log::error(M_NAME, "Can't load PCM data with unsupported format: \"{}\" | path: \"{}\"", ext, parsed.stitched);
+    if (!is_format_supported(format_type::AUDIO, ext)) {
+        log_unsupported_format(ext, abs_path);
         return nullptr;
     }
 
-    ma_format format = SLV_AUDIO_SAMPLEFORMAT;
-    ma_uint32 channels = AUDIO_CHANNELS;
-    ma_uint32 rate = AUDIO_SAMPLE_RATE;
-
+    ma_uint32 channels = 2;
     ma_decoder decoder;
-    ma_decoder_config config = ma_decoder_config_init(format, channels, rate);
-    ma_result result = ma_decoder_init_file(parsed.stitched.c_str(), &config, &decoder);
+    ma_decoder_config config = ma_decoder_config_init(ma_format_f32, channels, 48000);
+    ma_result result = ma_decoder_init_file(abs_path.c_str(), &config, &decoder);
 
     if (result != MA_SUCCESS) {
-        log::error(M_NAME, "Failed to load PCM data | path: \"{}\"", parsed.stitched);
-        log::error(M_NAME, "ma_decoder_init_file -> ma_result: {}", static_cast<int>(result));
+        log_fail(abs_path);
+        log::error(
+            fmt::format(
+                "ma_decoder_init_file -> ma_result: {}",
+                static_cast<int>(result)
+            )
+        );
         return nullptr;
     }
 
     ma_uint64 total_frames = 0;
     ma_decoder_get_length_in_pcm_frames(&decoder, &total_frames);
-
-    sptr<pcm_data> pcm = shared<pcm_data>();
+    auto pcm = shared<pcm_data>();
     pcm->resize(static_cast<size_t>(total_frames * channels));
 
     ma_uint64 total_read = 0;
-
     while (total_read < total_frames) {
         ma_uint64 frames_read = 0;
-        ma_result r = ma_decoder_read_pcm_frames(&decoder, pcm->data() + total_read * channels, total_frames - total_read, &frames_read);
+        ma_result r = ma_decoder_read_pcm_frames(
+            &decoder,
+            pcm->data() + total_read * channels,
+            total_frames - total_read,
+            &frames_read
+        );
 
         if (r != MA_SUCCESS || frames_read == 0) {
-            log::warning(M_NAME, "ma_decoder_read_pcm_frames -> ma_result: {}", static_cast<int>(r));
+            log::warning(
+                fmt::format(
+                    "ma_decoder_read_pcm_frames -> ma_result: {}",
+                    static_cast<int>(r)
+                )
+            );
             break;
         }
 
@@ -263,9 +274,9 @@ sptr<pcm_data> ResourceManager::load_pcm_data(std::string_view path) {
 
     // shrink if decoder returned fewer frames than expected
     pcm->resize(static_cast<size_t>(total_read * channels));
-    cached_pcm_datas_.emplace(parsed.stitched, pcm);
-    log::trace(M_NAME, "Loaded PCM data: \"{}\" ({} frames)", parsed.stitched, static_cast<uint64_t>(total_read));
-    return pcm;
+    auto [it, _] = cached_pcm_datas_.emplace(abs_path, pcm);
+    log_load(abs_path);
+    return it->second;
 }
 
 // private

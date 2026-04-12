@@ -12,21 +12,6 @@
 
 namespace slv {
 
-struct SLV_DLL parsed_path final {
-	static parsed_path parse(std::string_view file);
-	std::string stitched;
-	std::string directory;
-	std::string file_name;
-	std::string extension;
-};
-
-enum class format_type : int {
-	IMAGE,
-	AUDIO,
-	DATA,
-	count
-};
-
 class Game; // forward declare
 class SLV_DLL ResourceManager final {
 	friend class Game;
@@ -34,6 +19,21 @@ class SLV_DLL ResourceManager final {
 private:
 	ResourceManager();
 	~ResourceManager();
+
+	struct parsed_path final {
+		static parsed_path parse(std::string_view file);
+		std::string stitched;
+		std::string directory;
+		std::string file_name;
+		std::string extension;
+	};
+
+	enum class format_type : int {
+		IMAGE,
+		AUDIO,
+		DATA,
+		count
+	};
 
 public:
 	ResourceManager(const ResourceManager&) = delete;
