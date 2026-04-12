@@ -122,9 +122,18 @@ rgb& rgb::operator/=(rgb const& rhs) {
 }
 
 rgb& rgb::operator++() {
-    ++r;
-    ++g;
-    ++b;
+    if (r < 255) {
+        ++r;
+    }
+
+    if (g < 255) {
+        ++g;
+    }
+
+    if (b < 255) {
+        ++b;
+    }
+
     return *this;
 }
 
@@ -137,9 +146,18 @@ rgb rgb::operator++(int) {
 }
 
 rgb& rgb::operator--() {
-    --r;
-    --g;
-    --b;
+    if (r > 0) {
+        --r;
+    }
+
+    if (g > 0) {
+        --g;
+    }
+
+    if (b > 0) {
+        --b;
+    }
+
     return *this;
 }
 

@@ -8,7 +8,8 @@ struct size final {
     constexpr size() = default;
     constexpr size(T width_val, T height_val) :
         width(width_val),
-        height(height_val) {}
+        height(height_val)
+    {}
 
     T width{};
     T height{};
