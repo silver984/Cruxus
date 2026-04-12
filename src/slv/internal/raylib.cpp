@@ -54,16 +54,6 @@ Matrix rl_matrix(slv::mat3 const& matrix) {
 	};
 }
 
-slv::texture slv_texture(const Texture& texture) {
-	return {
-		texture.id,
-		texture.width,
-		texture.height,
-		texture.mipmaps,
-		texture.format
-	};
-}
-
 void rl_push_mult_matrix(slv::mat3 const& matrix) {
 	rlPushMatrix();
 	Matrix rm = rl_matrix(matrix);

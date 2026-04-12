@@ -187,31 +187,22 @@ sptr<atlas_data> ResourceManager::load_atlas_data(std::string_view path) {
             current_frames[frame_index].is_valid = true;
         }
 
-        for (auto& [name, frames] : data->frames) {
-            // remove empty spots in vector
-            frames.erase(
-                std::remove_if(
-                    frames.begin(),
-                    frames.end(),
-                    [](const auto& frame) {
-                        return !frame.is_valid;
-                    }
-                ),
-                frames.end()
-            );
-        }
-
         break;
     }
-    default:
-        log::error(
-            fmt::format(
-                "Failed to parse atlas data with unknown atlas format | path: \"{}\"",
-                abs_path
-            )
+    }
+
+    for (auto& [name, frames] : data->frames) {
+        // remove empty spots in vector
+        frames.erase(
+            std::remove_if(
+                frames.begin(),
+                frames.end(),
+                [](const auto& frame) {
+                    return !frame.is_valid;
+                }
+            ),
+            frames.end()
         );
-        
-        return nullptr;
     }
 
     auto [it, _] = cached_atlas_datas_.emplace(abs_path, data);
