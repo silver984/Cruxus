@@ -107,6 +107,19 @@ struct vec2 {
         return *this;
     }
 
+    constexpr vec2<T>& operator*=(vec2<T> const& rhs) {
+        x *= rhs.x;
+        y *= rhs.y;
+        return *this;
+    }
+
+    template<numeric U>
+    constexpr vec2<T>& operator/=(U rhs) {
+        x /= rhs;
+        y /= rhs;
+        return *this;
+    }
+
     constexpr bool operator==(vec2<T> const& rhs) const {
         return x == rhs.x && y == rhs.y;
     }
