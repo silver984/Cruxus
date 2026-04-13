@@ -172,7 +172,8 @@ std::string_view Vessel::name() const {
 }
 
 std::string_view Vessel::type() const {
-	return "Vessel";
+	static constexpr std::string_view TYPE = "Vessel";
+	return TYPE;
 }
 
 // protected

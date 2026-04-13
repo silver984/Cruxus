@@ -1,83 +1,41 @@
-#include <slv/objects/rectangle.hpp>
-#include <slv/core/wrappers/raylib.hpp>
-#include <slv/core/math.hpp>
-#include <algorithm>
-#include <cmath>
+#include <slv/engine/game/objects/rectangle.hpp>
+#include <slv/internal/raylib.hpp>
 
-namespace slv
-{
-		/*
-	void Rectangle::update(float dt, const slv::game_context& ctx)
-	{
-		roundness = std::clamp(roundness, 0.f, 1.f);
-		m_roundness_segments = static_cast<int>(std::round(std::min(this->dimensions_.width, this->dimensions_.height)) / 10.f);
+namespace slv {
 
-		outline_thickness = std::max(0.f, outline_thickness);
-		outline_alpha = std::clamp(outline_alpha, 0.f, 1.f);
-		m_world_outline_alpha = outline_alpha * this->world_alpha();
+Rectangle::Rectangle(size<float> const& size, rgb const& color_val) {
+	content_size_ = size;
+	color = color_val;
+}
 
-		switch (outline_type)
-		{
-		case outline::MIDDLE:
-			m_outline_offset_factor = outline_thickness;
-			break;
+Rectangle::~Rectangle() = default;
 
-		case outline::OUTER:
-			if (roundness == 0.f)
-			{
-				m_outline_offset_factor = outline_thickness * 2.f;
-			}
-			else
-			{
-				m_outline_offset_factor = 0.f;
-			}
-			break;
+std::string_view Rectangle::type() const {
+	static constexpr std::string_view TYPE = "Rectangle";
+	return TYPE;
+}
 
-		default: // INNER
-			if (roundness == 0.f)
-			{
-				m_outline_offset_factor = 0.f;
-			}
-			else
-			{
-				m_outline_offset_factor = outline_thickness * 2.f;
-			}
-			break;
-		}
+void Rectangle::set_content_size(size<float> const& val) {
+	content_size_ = val;
+}
 
-		m_outline_offsets = -slv::vec2<float>(m_outline_offset_factor, m_outline_offset_factor) / 2.f;
-	}
-		*/
+void Rectangle::set_width(float width) {
+	content_size_.width = width;
+}
 
-	// protected
-	void Rectangle::draw(const slv::game_context& ctx) const
-	{
-		auto world_transform = this->world_transform();
-		auto world_alpha = this->world_alpha();
+void Rectangle::set_height(float height) {
+	content_size_.height = height;
+}
 
-		slv::raylib::draw_rectangle(world_transform, this->dimensions_, this->color, world_alpha);
-		
-		/*
-		if (roundness == 0.f)
-		{
-		}
-		else // with roundness
-		{
-			slv::raylib::draw_round_rectangle(world_transform, this->dimensions_, this->color, world_alpha, roundness, 4);
-		}
+// protected
+bool Rectangle::init(context const& ctx) {
+	update(ctx, 0.f);
+	return true;
+}
 
-		// draw outline
-		if (outline_thickness > 0.f && m_world_outline_alpha > 0.f)
-		{
-			if (roundness == 0.f)
-			{
-				slv::raylib::draw_rectangle_lines(world_transform, m_outline_offsets, this->dimensions_ + m_outline_offset_factor, this->outline_color, m_world_outline_alpha, outline_thickness);
-			}
-			else // with roundness
-			{
-				slv::raylib::draw_round_rectangle_lines(world_transform, -m_outline_offsets, this->dimensions_ - m_outline_offset_factor, this->outline_color, m_world_outline_alpha, outline_thickness, roundness, m_roundness_segments);
-			}
-		}
-		*/
-	}
+// protected
+void Rectangle::draw(context const& ctx) const {
+	raylib::draw_rectangle(world_transform(), content_size_, color, world_alpha());
+}
+
 }

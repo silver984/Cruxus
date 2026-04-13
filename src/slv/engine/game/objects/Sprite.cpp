@@ -12,7 +12,8 @@ Sprite::Sprite(std::string_view texture_file_path) :
 Sprite::~Sprite() = default;
 
 std::string_view Sprite::type() const {
-	return "Sprite";
+	static constexpr std::string_view TYPE = "Sprite";
+	return TYPE;
 }
 
 void Sprite::set_antialiasing(bool val) {
