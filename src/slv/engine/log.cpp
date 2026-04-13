@@ -11,7 +11,7 @@ namespace {
 
 // this function is for simplifying the function name that comes from the given std::source_location
 // currently only for MSVC
-std::string_view function_name(const std::source_location& location) {
+std::string_view function_name(std::source_location const& location) {
 	std::string_view func = location.function_name();
 
 	size_t pos = func.find("__cdecl");
@@ -44,34 +44,33 @@ std::string current_time_str() {
 	return fmt::format("{:%H:%M:%S}.{:03}", seconds, ms);
 }
 
-void print_time_and_location(std::source_location const& location) {
+void print_time_and_level(fmt::color* level_color, std::string_view level_name) {
 #ifdef SLV_COLORED_LOGS
-	fmt::print(fmt::fg(fmt::color::dim_gray), "{:<10} ", current_time_str(), function_name(location));
-	fmt::print("[{}] ", function_name(location));
+	fmt::print(fmt::fg(fmt::color::dim_gray), "{:<12} ", current_time_str());
+	fmt::print(fmt::fg(*level_color), "{:<10} ", fmt::format("[{}]", level_name));
 #else
-	fmt::print("{:<10} [{}] ", time(), location.function_name());
+	fmt::print("{:<12} [{}]{:<2}", current_time_str(), level_name, "");
 #endif
 }
 
 #ifdef SLV_COLORED_LOGS
-void colored_print(
+void print(
 	std::source_location const& location,
 	std::string_view level_name,
 	std::string_view message,
 	fmt::color level_color
 ) {
-	print_time_and_location(location);
-	fmt::print(fmt::fg(level_color), "[{}] ", level_name);
-	fmt::print("{}\n", message);
+	print_time_and_level(&level_color, level_name);
+	fmt::print("{:<28} {}\n", fmt::format("[{}]:", function_name(location)), message);
 }
 #else
-void regular_print(
+void print(
 	std::source_location const& location,
 	std::string_view level_name,
 	std::string_view message
 ) {
-	print_time_and_location(location);
-	fmt::print("[{}] {}\n", level_name, message);
+	print_time_and_level(nullptr, level_name);
+	fmt::print("[{}]: {}\n", function_name(location), message);
 }
 #endif
 
@@ -81,45 +80,45 @@ namespace slv::log {
 
 void trace(
 	std::string_view message,
-	const std::source_location& loc
+	std::source_location const& loc
 ) {
 #ifdef SLV_COLORED_LOGS
-	colored_print(loc, "TRACE", message, fmt::color::dark_sea_green);
+	print(loc, "TRACE", message, fmt::color::dark_sea_green);
 #else
-	regular_print(loc, "TRACE", message);
+	print(loc, "TRACE", message);
 #endif
 }
 
 void info(
 	std::string_view message,
-	const std::source_location& loc
+	std::source_location const& loc
 ) {
 #ifdef SLV_COLORED_LOGS
-	colored_print(loc, "INFO", message, fmt::color::green_yellow);
+	print(loc, "INFO", message, fmt::color::green_yellow);
 #else
-	regular_print(loc, "INFO", message);
+	print(loc, "INFO", message);
 #endif
 }
 
 void warning(
 	std::string_view message,
-	const std::source_location& loc
+	std::source_location const& loc
 ) {
 #ifdef SLV_COLORED_LOGS
-	colored_print(loc, "WARNING", message, fmt::color::gold);
+	print(loc, "WARNING", message, fmt::color::gold);
 #else
-	regular_print(loc, "WARNING", message);
+	print(loc, "WARNING", message);
 #endif
 }
 
 void error(
 	std::string_view message,
-	const std::source_location& loc
+	std::source_location const& loc
 ) {
 #ifdef SLV_COLORED_LOGS
-	colored_print(loc, "ERROR", message, fmt::color::crimson);
+	print(loc, "ERROR", message, fmt::color::crimson);
 #else
-	regular_print(loc, "ERROR", message);
+	print(loc, "ERROR", message);
 #endif
 }
 
