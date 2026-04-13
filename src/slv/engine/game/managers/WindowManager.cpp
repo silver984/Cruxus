@@ -67,7 +67,8 @@ bool WindowManager::init(
 #endif
 
 	is_initialized_ = true;
-	update(0.f, ctx);
+	update(ctx, 0.f);
+
 	return true;
 }
 
@@ -83,7 +84,7 @@ void WindowManager::uninit() {
 }
 
 // private
-void WindowManager::update(float dt, context const& ctx) {
+void WindowManager::update(context const& ctx, float dt) {
 	if (!is_initialized_) {
 		return;
 	}
@@ -265,7 +266,7 @@ size<int> WindowManager::monitor_size() const {
 		return size<int>(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
 	}
 
-	return size<int>();
+	return {};
 }
 
 float WindowManager::delta_time() const {
@@ -285,7 +286,7 @@ vec2<float> WindowManager::mouse_pos() const {
 			: vec2<float>(pos.x, pos.y);
 	}
 
-	return vec2<float>();
+	return {};
 }
 
 vec2<float> WindowManager::mouse_delta() const {
@@ -294,7 +295,7 @@ vec2<float> WindowManager::mouse_delta() const {
 		return vec2<float>(dt.x, dt.y);
 	}
 
-	return vec2<float>();
+	return {};
 }
 
 float WindowManager::ui_scale() const {
@@ -312,7 +313,7 @@ float WindowManager::ui_scale() const {
 void WindowManager::set_pos(const vec2<int>& pos) {
 	if (is_initialized_ && !IsWindowFullscreen()) {
 		pos_ = pos;
-		SetWindowPosition(pos.x, pos.y);
+		SetWindowPosition(pos_.x, pos_.y);
 	}
 }
 

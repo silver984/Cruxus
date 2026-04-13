@@ -1,15 +1,15 @@
-#include <slv/engine/game/Game.hpp>
+#include <slv/engine/game/App.hpp>
 #include <slv/engine/log.hpp>
 
 namespace slv {
 
-Game::Game() :
+App::App() :
 	is_initialized_(false)
 {}
 
-Game::~Game() = default;
+App::~App() = default;
 
-bool Game::init(
+bool App::init(
 	std::string_view win_title,
 	size<int> const& win_size,
 	int win_fps,
@@ -43,19 +43,21 @@ bool Game::init(
 	return true;
 }
 
-void Game::run(context const& ctx) {
+void App::run() {
 	if (!is_initialized_) {
 		return;
 	}
+
+	auto ctx = get_ctx();
 
 	while (window_.is_open()) {
 		// update
 
 		float dt = window_.delta_time();
-		window_.update(dt, ctx);
+		window_.update(ctx, dt);
 		input_.update(dt);
 		resource_.update(dt);
-		scene_.update(dt, ctx);
+		scene_.update(ctx, dt);
 
 		// draw
 
@@ -65,13 +67,12 @@ void Game::run(context const& ctx) {
 	}
 
 	scene_.safely_destroy_scene();
-	input_.clean_cache();
 	resource_.clean_cache();
 	audio_.uninit();
 	window_.uninit();
 }
 
-context Game::get_ctx() {
+context App::get_ctx() {
 	return context(
 		&window_,
 		&scene_,

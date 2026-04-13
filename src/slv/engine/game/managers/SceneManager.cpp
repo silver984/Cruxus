@@ -30,7 +30,7 @@ wptr<Vessel> SceneManager::current_scene() {
 }
 
 // private
-void SceneManager::update(float dt, context const& ctx) {
+void SceneManager::update(context const& ctx, float dt) {
 	if (pending_scene_) {
 		current_scene_ = std::move(pending_scene_);
 	}
@@ -41,7 +41,7 @@ void SceneManager::update(float dt, context const& ctx) {
 	}
 
 	if (current_scene_) {
-		current_scene_->base_update(dt, ctx);
+		current_scene_->base_update(ctx, dt);
 	}
 }
 
@@ -57,6 +57,7 @@ void SceneManager::safely_destroy_scene() {
 	if (current_scene_) {
 		current_scene_->destroy();
 		current_scene_.reset();
+		current_scene_ = nullptr;
 	}
 }
 

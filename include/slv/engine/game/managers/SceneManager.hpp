@@ -25,7 +25,7 @@ public:
 	[[nodiscard]] wptr<Vessel> current_scene();
 
 private:
-	void update(float dt, context const& ctx);
+	void update(context const& ctx, float dt);
 	void draw(context const& ctx);
 	void safely_destroy_scene();
 

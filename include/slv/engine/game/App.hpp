@@ -7,14 +7,14 @@
 
 namespace slv {
 
-class SLV_DLL Game final {
+class SLV_DLL App final {
 public:
-	Game();
-	~Game();
-	Game(Game const&) = delete;
-	Game(Game&&) = delete;
-	Game& operator=(Game const&) = delete;
-	Game& operator=(Game&&) = delete;
+	App();
+	~App();
+	App(App const&) = delete;
+	App(App&&) = delete;
+	App& operator=(App const&) = delete;
+	App& operator=(App&&) = delete;
 
 	bool init(
 		std::string_view win_title,
@@ -22,7 +22,7 @@ public:
 		int win_fps,
 		window_settings win_settings
 	);
-	void run(context const& ctx);
+	void run();
 	[[nodiscard]] context get_ctx();
 
 private:

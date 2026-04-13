@@ -71,7 +71,7 @@ private:
     );
 
     void uninit();
-    void update(float dt, context const& ctx);
+    void update(context const& ctx, float dt);
     void start_draw() const;
     void end_draw() const;
     void configure_settings(window_settings settings);
