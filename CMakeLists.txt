@@ -1,27 +1,48 @@
 cmake_minimum_required(VERSION 3.21)
-project(slv VERSION 1.0.0 LANGUAGES CXX)
+
+set(slv slv)
+project(${slv} VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_library(slv SHARED)
+add_library(${slv} SHARED)
 
-target_include_directories(slv PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+file(GLOB_RECURSE slv_src CONFIGURE_DEPENDS src/slv/*.cpp)
+file(GLOB miniaudio_src CONFIGURE_DEPENDS src/miniaudio/miniaudio.cpp)
 
-file(GLOB_RECURSE SLV_SOURCES CONFIGURE_DEPENDS src/slv/*.cpp)
-file(GLOB MINIAUDIO_SOURCES CONFIGURE_DEPENDS src/miniaudio/*.cpp)
-
-include(cmake/platform.cmake)
-slv_collect_platform_sources(PLATFORM_SOURCES)
-
-target_sources(slv PRIVATE
-    ${SLV_SOURCES}
-    ${MINIAUDIO_SOURCES}
-    ${PLATFORM_SOURCES}
+set(compound_src
+    ${slv_src}
+    ${miniaudio_src}
 )
 
-target_compile_definitions(slv
-    PRIVATE SLV_EXPORTS
+set(platform)
+
+if (WIN32)
+    set(platform windows)
+endif() # other platforms not supported yet
+
+if (platform)
+    file(GLOB_RECURSE platform_src CONFIGURE_DEPENDS
+        src/platforms/${platform}.cpp
+    )
+
+    list(APPEND compound_src ${platform_src})
+endif()
+
+target_sources(${slv}
+    PRIVATE
+        ${compound_src}
+)
+
+target_include_directories(${slv}
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_compile_definitions(${slv}
+    PRIVATE
+        SLV_EXPORTS
     PUBLIC
         SLV_AUDIO_CHANNELS=2
         SLV_AUDIO_SAMPLE_RATE=48000
@@ -30,9 +51,6 @@ target_compile_definitions(slv
 )
 
 include(cmake/dependencies.cmake)
-slv_fetch_dependencies()
+slv_fetch_dependencies(${slv})
 
-target_link_libraries(slv
-    PRIVATE raylib
-    PUBLIC fmt::fmt tinyxml2::tinyxml2
-)
+include(cmake/slv_project.cmake)
