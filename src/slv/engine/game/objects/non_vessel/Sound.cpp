@@ -1,35 +1,36 @@
-#include <slv/objects/non_vessel/Sound.hpp>
-#include <slv/game/managers/ResourceManager.hpp>
-#include <slv/game/managers/AudioManager.hpp>
+#include <slv/engine/game/objects/non_vessel/Sound.hpp>
+#include <slv/engine/game/managers/ResourceManager.hpp>
+#include <slv/engine/game/managers/AudioManager.hpp>
 
-namespace slv
-{
-	bool Sound::create(const slv::game_context& ctx, const std::string& file_path)
-	{
-		auto resource = ctx.resource_manager;
+namespace slv {
 
-		if (!resource)
-		{
-			return false;
-		}
-		
-		pcm = resource->load_pcm_data(file_path);
-		if (!pcm)
-		{
-			return false;
-		}
+Sound::Sound() :
+	pcm_data_(nullptr)
+{}
 
-		return true;
+Sound::~Sound() = default;
+
+bool Sound::create(context const& ctx, std::string_view file_path) {
+	auto& resource = ctx.resource;
+
+	if (!resource) {
+		return false;
 	}
 
-	void Sound::play(const slv::game_context& ctx)
-	{
-		if (auto audio_manager = ctx.audio_manager)
-		{
-			if (pcm)
-			{
-				audio_manager->push_pcm_data(pcm);
-			}
+	pcm_data_ = resource->load_pcm_data(file_path);
+	if (!pcm_data_) {
+		return false;
+	}
+
+	return true;
+}
+
+void Sound::play(context const& ctx) {
+	if (auto& audio_manager = ctx.audio) {
+		if (pcm_data_) {
+			audio_manager->push_pcm_data(pcm_data_);
 		}
 	}
+}
+
 }
