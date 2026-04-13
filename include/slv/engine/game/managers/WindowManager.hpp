@@ -17,9 +17,9 @@ enum window_settings : int {
     TRANSPARENT = 1 << 4
 };
 
-class Game; // forward declare
+class App; // forward declare
 class SLV_DLL WindowManager final {
-    friend class Game;
+    friend class App;
 
 private:
     WindowManager();

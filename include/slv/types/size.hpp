@@ -6,7 +6,7 @@ namespace slv {
 template<numeric T>
 struct size final {
     constexpr size() = default;
-    constexpr size(T width_val, T height_val) :
+    constexpr explicit size(T width_val, T height_val) :
         width(width_val),
         height(height_val)
     {}

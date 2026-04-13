@@ -6,7 +6,8 @@
 #include <numbers>
 #include <algorithm>
 
-namespace slv::math {
+namespace slv {
+namespace math {
 
 constexpr float pi = std::numbers::pi_v<float>;
 
@@ -82,8 +83,9 @@ vec2<T> rotate(vec2<T> point, vec2<T> origin, T rotation_deg) {
         unrotated.x * std::cos(rad) - unrotated.y * std::sin(rad),
         unrotated.x * std::sin(rad) + unrotated.y * std::cos(rad)
     );
-    
+
     return vec2<T>(rotated.x + origin.x, rotated.y + origin.y);
 }
 
+}
 }

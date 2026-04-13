@@ -67,6 +67,7 @@ bool WindowManager::init(
 #endif
 
 	is_initialized_ = true;
+	log::info("Window initialized");
 	update(ctx, 0.f);
 
 	return true;

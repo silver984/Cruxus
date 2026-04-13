@@ -12,9 +12,9 @@
 
 namespace slv {
 
-class Game; // forward declare
+class App; // forward declare
 class SLV_DLL ResourceManager final {
-	friend class Game;
+	friend class App;
 
 private:
 	ResourceManager();
