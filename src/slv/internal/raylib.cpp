@@ -1,10 +1,15 @@
 #include <slv/internal/raylib.hpp>
 #include <slv/engine/math.hpp>
+#ifdef _WIN32
+#include <platforms/windows.hpp>
+#endif
 #include <raylib.h>
 #include <rlgl.h>
+#include <GLFW/glfw3.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <numeric>
 
 namespace {
 
@@ -64,22 +69,46 @@ void rl_push_mult_matrix(slv::mat3 const& matrix) {
 
 namespace slv::raylib {
 
-bool init_window(
-	int width,
-	int height,
-	int fps,
-	char const* title
-) {
-	InitWindow(width, height, title);
+bool init_window(size<int> const& dimensions, int fps, char const* title) {
+	InitWindow(dimensions.width, dimensions.height, title);
 
 	if (!IsWindowReady() || !GetWindowHandle()) {
 		return false;
 	}
 
+	int monitor = GetCurrentMonitor();
+	SetWindowPosition(
+		(GetMonitorWidth(monitor) / 2) - (dimensions.width / 2),
+		(GetMonitorHeight(monitor) / 2) - (dimensions.height / 2)
+	);
+	set_window_size(dimensions);
 	SetTargetFPS(fps);
 	SetExitKey(KEY_NULL);
-
 	return true;
+}
+
+void set_window_size(size<int> const& dimensions) {
+	GLFWwindow* glfw_window = glfwGetCurrentContext();
+
+	if (!glfw_window) {
+		return;
+	}
+
+	SetWindowSize(dimensions.width, dimensions.height);
+
+	int gcd = std::gcd(dimensions.width, dimensions.height);
+	int aspect_w = dimensions.width / gcd;
+	int aspect_h = dimensions.height / gcd;
+
+	if (aspect_w <= 0) {
+		aspect_w = 1;
+	}
+
+	if (aspect_h <= 0) {
+		aspect_h = 1;
+	}
+
+	glfwSetWindowAspectRatio(glfw_window, aspect_w, aspect_h);
 }
 
 void draw_rectangle(

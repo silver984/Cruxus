@@ -55,14 +55,7 @@ bool WindowManager::init(
 	default_screen_size_.height = std::max(1, size.height);
 	target_fps_ = std::max(1, fps);
 
-	if (
-		!raylib::init_window(
-			default_screen_size_.width,
-			default_screen_size_.height,
-			target_fps_,
-			title_.c_str()
-		)
-	) {
+	if (!raylib::init_window(default_screen_size_, target_fps_, title_.c_str())) {
 		return false;
 	}
 

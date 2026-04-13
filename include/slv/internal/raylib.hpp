@@ -4,7 +4,8 @@
 
 namespace slv::raylib {
 
-bool init_window(int width, int height, int fps, char const* title);
+bool init_window(size<int> const& dimensions, int fps, char const* title);
+void set_window_size(size<int> const& dimensions);
 
 void draw_rectangle(
 	mat3 const& matrix,
