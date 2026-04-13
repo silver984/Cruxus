@@ -23,7 +23,7 @@ protected:
 	void draw(context const& ctx) const override;
 
 	std::string texture_file_path_;
-	rect<float> source_;
+	rect<float> source_rect_;
 	sptr<texture> texture_;
 };
 

@@ -9,7 +9,7 @@ namespace slv {
 
 AnimatedSprite::AnimatedSprite(std::string_view texture_file_path, std::string_view data_file_path) :
 	Sprite(texture_file_path),
-	fps(0.f),
+	fps_(0.f),
 	frame_elapsed_(0.f),
 	is_looping_(false),
 	cur_frame_index_(0),
@@ -36,7 +36,7 @@ void AnimatedSprite::add_anim_alias(std::string_view alias, std::string_view ani
 	}
 }
 
-void AnimatedSprite::play_anim(std::string_view name, float fps_val, bool is_looping) {
+void AnimatedSprite::play_anim(std::string_view name, bool is_looping) {
 	if (!atlas_data_) {
 		return;
 	}
@@ -52,11 +52,6 @@ void AnimatedSprite::play_anim(std::string_view name, float fps_val, bool is_loo
 	}
 
 	cur_anim_ = std::string(resolved);
-	
-	if (fps_val > 0.f) {
-		fps = fps_val;
-	}
-
 	is_looping_ = is_looping;
 	cur_frame_index_ = 0;
 }
@@ -71,6 +66,10 @@ void AnimatedSprite::set_anim_offsets(std::string_view name, vec2<float> const& 
 	if (auto it = offsets_.find(resolved); it != offsets_.end()) {
 		it->second = offsets;
 	}
+}
+
+void AnimatedSprite::set_fps(float fps) {
+	fps_ = fps;
 }
 
 std::string_view AnimatedSprite::type() const {
@@ -125,9 +124,9 @@ void AnimatedSprite::update(context const& ctx, float dt) {
 
 	const auto& cur_frames = it->second;
 
-	if (fps > 0.f) {
+	if (fps_ > 0.f) {
 		frame_elapsed_ += dt;
-		float target_dt = 1.f / fps;
+		float target_dt = 1.f / fps_;
 
 		while (frame_elapsed_ >= target_dt) {
 			if (is_looping_) {

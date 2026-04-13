@@ -40,7 +40,7 @@ bool Sprite::init(context const& ctx) {
 		static_cast<float>(texture_->resolution.height)
 	);
 
-	source_ = rect<float>(
+	source_rect_ = rect<float>(
 		0.f, 0.f,
 		content_size_.width,
 		content_size_.height
@@ -56,12 +56,12 @@ bool Sprite::init(context const& ctx) {
 void Sprite::draw(context const& ctx) const {
 	if (
 		texture_ &&
-		source_.dimensions.width > 0.f &&
-		source_.dimensions.height > 0.f
+		source_rect_.dimensions.width > 0.f &&
+		source_rect_.dimensions.height > 0.f
 	) {
 		raylib::draw_texture(
 			*texture_,
-			source_,
+			source_rect_,
 			vec2<float>(0.f, 0.f),
 			world_transform(),
 			color,

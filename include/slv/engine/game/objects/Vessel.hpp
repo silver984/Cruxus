@@ -37,8 +37,6 @@ public:
 	void remove(sptr<Vessel> vessel);
 	void destroy();
 	[[nodiscard]] size_t count() const;
-	[[nodiscard]] size_t count_active() const;
-	[[nodiscard]] size_t count_visible() const;
 	[[nodiscard]] float world_rotation() const;
 	[[nodiscard]] vec2<float> world_position() const;
 	[[nodiscard]] vec2<float> world_scale() const;
@@ -74,7 +72,6 @@ private:
 	void base_update(context const& ctx, float dt);
 	void base_draw(context const& ctx) const;
 	bool has_ancestor(sptr<Vessel> vessel) const;
-	void clean_children();
 	void mark_dirty();
 
 	wptr<Vessel> parent_;

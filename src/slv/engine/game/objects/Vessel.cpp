@@ -101,8 +101,10 @@ void Vessel::destroy() {
 	while (!children_.empty()) {
 		auto child = children_.back();
 		children_.pop_back();
-		child->parent_.reset();
-		child->destroy();
+		if (child) {
+			child->parent_.reset();
+			child->destroy();
+		}
 	}
 }
 
@@ -115,42 +117,6 @@ size_t Vessel::count() const {
 		}
 		
 		c += child->count();
-	}
-
-	return c;
-}
-
-size_t Vessel::count_active() const {
-	size_t c = 0;
-
-	for (auto const& child : children_) {
-		if (!child) {
-			continue;
-		}
-
-		if (child->is_active) {
-			c++;
-		}
-
-		c += child->count_active();
-	}
-
-	return c;
-}
-
-size_t Vessel::count_visible() const {
-	size_t c = 0;
-
-	for (auto const& child : children_) {
-		if (!child) {
-			continue;
-		}
-
-		if (child->is_visible) {
-			c++;
-		}
-
-		c += child->count_visible();
 	}
 
 	return c;
@@ -348,17 +314,6 @@ bool Vessel::has_ancestor(sptr<Vessel> vessel) const {
 	}
 
 	return false;
-}
-
-// private
-void Vessel::clean_children() {
-	children_.erase(
-		std::remove(
-			children_.begin(),
-			children_.end(),
-			nullptr),
-		children_.end()
-	);
 }
 
 // private

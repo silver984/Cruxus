@@ -18,9 +18,9 @@ public:
 	~AnimatedSprite() override;
 
 	void add_anim_alias(std::string_view alias, std::string_view anim_name);
-	// fps = 0.f (automatic)
-	void play_anim(std::string_view name, float fps_val = 0.f, bool is_looping = true);
+	void play_anim(std::string_view name, bool is_looping = true);
 	void set_anim_offsets(std::string_view name, vec2<float> const& offsets);
+	void set_fps(float fps);
 	[[nodiscard]] std::string_view type() const override;
 	[[nodiscard]] std::string_view cur_anim() const;
 
@@ -32,25 +32,25 @@ public:
 	bool is_current_anim_playing();
 	*/
 
-	float fps;
-
 protected:
 	bool init(context const& ctx) override;
 	void update(context const& ctx, float dt) override;
 	void draw(context const& ctx) const override;
 
+	float fps_;
+	bool is_looping_;
+	std::string data_file_path_;
+	sptr<atlas_data> atlas_data_;
+	std::string cur_anim_;
+
 private:
 	[[nodiscard]] size<float> avg_frame_size(sptr<atlas_data> data);
 
 	float frame_elapsed_;
-	bool is_looping_;
 	size_t cur_frame_index_;
-	std::string data_file_path_;
 	vec2<float> cur_offsets_;
-	sptr<atlas_data> atlas_data_;
 	string_map<std::string> aliases_;
 	string_map<vec2<float>> offsets_;
-	std::string cur_anim_;
 };
 
 }
