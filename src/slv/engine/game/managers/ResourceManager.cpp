@@ -375,7 +375,7 @@ void ResourceManager::log_load(
     std::string_view path,
     std::source_location const& loc
 ) {
-    log::trace(fmt::format("Loaded texture: \"{}\"", path), loc);
+    log::trace(fmt::format("Loaded: \"{}\"", path), loc);
 }
 
 }

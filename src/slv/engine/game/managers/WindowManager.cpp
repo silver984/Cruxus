@@ -40,8 +40,14 @@ bool WindowManager::init(
 		return true;
 	}
 
-	// disable raylib's logs
-	SetTraceLogCallback([](int, char const*, va_list){});
+#if (defined(SLV_DEBUG) || defined(SLV_RELWITHDEBINFO))
+	if (!win32::enable_console_colors()) {
+		log::warning("Couldn't enable console colors");
+	}
+#endif
+
+	SetTraceLogCallback([](int, char const*, va_list) {});
+
 	configure_settings(settings);
 
 	title_ = std::string(title);
@@ -59,12 +65,6 @@ bool WindowManager::init(
 	) {
 		return false;
 	}
-
-#if (defined(SLV_DEBUG) || defined(SLV_RELWITHDEBINFO))
-	if (!win32::enable_console_colors()) {
-		log::warning("Couldn't enable console colors");
-	}
-#endif
 
 	is_initialized_ = true;
 	log::info("Window initialized");
