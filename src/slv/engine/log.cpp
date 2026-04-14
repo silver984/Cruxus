@@ -6,6 +6,8 @@
 #endif
 #include <chrono>
 #include <string>
+#include <random>
+#include <cstdint>
 
 namespace {
 
@@ -14,8 +16,10 @@ namespace {
 std::string_view function_name(std::source_location const& location) {
 	std::string_view func = location.function_name();
 
-	size_t pos = func.find("__cdecl");
-	if (pos != std::string_view::npos) {
+	if (
+		const size_t pos = func.find("__cdecl");
+		pos != std::string_view::npos
+	) {
 		func.remove_prefix(pos + sizeof("__cdecl"));
 		if (!func.empty() && func.front() == ' ') {
 			func.remove_prefix(1);
@@ -23,14 +27,18 @@ std::string_view function_name(std::source_location const& location) {
 	}
 
 	// remove parameter list
-	size_t end = func.find('(');
-	if (end != std::string_view::npos) {
+	if (
+		const size_t end = func.find('(');
+		end != std::string_view::npos
+	) {
 		func = func.substr(0, end);
 	}
 
 	// remove lambda noise
-	size_t lambda_pos = func.find("::<lambda_");
-	if (lambda_pos != std::string_view::npos) {
+	if (
+		const size_t lambda_pos = func.find("::<lambda_");
+		lambda_pos != std::string_view::npos
+	) {
 		func = func.substr(0, lambda_pos);
 	}
 
@@ -44,33 +52,42 @@ std::string current_time_str() {
 	return fmt::format("{:%H:%M:%S}.{:03}", seconds, ms);
 }
 
-void print_time_and_level(fmt::color* level_color, std::string_view level_name) {
+void print_info(
+	fmt::color* const& level_color,
+	std::string_view level_name,
+	std::source_location const& location
+) {
 #ifdef SLV_COLORED_LOGS
-	fmt::print(fmt::fg(fmt::color::dim_gray), "{:<12} ", current_time_str());
-	fmt::print(fmt::fg(*level_color), "{:<10} ", fmt::format("[{}]", level_name));
+	fmt::print(fmt::fg(fmt::color::gray), "{:<12} {} ", current_time_str(), function_name(location));
+	fmt::print(fmt::fg(*level_color), "[{}] ", level_name);
 #else
-	fmt::print("{:<12} [{}]{:<2}", current_time_str(), level_name, "");
+	fmt::print(
+		"{:<12} {} [{}] ",
+		current_time_str(),
+		function_name(location),
+		level_name
+	);
 #endif
 }
 
 #ifdef SLV_COLORED_LOGS
 void print(
-	std::source_location const& location,
+	fmt::color level_color,
 	std::string_view level_name,
 	std::string_view message,
-	fmt::color level_color
+	std::source_location const& location
 ) {
-	print_time_and_level(&level_color, level_name);
-	fmt::print("{:<28} {}\n", fmt::format("[{}]:", function_name(location)), message);
+	print_info(&level_color, level_name, location);
+	fmt::print("{}\n", message);
 }
 #else
 void print(
-	std::source_location const& location,
 	std::string_view level_name,
-	std::string_view message
+	std::string_view message,
+	std::source_location const& location
 ) {
-	print_time_and_level(nullptr, level_name);
-	fmt::print("[{}]: {}\n", function_name(location), message);
+	print_info(nullptr, level_name, location);
+	fmt::print("{}\n", message);
 }
 #endif
 
@@ -83,9 +100,9 @@ void trace(
 	std::source_location const& loc
 ) {
 #ifdef SLV_COLORED_LOGS
-	print(loc, "TRACE", message, fmt::color::dark_sea_green);
+	print(fmt::color::dark_sea_green, "TRACE", message, loc);
 #else
-	print(loc, "TRACE", message);
+	print("TRACE", message, loc);
 #endif
 }
 
@@ -94,9 +111,9 @@ void info(
 	std::source_location const& loc
 ) {
 #ifdef SLV_COLORED_LOGS
-	print(loc, "INFO", message, fmt::color::green_yellow);
+	print(fmt::color::green_yellow, "INFO", message, loc);
 #else
-	print(loc, "INFO", message);
+	print("INFO", message, loc);
 #endif
 }
 
@@ -105,9 +122,9 @@ void warning(
 	std::source_location const& loc
 ) {
 #ifdef SLV_COLORED_LOGS
-	print(loc, "WARNING", message, fmt::color::gold);
+	print(fmt::color::gold, "WARNING", message, loc);
 #else
-	print(loc, "WARNING", message);
+	print("WARNING", message, loc);
 #endif
 }
 
@@ -116,9 +133,9 @@ void error(
 	std::source_location const& loc
 ) {
 #ifdef SLV_COLORED_LOGS
-	print(loc, "ERROR", message, fmt::color::crimson);
+	print(fmt::color::crimson, "ERROR", message, loc);
 #else
-	print(loc, "ERROR", message);
+	print("ERROR", message, loc);
 #endif
 }
 

@@ -58,11 +58,7 @@ private:
 		std::string_view path,
 		std::source_location const& loc = std::source_location::current()
 	);
-	void log_load(
-		std::string_view path,
-		std::source_location const& loc = std::source_location::current()
-	);
-
+	
 	enum_array<std::vector<std::string>, format_type, format_type::count> supported_formats_;
 	string_map<sptr<texture>> cached_textures_;
 	string_map<sptr<atlas_data>> cached_atlas_datas_;

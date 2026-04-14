@@ -79,7 +79,6 @@ sptr<texture> ResourceManager::load_texture(std::string_view path) {
         )
     );
 
-    log_load(abs_path);
     return it->second;
 }
 
@@ -205,7 +204,6 @@ sptr<atlas_data> ResourceManager::load_atlas_data(std::string_view path) {
     }
 
     auto [it, _] = cached_atlas_datas_.emplace(abs_path, data);
-    log_load(abs_path);
     return it->second;
 }
 
@@ -278,7 +276,6 @@ sptr<pcm_data> ResourceManager::load_pcm_data(std::string_view path) {
     // shrink if decoder returned fewer frames than expected
     pcm->resize(static_cast<size_t>(total_read * SLV_AUDIO_CHANNELS));
     auto [it, _] = cached_pcm_datas_.emplace(abs_path, pcm);
-    log_load(abs_path);
     return it->second;
 }
 
@@ -294,44 +291,19 @@ void ResourceManager::update(float dt) {
 
 // private
 void ResourceManager::clean_cache() {
-    auto log_unload = [](std::string_view key) {
-        log::trace(fmt::format("Unloaded: \"{}\"", key));
+    auto clean = [](auto& map) {
+        for (auto it = map.begin(); it != map.end();) {
+            if (it->second.use_count() <= 1) {
+                it = map.erase(it);
+            } else {
+                ++it;
+            }
+        }
         };
 
-    for (auto it = cached_textures_.begin(); it != cached_textures_.end();) {
-        if (it->second.use_count() <= 1) {
-            std::string key = it->first;
-            auto& ptr = it->second;
-            if (ptr) {
-                UnloadTexture(Texture(ptr->id));
-                log_unload(key);
-            }
-
-            it = cached_textures_.erase(it);
-        } else {
-            ++it;
-        }
-    }
-
-    for (auto it = cached_atlas_datas_.begin(); it != cached_atlas_datas_.end();) {
-        if (it->second.use_count() <= 1) {
-            std::string key = it->first;
-            it = cached_atlas_datas_.erase(it);
-            log_unload(key);
-        } else {
-            ++it;
-        }
-    }
-
-    for (auto it = cached_pcm_datas_.begin(); it != cached_pcm_datas_.end();) {
-        if (it->second.use_count() <= 1) {
-            std::string key = it->first;
-            it = cached_pcm_datas_.erase(it);
-            log_unload(key);
-        } else {
-            ++it;
-        }
-    }
+    clean(cached_textures_);
+    clean(cached_atlas_datas_);
+    clean(cached_pcm_datas_);
 }
 
 // private
@@ -368,14 +340,6 @@ void ResourceManager::log_fail(
     std::source_location const& loc
 ) {
     log::error(fmt::format("Failed to load: \"{}\"", path), loc);
-}
-
-// private
-void ResourceManager::log_load(
-    std::string_view path,
-    std::source_location const& loc
-) {
-    log::trace(fmt::format("Loaded: \"{}\"", path), loc);
 }
 
 }

@@ -10,6 +10,34 @@
 #include <cstddef>
 #include <cmath>
 
+// this whole namespace is here just so raylib has
+// its own distinct messenger in the logs instead of
+// "slv::WindowManager::init"
+namespace raylib {
+
+void log(int level, char const* msg, va_list args) {
+	if (level == LOG_TRACE || level == LOG_INFO) {
+		return;
+	}
+
+	char buffer[1024];
+	vsnprintf(buffer, sizeof(buffer), msg, args);
+
+	switch (level) {
+	case LOG_WARNING:
+		slv::log::warning(buffer);
+		break;
+
+	case LOG_ERROR:
+		slv::log::error(buffer);
+		break;
+
+	default: break;
+	}
+}
+
+}
+
 namespace slv {
 
 // private
@@ -46,8 +74,7 @@ bool WindowManager::init(
 	}
 #endif
 
-	SetTraceLogCallback([](int, char const*, va_list) {});
-
+	SetTraceLogCallback(::raylib::log);
 	configure_settings(settings);
 
 	title_ = std::string(title);

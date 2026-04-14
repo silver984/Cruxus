@@ -16,8 +16,8 @@ private:
 
 public:
 	SceneManager(const SceneManager&) = delete;
-	SceneManager& operator=(const SceneManager&) = delete;
 	SceneManager(SceneManager&&) = delete;
+	SceneManager& operator=(const SceneManager&) = delete;
 	SceneManager& operator=(SceneManager&&) = delete;
 
 	void change_scene(sptr<Vessel>&& new_scene);

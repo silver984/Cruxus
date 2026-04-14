@@ -13,8 +13,8 @@ private:
 
 public:
 	CrashManager(CrashManager const&) = delete;
-	CrashManager& operator=(CrashManager const&) = delete;
 	CrashManager(CrashManager&&) = delete;
+	CrashManager& operator=(CrashManager const&) = delete;
 	CrashManager& operator=(CrashManager&&) = delete;
 
 private:
