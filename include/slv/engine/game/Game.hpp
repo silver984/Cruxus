@@ -7,14 +7,14 @@
 
 namespace slv {
 
-class SLV_DLL App final {
+class SLV_DLL Game final {
 public:
-	App();
-	~App();
-	App(App const&) = delete;
-	App(App&&) = delete;
-	App& operator=(App const&) = delete;
-	App& operator=(App&&) = delete;
+	Game();
+	~Game();
+	Game(Game const&) = delete;
+	Game(Game&&) = delete;
+	Game& operator=(Game const&) = delete;
+	Game& operator=(Game&&) = delete;
 
 	bool init(
 		std::string_view win_title,
@@ -33,6 +33,7 @@ private:
 	SceneManager scene_;
 	ResourceManager resource_;
 	bool is_initialized_;
+	bool is_window_minimized_;
 };
 
 }

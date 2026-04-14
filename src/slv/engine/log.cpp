@@ -53,7 +53,7 @@ std::string current_time_str() {
 }
 
 void print_info(
-	fmt::color* const& level_color,
+	fmt::color* level_color,
 	std::string_view level_name,
 	std::source_location const& location
 ) {

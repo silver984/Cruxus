@@ -1,4 +1,5 @@
 #include <slv/engine/game/managers/WindowManager.hpp>
+#include <slv/engine/game/managers/AudioManager.hpp>
 #include <fmt/format.h>
 #include <slv/engine/log.hpp>
 #include <slv/internal/raylib.hpp>
@@ -181,11 +182,7 @@ void WindowManager::end_draw() const {
 	}
 
 #if defined(SLV_DEBUG) || defined(SLV_RELWITHDEBINFO)
-	std::string debug_text = fmt::format(
-		"FPS: {} / {:.0f}MS",
-		running_fps(),
-		delta_time() * 1000.f
-	);
+	std::string debug_text = fmt::format("FPS: {}", running_fps());
 
 	if (memory_usage_ != 0.f) {
 		debug_text += fmt::format(
@@ -291,11 +288,17 @@ size<int> WindowManager::monitor_size() const {
 }
 
 float WindowManager::delta_time() const {
-	if (is_initialized_) {
-		return GetFrameTime();
+	if (!is_initialized_) {
+		return 0.f;
 	}
 
-	return 0.f;
+	float dt = GetFrameTime();
+	float dt_spike = 0.25f;
+	if (dt > dt_spike) {
+		return 0.f;
+	}
+
+	return dt;
 }
 
 vec2<float> WindowManager::mouse_pos() const {
@@ -390,6 +393,14 @@ bool WindowManager::is_resizable() const {
 bool WindowManager::is_borderless() const {
 	if (is_initialized_) {
 		return IsWindowState(FLAG_WINDOW_UNDECORATED);
+	}
+
+	return false;
+}
+
+bool WindowManager::is_minimized() const {
+	if (is_initialized_) {
+		return IsWindowMinimized();
 	}
 
 	return false;

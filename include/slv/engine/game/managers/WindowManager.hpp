@@ -2,9 +2,9 @@
 #include <slv/internal/config.hpp>
 #include <slv/types/primitives.hpp>
 #include <slv/types/context.hpp>
+#include <slv/types/pointers.hpp>
 #include <string>
 #include <string_view>
-#include <vector>
 
 namespace slv {
 
@@ -17,9 +17,9 @@ enum window_settings : int {
     TRANSPARENT = 1 << 4
 };
 
-class App; // forward declare
+class Game; // forward declare
 class SLV_DLL WindowManager final {
-    friend class App;
+    friend class Game;
 
 private:
     WindowManager();
@@ -52,6 +52,7 @@ public:
     [[nodiscard]] bool is_transparent() const;
     [[nodiscard]] bool is_resizable() const;
     [[nodiscard]] bool is_borderless() const;
+    [[nodiscard]] bool is_minimized() const;
     [[nodiscard]] bool has_vsync() const;
     [[nodiscard]] bool was_resized() const;
     [[nodiscard]] int running_fps() const;
@@ -76,12 +77,12 @@ private:
     void end_draw() const;
     void configure_settings(window_settings settings);
 
+    std::string title_;
     vec2<int> pos_;
     size<int> default_screen_size_;
     size<int> draw_size_;
     size<int> last_draw_size_;
     size<int> unmaximized_size_;
-    std::string title_;
     int target_fps_;
     int running_fps_;
     int frame_count_;

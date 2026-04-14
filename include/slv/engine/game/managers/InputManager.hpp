@@ -6,9 +6,9 @@
 
 namespace slv {
 
-class App; // forward declare
+class Game; // forward declare
 class SLV_DLL InputManager final {
-	friend class App;
+	friend class Game;
 
 private:
 	InputManager();

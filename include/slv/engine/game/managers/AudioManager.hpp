@@ -7,9 +7,10 @@
 
 namespace slv {
 
-class App; // forward declare
+class Game; // forward declare
+class WindowManager; // forward declare
 class SLV_DLL AudioManager final {
-	friend class App;
+	friend class Game;
 
 private:
 	AudioManager();
@@ -21,11 +22,14 @@ public:
 	AudioManager& operator=(AudioManager const&) = delete;
 	AudioManager& operator=(AudioManager&&) = delete;
 
-	bool push_pcm_data(sptr<pcm_data> const& pcm) const;
+	void push_pcm_data(sptr<pcm_data> pcm) const;
 
 private:
-	bool init();
+	bool init(WindowManager* window);
 	void uninit() const;
+
+	struct impl;
+	uptr<impl> impl_;
 };
 
 }

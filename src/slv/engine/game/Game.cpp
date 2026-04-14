@@ -1,15 +1,17 @@
-#include <slv/engine/game/App.hpp>
+#include <slv/engine/game/Game.hpp>
 #include <slv/engine/log.hpp>
+#include <fmt/format.h>
 
 namespace slv {
 
-App::App() :
-	is_initialized_(false)
+Game::Game() :
+	is_initialized_(false),
+	is_window_minimized_(false)
 {}
 
-App::~App() = default;
+Game::~Game() = default;
 
-bool App::init(
+bool Game::init(
 	std::string_view win_title,
 	size<int> const& win_size,
 	int win_fps,
@@ -32,7 +34,9 @@ bool App::init(
 		return false;
 	}
 
-	audio_.init();
+	if (!audio_.init(&window_)) {
+		log::warning("Failed to initialize audio");
+	}
 
 	if (!crash_.init()) {
 		log::warning("Failed to initialize the crash manager, it may be unsupported on this platform");
@@ -43,7 +47,7 @@ bool App::init(
 	return true;
 }
 
-void App::run() {
+void Game::run() {
 	if (!is_initialized_) {
 		return;
 	}
@@ -52,7 +56,6 @@ void App::run() {
 
 	while (window_.is_open()) {
 		// update
-
 		float dt = window_.delta_time();
 		window_.update(ctx, dt);
 		input_.update(dt);
@@ -60,7 +63,6 @@ void App::run() {
 		scene_.update(ctx, dt);
 
 		// draw
-
 		window_.start_draw();
 		scene_.draw(ctx);
 		window_.end_draw();
@@ -72,7 +74,7 @@ void App::run() {
 	window_.uninit();
 }
 
-context App::get_ctx() {
+context Game::get_ctx() {
 	return context(
 		&window_,
 		&scene_,

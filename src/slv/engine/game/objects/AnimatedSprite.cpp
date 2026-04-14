@@ -156,15 +156,15 @@ void AnimatedSprite::update(context const& ctx, float dt) {
 	const auto& cur_frame = (*cur_frames_)[cur_frame_index_];
 
 	source_rect_ = rect<float>(
-		cur_frame.pos_on_sheet.x,
-		cur_frame.pos_on_sheet.y,
-		cur_frame.size_on_sheet.width,
-		cur_frame.size_on_sheet.height
+		static_cast<float>(cur_frame.pos_on_sheet.x),
+		static_cast<float>(cur_frame.pos_on_sheet.y),
+		static_cast<float>(cur_frame.size_on_sheet.width),
+		static_cast<float>(cur_frame.size_on_sheet.height)
 	);
 
 	auto frame_offsets = vec2<float>(
-		cur_frame.offsets.x,
-		cur_frame.offsets.y
+		static_cast<float>(cur_frame.offsets.x),
+		static_cast<float>(cur_frame.offsets.y)
 	);
 
 	cur_offsets_ = offsets_.at(cur_anim_) - frame_offsets;
