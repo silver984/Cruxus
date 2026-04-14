@@ -12,7 +12,7 @@ set(slv_platform)
 set(slv_compound_src ${slv_src} ${miniaudio_src})
 set(slv_audio_channels 2 CACHE STRING "Number of audio channels")
 set_property(CACHE slv_audio_channels PROPERTY STRINGS 1 2)
-set(slv_audio_sample_rate 48000 CACHE STRING "Audio sample rate")
+set(slv_audio_sample_rate 48000 CACHE STRING "Sound sample rate")
 
 if (WIN32)
     set(slv_platform windows)

@@ -3,7 +3,6 @@
 #include <slv/engine/log.hpp>
 #include <fmt/format.h>
 #include <miniaudio/miniaudio.h>
-#include <vector>
 #include <mutex>
 #include <atomic>
 #include <algorithm>
@@ -12,20 +11,32 @@
 
 namespace slv {
 
+struct audio_hnd final {
+    explicit audio_hnd(sptr<std::vector<float>>& pcm_val, float volume_val) :
+        pcm(pcm_val),
+        volume(volume_val),
+        cursor(0)
+    {}
+
+    sptr<std::vector<float>> pcm;
+    float volume;
+    uint32_t cursor;
+};
+
 struct audio_user_data final {
     audio_user_data() :
         device(),
         is_initialized(false),
-        window_ptr(nullptr) {
-        handles.reserve(64);
-        pending_handles.reserve(64);
-    }
+        global_volume(1.f),
+        window_ptr(nullptr)
+    {}
 
     ma_device device;
     std::vector<audio_hnd> handles;
     std::vector<audio_hnd> pending_handles;
     std::mutex pending_mutex;
     std::atomic<bool> is_initialized;
+    float global_volume;
     WindowManager* window_ptr;
 };
 
@@ -81,7 +92,7 @@ struct AudioManager::impl final {
 
         user_data.is_initialized.store(true);
 
-        log::info("Audio initialized");
+        log::info("Sound initialized");
 
         return true;
     }
@@ -91,7 +102,7 @@ struct AudioManager::impl final {
             return;
         }
 
-        log::info("Audio exiting...");
+        log::info("Sound exiting...");
 
         ma_device_stop(&user_data.device);
         
@@ -107,18 +118,17 @@ struct AudioManager::impl final {
         user_data.is_initialized.store(false);
     }
 
-    void push_pcm_data(sptr<pcm_data> pcm) {
+    void push_audio(sptr<std::vector<float>> pcm, float volume) {
         if (
-            !user_data.is_initialized.load() ||
-            // validate pcm
-            !pcm || pcm->empty() ||
-            (pcm->size() % SLV_AUDIO_CHANNELS) != 0
+           !user_data.is_initialized.load() ||
+           !pcm || pcm->empty() ||
+           (pcm->size() % SLV_AUDIO_CHANNELS) != 0
         ) {
             return;
         }
 
         std::lock_guard<std::mutex> lock(user_data.pending_mutex);
-        user_data.pending_handles.emplace_back(pcm, 0);
+        user_data.pending_handles.emplace_back(audio_hnd(pcm, volume));
     }
 
     static void update(ma_device* device, void* output, void const*, ma_uint32 frame_count) {
@@ -138,7 +148,7 @@ struct AudioManager::impl final {
             return;
         }
 
-        // move pending to local buffer
+        // move pending
         std::vector<audio_hnd> local_pending;
         {
             std::lock_guard<std::mutex> lock(udata->pending_mutex);
@@ -147,7 +157,6 @@ struct AudioManager::impl final {
             }
         }
 
-        // append outside lock
         if (!local_pending.empty()) {
             udata->handles.insert(
                 udata->handles.end(),
@@ -156,7 +165,7 @@ struct AudioManager::impl final {
             );
         }
 
-        // mix handles/sounds
+        // mix handles
         size_t active_count = 0;
         for (auto it = udata->handles.begin(); it != udata->handles.end();) {
             auto& handle = *it;
@@ -168,7 +177,6 @@ struct AudioManager::impl final {
 
             const auto& pcm = *handle.pcm;
 
-            // ensure valid layout
             if (pcm.size() % channels != 0) {
                 it = udata->handles.erase(it);
                 continue;
@@ -188,7 +196,8 @@ struct AudioManager::impl final {
                 for (uint32_t ch = 0; ch < channels; ++ch) {
                     const size_t src = (handle.cursor + frame) * channels + ch;
                     const size_t dst = frame * channels + ch;
-                    out[dst] += pcm[src];
+                    const float gain = udata->global_volume * handle.volume;
+                    out[dst] += pcm[src] * gain;
                 }
             }
 
@@ -199,14 +208,6 @@ struct AudioManager::impl final {
                 it = udata->handles.erase(it);
             } else {
                 ++it;
-            }
-        }
-
-        // normalize (prevent heavy clipping)
-        if (active_count > 1) {
-            const float inv = 1.f / static_cast<float>(active_count);
-            for (size_t i = 0; i < sample_count; ++i) {
-                out[i] *= inv;
             }
         }
 
@@ -227,8 +228,8 @@ AudioManager::AudioManager() :
 // private
 AudioManager::~AudioManager() = default;
 
-void AudioManager::push_pcm_data(sptr<pcm_data> pcm) const {
-    impl_->push_pcm_data(pcm);
+void AudioManager::push_audio(sptr<std::vector<float>> pcm, float volume) const {
+    impl_->push_audio(pcm, volume);
 }
 
 // private

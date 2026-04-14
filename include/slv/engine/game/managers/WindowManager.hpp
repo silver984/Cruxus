@@ -37,7 +37,7 @@ public:
     [[nodiscard]] vec2<float> mouse_pos() const;
     [[nodiscard]] vec2<float> mouse_delta() const;
     [[nodiscard]] float delta_time() const;
-    [[nodiscard]]  float ui_scale() const;
+    [[nodiscard]] float ui_scale() const;
     void set_size(size<int> const& size, bool set_as_default = true);
     void set_width(int width, bool set_as_default = true);
     void set_height(int height, bool set_as_default = true);

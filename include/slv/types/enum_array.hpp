@@ -9,6 +9,11 @@ template <typename T, typename enum_t, enum_t N>
 requires std::is_enum_v<enum_t>
 class enum_array {
 public:
+	constexpr enum_array() = default;
+	constexpr explicit enum_array(std::array<T, static_cast<size_t>(N)> init)
+		: data_(std::move(init))
+	{}
+
 	T& operator[](enum_t e) {
 		return data_[static_cast<size_t>(e)];
 	}

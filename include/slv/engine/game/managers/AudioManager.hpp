@@ -1,6 +1,5 @@
 #pragma once
 #include <slv/internal/config.hpp>
-#include <slv/types/audio.hpp>
 #include <slv/types/pointers.hpp>
 #include <string>
 #include <vector>
@@ -22,7 +21,7 @@ public:
 	AudioManager& operator=(AudioManager const&) = delete;
 	AudioManager& operator=(AudioManager&&) = delete;
 
-	void push_pcm_data(sptr<pcm_data> pcm) const;
+	void push_audio(sptr<std::vector<float>> pcm, float volume) const;
 
 private:
 	bool init(WindowManager* window);

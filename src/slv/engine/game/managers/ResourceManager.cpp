@@ -33,15 +33,13 @@ ResourceManager::parsed_path ResourceManager::parsed_path::parse(std::string_vie
 
 // private
 ResourceManager::ResourceManager() :
-    since_cleanup_(0.f) {
-    using enum format_type;
-    supported_formats_[IMAGE].emplace_back("png");
-    supported_formats_[IMAGE].emplace_back("jpg");
-    supported_formats_[IMAGE].emplace_back("jpeg");
-    supported_formats_[AUDIO].emplace_back("mp3");
-    supported_formats_[AUDIO].emplace_back("wav");
-    supported_formats_[DATA].emplace_back("xml");
-}
+    since_cleanup_(0.f),
+    supported_formats_({
+            std::vector<std::string>{ "png", "jpg", "jpeg" }, // image
+            std::vector<std::string>{ "mp3", "wav" }, // audio
+            std::vector<std::string>{ "xml" } // data
+        })
+{}
 
 // private
 ResourceManager::~ResourceManager() = default;
@@ -207,7 +205,7 @@ sptr<atlas_data> ResourceManager::load_atlas_data(std::string_view path) {
     return it->second;
 }
 
-sptr<pcm_data> ResourceManager::load_pcm_data(std::string_view path) {
+sptr<std::vector<float>> ResourceManager::load_pcm_data(std::string_view path) {
     auto parsed = parsed_path::parse(path);
     const auto& abs_path = parsed.stitched;
 
@@ -245,7 +243,7 @@ sptr<pcm_data> ResourceManager::load_pcm_data(std::string_view path) {
 
     ma_uint64 total_frames = 0;
     ma_decoder_get_length_in_pcm_frames(&decoder, &total_frames);
-    auto pcm = shared<pcm_data>();
+    auto pcm = shared<std::vector<float>>();
     pcm->resize(static_cast<size_t>(total_frames * SLV_AUDIO_CHANNELS));
 
     ma_uint64 total_read = 0;

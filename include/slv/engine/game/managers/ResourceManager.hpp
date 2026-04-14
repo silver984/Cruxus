@@ -13,6 +13,7 @@
 namespace slv {
 
 class Game; // forward declare
+class Sound; // forward declare
 class SLV_DLL ResourceManager final {
 	friend class Game;
 
@@ -43,7 +44,7 @@ public:
 
 	[[nodiscard]] sptr<texture> load_texture(std::string_view file);
 	[[nodiscard]] sptr<atlas_data> load_atlas_data(std::string_view file);
-	[[nodiscard]] sptr<pcm_data> load_pcm_data(std::string_view file);
+	[[nodiscard]] sptr<std::vector<float>> load_pcm_data(std::string_view file);
 
 private:
 	void update(float dt);
@@ -62,7 +63,7 @@ private:
 	enum_array<std::vector<std::string>, format_type, format_type::count> supported_formats_;
 	string_map<sptr<texture>> cached_textures_;
 	string_map<sptr<atlas_data>> cached_atlas_datas_;
-	string_map<sptr<pcm_data>> cached_pcm_datas_;
+	string_map<sptr<std::vector<float>>> cached_pcm_datas_;
 	float since_cleanup_;
 };
 }
