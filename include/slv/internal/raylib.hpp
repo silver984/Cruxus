@@ -4,12 +4,12 @@
 
 namespace slv::raylib {
 
-bool init_window(size<int> const& dimensions, int fps, char const* title);
-void set_window_size(size<int> const& dimensions);
+bool init_window(size<int> const& bounds, int fps, char const* title);
+void set_window_size(size<int> const& bounds);
 
 void draw_rectangle(
 	mat3 const& matrix,
-	size<float> const& size,
+	size<float> const& bounds,
 	rgb const& color,
 	float alpha
 );
@@ -17,7 +17,7 @@ void draw_rectangle(
 void draw_rectangle_lines(
 	mat3 const& matrix,
 	vec2<float> const& offset,
-	size<float> const& size,
+	size<float> const& bounds,
 	rgb const& color,
 	float alpha,
 	float thickness

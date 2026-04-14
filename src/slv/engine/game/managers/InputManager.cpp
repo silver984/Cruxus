@@ -4,10 +4,12 @@
 
 namespace slv {
 
+// private
 InputManager::InputManager() :
 	cur_key_pressed_(key::NULL_KEY)
 {}
 
+// private
 InputManager::~InputManager() = default;
 
 bool InputManager::is_key_down(key key_val) const {

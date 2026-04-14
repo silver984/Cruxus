@@ -3,8 +3,8 @@
 
 namespace slv {
 
-Rectangle::Rectangle(size<float> const& size, rgb const& color_val) {
-	content_size_ = size;
+Rectangle::Rectangle(size<float> const& bounds, rgb const& color_val) {
+	bounds_ = bounds;
 	color = color_val;
 }
 
@@ -16,15 +16,15 @@ std::string_view Rectangle::type() const {
 }
 
 void Rectangle::set_content_size(size<float> const& val) {
-	content_size_ = val;
+	bounds_ = val;
 }
 
 void Rectangle::set_width(float width) {
-	content_size_.width = width;
+	bounds_.width = width;
 }
 
 void Rectangle::set_height(float height) {
-	content_size_.height = height;
+	bounds_.height = height;
 }
 
 // protected
@@ -35,7 +35,7 @@ bool Rectangle::init(context const& ctx) {
 
 // protected
 void Rectangle::draw(context const& ctx) const {
-	raylib::draw_rectangle(world_transform(), content_size_, color, world_alpha());
+	raylib::draw_rectangle(world_transform(), bounds_, color, world_alpha());
 }
 
 }

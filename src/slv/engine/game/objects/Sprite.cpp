@@ -36,15 +36,15 @@ bool Sprite::init(context const& ctx) {
 		return false;
 	}
 
-	content_size_ = size<float>(
-		static_cast<float>(texture_->resolution.width),
-		static_cast<float>(texture_->resolution.height)
+	bounds_ = size<float>(
+		static_cast<float>(texture_->bounds.width),
+		static_cast<float>(texture_->bounds.height)
 	);
 
 	source_rect_ = rect<float>(
 		0.f, 0.f,
-		content_size_.width,
-		content_size_.height
+		bounds_.width,
+		bounds_.height
 	);
 
 	set_antialiasing(true);
@@ -57,8 +57,8 @@ bool Sprite::init(context const& ctx) {
 void Sprite::draw(context const& ctx) const {
 	if (
 		texture_ &&
-		source_rect_.dimensions.width > 0.f &&
-		source_rect_.dimensions.height > 0.f
+		source_rect_.bounds.width > 0.f &&
+		source_rect_.bounds.height > 0.f
 	) {
 		raylib::draw_texture(
 			*texture_,

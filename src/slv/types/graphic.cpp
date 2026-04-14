@@ -19,12 +19,12 @@ texture::texture() :
 
 texture::texture(
 	uint32_t id_val,
-	size<int> resolution_val,
+	size<int> bounds_val,
 	int mipmaps_val,
 	int format_val
 ) :
 	id(id_val),
-	resolution(resolution_val),
+	bounds(bounds_val),
 	mipmaps(mipmaps_val),
 	format(format_val)
 {}

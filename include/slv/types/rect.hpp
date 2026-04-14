@@ -10,15 +10,15 @@ struct rect final {
 	constexpr rect() = default;
 	constexpr explicit rect(vec2<T> pos_val, size<T> dimensions_val) :
 		pos(pos_val),
-		dimensions(dimensions_val)
+		bounds(dimensions_val)
 	{}
 	constexpr explicit rect(T x, T y, T width, T height) :
 		pos(x, y),
-		dimensions(width, height)
+		bounds(width, height)
 	{}
 
 	vec2<T> pos;
-	size<T> dimensions;
+	size<T> bounds;
 };
 
 }

@@ -17,13 +17,13 @@ Vessel::Vessel() :
 	time_scale(1.f),
 	is_visible(true),
 	is_active(true),
-	content_size_(0.f, 0.f),
+	bounds_(0.f, 0.f),
 	local_transform_(mat3::identity()),
 	world_transform_(mat3::identity()),
 	world_alpha_(1.f),
 	last_rotation_(-1.f),
 	last_alpha_(-1.f),
-	last_content_size_(-1.f, -1.f),
+	last_bounds_(-1.f, -1.f),
 	last_pos_(-1.f, -1.f),
 	last_anchor_(-1.f, -1.f),
 	last_scale_(-1.f, -1.f),
@@ -146,8 +146,8 @@ vec2<float> Vessel::world_scale() const {
 
 size<float> Vessel::world_size() const {
 	return size<float>(
-		content_size_.width * world_scale().x,
-		content_size_.height * world_scale().y
+		bounds_.width * world_scale().x,
+		bounds_.height * world_scale().y
 	);
 }
 
@@ -155,8 +155,8 @@ float Vessel::world_alpha() const {
 	return world_alpha_;
 }
 
-size<float> Vessel::content_size() const {
-	return content_size_;
+size<float> Vessel::bounds() const {
+	return bounds_;
 }
 
 wptr<Vessel> Vessel::parent() const {
@@ -222,7 +222,7 @@ void Vessel::base_update(context const& ctx, float dt) {
 		last_anchor_ != anchor ||
 		last_rotation_ != rotation ||
 		last_scale_ != scale ||
-		last_content_size_ != content_size_ ||
+		last_bounds_ != bounds_ ||
 		last_skew_ != skew
 	) {
 		last_pos_ = pos;
@@ -230,15 +230,15 @@ void Vessel::base_update(context const& ctx, float dt) {
 		last_anchor_ = anchor;
 		last_rotation_ = rotation;
 		last_scale_ = scale;
-		last_content_size_ = content_size_;
+		last_bounds_ = bounds_;
 		last_skew_ = skew;
 		mark_dirty();
 	}
 
 	if (is_dirty_) {
 		auto anchor_offset = vec2<float>(
-			anchor.x * content_size_.width,
-			anchor.y * content_size_.height
+			anchor.x * bounds_.width,
+			anchor.y * bounds_.height
 		);
 		
 		auto skew_rad = vec2<float>(

@@ -10,7 +10,7 @@ namespace slv {
 
 class SLV_DLL Rectangle : public Vessel {
 public:
-	Rectangle(size<float> const& size, rgb const& color_val);
+	Rectangle(size<float> const& bounds, rgb const& color_val);
 	~Rectangle() override;
 
 	[[nodiscard]] std::string_view type() const override;

@@ -32,12 +32,12 @@ struct texture final {
     texture();
     explicit texture(
         uint32_t id_val,
-        size<int> resolution_val,
+        size<int> bounds_val,
         int mipmaps_val,
         int format_val
     );
     uint32_t id;
-    size<int> resolution;
+    size<int> bounds;
     int mipmaps;
     int format;
 };

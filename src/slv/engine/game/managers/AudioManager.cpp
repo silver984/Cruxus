@@ -219,10 +219,12 @@ struct AudioManager::impl final {
     audio_user_data user_data;
 };
 
+// private
 AudioManager::AudioManager() :
     impl_(unique<impl>())
 {}
 
+// private
 AudioManager::~AudioManager() = default;
 
 void AudioManager::push_pcm_data(sptr<pcm_data> pcm) const {

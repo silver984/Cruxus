@@ -34,8 +34,8 @@ Color rl_color(slv::rgb const& color, float alpha) {
 Texture rl_texture(slv::texture const& texture) {
 	return {
 		texture.id,
-		texture.resolution.width,
-		texture.resolution.height,
+		texture.bounds.width,
+		texture.bounds.height,
 		texture.mipmaps,
 		texture.format
 	};
@@ -69,8 +69,8 @@ void rl_push_mult_matrix(slv::mat3 const& matrix) {
 
 namespace slv::raylib {
 
-bool init_window(size<int> const& dimensions, int fps, char const* title) {
-	InitWindow(dimensions.width, dimensions.height, title);
+bool init_window(size<int> const& bounds, int fps, char const* title) {
+	InitWindow(bounds.width, bounds.height, title);
 
 	if (!IsWindowReady() || !GetWindowHandle()) {
 		return false;
@@ -78,27 +78,27 @@ bool init_window(size<int> const& dimensions, int fps, char const* title) {
 
 	int monitor = GetCurrentMonitor();
 	SetWindowPosition(
-		(GetMonitorWidth(monitor) / 2) - (dimensions.width / 2),
-		(GetMonitorHeight(monitor) / 2) - (dimensions.height / 2)
+		(GetMonitorWidth(monitor) / 2) - (bounds.width / 2),
+		(GetMonitorHeight(monitor) / 2) - (bounds.height / 2)
 	);
-	set_window_size(dimensions);
+	set_window_size(bounds);
 	SetTargetFPS(fps);
 	SetExitKey(KEY_NULL);
 	return true;
 }
 
-void set_window_size(size<int> const& dimensions) {
+void set_window_size(size<int> const& bounds) {
 	GLFWwindow* glfw_window = glfwGetCurrentContext();
 
 	if (!glfw_window) {
 		return;
 	}
 
-	SetWindowSize(dimensions.width, dimensions.height);
+	SetWindowSize(bounds.width, bounds.height);
 
-	int gcd = std::gcd(dimensions.width, dimensions.height);
-	int aspect_w = dimensions.width / gcd;
-	int aspect_h = dimensions.height / gcd;
+	int gcd = std::gcd(bounds.width, bounds.height);
+	int aspect_w = bounds.width / gcd;
+	int aspect_h = bounds.height / gcd;
 
 	if (aspect_w <= 0) {
 		aspect_w = 1;
@@ -160,12 +160,12 @@ void draw_texture(
 	
 	DrawTexturePro(
 		rl_texture(texture),
-		rl_rect(source.pos, source.dimensions),
+		rl_rect(source.pos, source.bounds),
 		Rectangle(
 			offsets.x,
 			offsets.y,
-			source.dimensions.width,
-			source.dimensions.height
+			source.bounds.width,
+			source.bounds.height
 		),
 		Vector2(0.f, 0.f),
 		0.f,

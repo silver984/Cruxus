@@ -42,7 +42,7 @@ public:
 	[[nodiscard]] vec2<float> world_scale() const;
 	[[nodiscard]] size<float> world_size() const;
 	[[nodiscard]] float world_alpha() const;
-	[[nodiscard]] size<float> content_size() const;
+	[[nodiscard]] size<float> bounds() const;
 	[[nodiscard]] wptr<Vessel> parent() const;
 	void set_name(std::string_view name);
 	[[nodiscard]] std::string_view name() const;
@@ -65,7 +65,7 @@ protected:
 	virtual void draw(context const& ctx) const;
 	mat3 world_transform() const;
 
-	size<float> content_size_;
+	size<float> bounds_;
 
 private:
 	bool base_init(context const& ctx);
@@ -82,7 +82,7 @@ private:
 	float world_alpha_;
 	float last_rotation_;
 	float last_alpha_;
-	size<float> last_content_size_;
+	size<float> last_bounds_;
 	vec2<float> last_pos_;
 	vec2<float> last_anchor_;
 	vec2<float> last_scale_;

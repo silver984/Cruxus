@@ -120,7 +120,7 @@ bool AnimatedSprite::init(context const& ctx) {
 		return false;
 	}
 
-	content_size_ = avg_frame_size(atlas_data_);
+	bounds_ = avg_frame_size(atlas_data_);
 
 	for (const auto& [name, _] : atlas_data_->frames) {
 		offsets_.emplace(name, vec2<float>(0.f, 0.f));
@@ -174,8 +174,8 @@ void AnimatedSprite::update(context const& ctx, float dt) {
 void AnimatedSprite::draw(context const& ctx) const {
 	if (
 		texture_ &&
-		source_rect_.dimensions.width > 0.f &&
-		source_rect_.dimensions.height > 0.f
+		source_rect_.bounds.width > 0.f &&
+		source_rect_.bounds.height > 0.f
 	) {
 		raylib::draw_texture(
 			*texture_,
