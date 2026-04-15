@@ -20,6 +20,7 @@ struct audio_hnd final {
 
     sptr<std::vector<float>> pcm;
     float volume;
+    float pitch;
     uint32_t cursor;
 };
 

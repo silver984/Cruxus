@@ -17,10 +17,11 @@ public:
 
 	static Sound create(context const& ctx, std::string_view file_path);
 	void play(context const& ctx) const;
-
-	float volume;
+	void set_volume(float val);
+	[[nodiscard]] float volume() const;
 
 private:
+	float volume_;
 	sptr<std::vector<float>> pcm_;
 };
 

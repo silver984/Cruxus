@@ -1,0 +1,10 @@
+{
+  "name": "slv",
+  "version-string": "1.0.0",
+  "dependencies": [
+    "fmt",
+    "raylib",
+    "tinyxml2",
+    "glfw3"
+  ]
+}

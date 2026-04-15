@@ -1,17 +1,18 @@
 #include <slv/engine/game/objects/abstract/Sound.hpp>
 #include <slv/engine/game/managers/ResourceManager.hpp>
 #include <slv/engine/game/managers/AudioManager.hpp>
+#include <algorithm>
 
 namespace slv {
 
 // private
 Sound::Sound(sptr<std::vector<float>> pcm) :
-	volume(1.f),
+	volume_(1.f),
 	pcm_(pcm)
 {}
 
 Sound::Sound() :
-	volume(1.f),
+	volume_(1.f),
 	pcm_(nullptr)
 {}
 
@@ -29,8 +30,16 @@ Sound Sound::create(context const& ctx, std::string_view file_path) {
 
 void Sound::play(context const& ctx) const {
 	if (auto& audio = ctx.audio) {
-		audio->push_audio(pcm_, volume);
+		audio->push_audio(pcm_, volume_);
 	}
+}
+
+void Sound::set_volume(float val) {
+	volume_ = std::clamp(val, 0.f, 2.f);
+}
+
+float Sound::volume() const {
+	return volume_;
 }
 
 }

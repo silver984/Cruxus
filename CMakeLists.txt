@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 4.3.1)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -26,7 +26,21 @@ if (slv_platform)
     list(APPEND slv_compound_src ${slv_platform_src})
 endif()
 
+find_package(raylib CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
+find_package(tinyxml2 CONFIG REQUIRED)
+
 add_library(slv SHARED)
+
+target_link_libraries(slv
+    PRIVATE
+        raylib
+        glfw
+    PUBLIC
+        fmt::fmt
+        tinyxml2::tinyxml2
+)
 
 target_sources(slv
     PRIVATE
@@ -38,7 +52,6 @@ target_include_directories(slv
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-
 target_compile_definitions(slv
     PRIVATE
         SLV_EXPORTS
@@ -48,9 +61,6 @@ target_compile_definitions(slv
         $<$<CONFIG:Debug>:SLV_DEBUG>
         $<$<CONFIG:RelWithDebInfo>:SLV_RELWITHDEBINFO>
 )
-
-include(cmake/dependencies.cmake)
-slv_fetch_dependencies(slv)
 
 # expose functions from `slv_project.cmake` to projects that
 # add SLV as a subdir
