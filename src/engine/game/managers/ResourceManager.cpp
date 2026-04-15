@@ -1,6 +1,6 @@
 #include <slv/engine/game/managers/ResourceManager.hpp>
 #include <slv/engine/log.hpp>
-#include <miniaudio/miniaudio.h>
+#include <miniaudio.h>
 #include <fmt/format.h>
 #include <tinyxml2.h>
 #include <raylib.h>

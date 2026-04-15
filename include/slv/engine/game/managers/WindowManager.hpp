@@ -1,5 +1,5 @@
 #pragma once
-#include <slv/internal/config.hpp>
+#include <slv/config.hpp>
 #include <slv/types/primitives.hpp>
 #include <slv/types/context.hpp>
 #include <slv/types/pointers.hpp>

@@ -1,6 +1,6 @@
 #include <slv/engine/game/objects/Sprite.hpp>
 #include <slv/engine/game/managers/ResourceManager.hpp>
-#include <slv/internal/raylib.hpp>
+#include "raylib.hpp"
 
 namespace slv {
 

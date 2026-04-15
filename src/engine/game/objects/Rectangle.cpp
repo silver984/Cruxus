@@ -1,5 +1,5 @@
 #include <slv/engine/game/objects/rectangle.hpp>
-#include <slv/internal/raylib.hpp>
+#include "raylib.hpp"
 
 namespace slv {
 

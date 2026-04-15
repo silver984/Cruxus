@@ -1,5 +1,5 @@
 #pragma once
-#include <slv/internal/config.hpp>
+#include <slv/config.hpp>
 #include <slv/engine/game/objects/Vessel.hpp>
 #include <slv/types/size.hpp>
 #include <slv/types/rgb.hpp>

@@ -1,5 +1,5 @@
 #pragma once
-#include <slv/internal/config.hpp>
+#include <slv/config.hpp>
 #include <slv/types/numeric.hpp>
 #include <cstdint>
 #include <algorithm>

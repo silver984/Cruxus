@@ -5,6 +5,7 @@
     "fmt",
     "raylib",
     "tinyxml2",
-    "glfw3"
+    "glfw3",
+    "nlohmann-json"
   ]
 }

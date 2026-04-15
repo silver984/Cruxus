@@ -1,6 +1,6 @@
 #include <slv/engine/game/objects/AnimatedSprite.hpp>
 #include <slv/engine/game/managers/ResourceManager.hpp>
-#include <slv/internal/raylib.hpp>
+#include "raylib.hpp"
 #include <slv/engine/log.hpp>
 #include <fmt/format.h>
 #include <algorithm>

@@ -1,5 +1,5 @@
 #pragma once
-#include <slv/internal/config.hpp>
+#include <slv/config.hpp>
 #include <slv/types/pointers.hpp>
 #include <slv/types/string_map.hpp>
 #include <slv/types/enum_array.hpp>

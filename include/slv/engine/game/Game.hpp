@@ -1,5 +1,5 @@
 #pragma once
-#include <slv/internal/config.hpp>
+#include <slv/config.hpp>
 #include <slv/engine/game/managers/all.hpp>
 #include <slv/types/context.hpp>
 #include <slv/types/size.hpp>

@@ -2,7 +2,7 @@
 #include <slv/engine/game/managers/WindowManager.hpp>
 #include <slv/engine/log.hpp>
 #include <fmt/format.h>
-#include <miniaudio/miniaudio.h>
+#include <miniaudio.h>
 #include <mutex>
 #include <atomic>
 #include <algorithm>
@@ -15,6 +15,7 @@ struct audio_hnd final {
     explicit audio_hnd(sptr<std::vector<float>>& pcm_val, float volume_val) :
         pcm(pcm_val),
         volume(volume_val),
+        pitch(1.f),
         cursor(0)
     {}
 

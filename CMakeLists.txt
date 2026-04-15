@@ -6,10 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(slv VERSION 1.0.0 LANGUAGES CXX)
 
 file(GLOB_RECURSE slv_src CONFIGURE_DEPENDS src/slv/*.cpp)
-file(GLOB miniaudio_src CONFIGURE_DEPENDS src/miniaudio/miniaudio.cpp)
 
 set(slv_platform)
-set(slv_compound_src ${slv_src} ${miniaudio_src})
 set(slv_audio_channels 2 CACHE STRING "Number of audio channels")
 set_property(CACHE slv_audio_channels PROPERTY STRINGS 1 2)
 set(slv_audio_sample_rate 48000 CACHE STRING "Sound sample rate")
@@ -19,17 +17,15 @@ if (WIN32)
 endif() # other platforms not supported yet
 
 if (slv_platform)
-    file(GLOB_RECURSE slv_platform_src CONFIGURE_DEPENDS
-        src/platforms/${slv_platform}.cpp
-    )
-
-    list(APPEND slv_compound_src ${slv_platform_src})
+    file(GLOB slv_platform_src CONFIGURE_DEPENDS src/internal/platforms/${slv_platform}.cpp)
+    list(APPEND slv_src ${slv_platform_src})
 endif()
 
 find_package(raylib CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(tinyxml2 CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 add_library(slv SHARED)
 
@@ -40,16 +36,19 @@ target_link_libraries(slv
     PUBLIC
         fmt::fmt
         tinyxml2::tinyxml2
+        nlohmann_json::nlohmann_json
 )
 
 target_sources(slv
     PRIVATE
-        ${slv_compound_src}
+        ${slv_src}
 )
 
 target_include_directories(slv
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/internal
 )
 
 target_compile_definitions(slv

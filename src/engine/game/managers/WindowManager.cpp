@@ -2,9 +2,9 @@
 #include <slv/engine/game/managers/AudioManager.hpp>
 #include <fmt/format.h>
 #include <slv/engine/log.hpp>
-#include <slv/internal/raylib.hpp>
+#include "raylib.hpp"
 #ifdef _WIN32
-#include <platforms/windows.hpp>
+#include "platforms/windows.hpp"
 #endif
 #include <raylib.h>
 #include <algorithm>

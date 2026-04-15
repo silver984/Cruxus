@@ -1,7 +1,7 @@
-#include <slv/internal/raylib.hpp>
+#include "raylib.hpp"
 #include <slv/engine/math.hpp>
 #ifdef _WIN32
-#include <platforms/windows.hpp>
+#include "platforms/windows.hpp"
 #endif
 #include <raylib.h>
 #include <rlgl.h>

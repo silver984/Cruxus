@@ -1,5 +1,5 @@
 #pragma once
-#include <slv/internal/config.hpp>
+#include <slv/config.hpp>
 #include <slv/types/size.hpp>
 #include <slv/types/vec2.hpp>
 #include <slv/types/string_map.hpp>
