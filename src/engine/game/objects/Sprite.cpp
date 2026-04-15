@@ -18,7 +18,7 @@ std::string_view Sprite::type() const {
 
 void Sprite::set_antialiasing(bool val) {
 	if (texture_) {
-		raylib::set_texture_antialiasing(*texture_, val);
+		rl::set_texture_antialiasing(*texture_, val);
 	}
 }
 

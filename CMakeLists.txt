@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(slv VERSION 1.0.0 LANGUAGES CXX)
 
-file(GLOB_RECURSE slv_src CONFIGURE_DEPENDS src/slv/*.cpp)
+file(GLOB_RECURSE slv_src CONFIGURE_DEPENDS src/*.cpp)
 
 set(slv_platform)
 set(slv_audio_channels 2 CACHE STRING "Number of audio channels")
