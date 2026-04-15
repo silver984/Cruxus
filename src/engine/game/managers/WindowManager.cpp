@@ -2,7 +2,7 @@
 #include <slv/engine/game/managers/AudioManager.hpp>
 #include <fmt/format.h>
 #include <slv/engine/log.hpp>
-#include "raylib.hpp"
+#include "rl.hpp"
 #ifdef _WIN32
 #include "platforms/windows.hpp"
 #endif
@@ -83,7 +83,7 @@ bool WindowManager::init(
 	default_screen_size_.height = std::max(1, size.height);
 	target_fps_ = std::max(1, fps);
 
-	if (!raylib::init_window(default_screen_size_, target_fps_, title_.c_str())) {
+	if (!rl::init_window(default_screen_size_, target_fps_, title_.c_str())) {
 		return false;
 	}
 

@@ -1,6 +1,6 @@
 #include <slv/engine/game/objects/Sprite.hpp>
 #include <slv/engine/game/managers/ResourceManager.hpp>
-#include "raylib.hpp"
+#include "rl.hpp"
 
 namespace slv {
 
@@ -60,7 +60,7 @@ void Sprite::draw(context const& ctx) const {
 		source_rect_.bounds.width > 0.f &&
 		source_rect_.bounds.height > 0.f
 	) {
-		raylib::draw_texture(
+		rl::draw_texture(
 			*texture_,
 			source_rect_,
 			vec2<float>(0.f, 0.f),

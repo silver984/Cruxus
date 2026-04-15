@@ -2,7 +2,7 @@
 #include <slv/types/primitives.hpp>
 #include <slv/types/graphic.hpp>
 
-namespace slv::raylib {
+namespace slv::rl {
 
 bool init_window(size<int> const& bounds, int fps, char const* title);
 void set_window_size(size<int> const& bounds);

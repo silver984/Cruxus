@@ -1,5 +1,5 @@
 #include <slv/engine/game/objects/rectangle.hpp>
-#include "raylib.hpp"
+#include "rl.hpp"
 
 namespace slv {
 
@@ -35,7 +35,7 @@ bool Rectangle::init(context const& ctx) {
 
 // protected
 void Rectangle::draw(context const& ctx) const {
-	raylib::draw_rectangle(world_transform(), bounds_, color, world_alpha());
+	rl::draw_rectangle(world_transform(), bounds_, color, world_alpha());
 }
 
 }

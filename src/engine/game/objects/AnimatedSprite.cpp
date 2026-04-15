@@ -1,6 +1,6 @@
 #include <slv/engine/game/objects/AnimatedSprite.hpp>
 #include <slv/engine/game/managers/ResourceManager.hpp>
-#include "raylib.hpp"
+#include "rl.hpp"
 #include <slv/engine/log.hpp>
 #include <fmt/format.h>
 #include <algorithm>
@@ -177,7 +177,7 @@ void AnimatedSprite::draw(context const& ctx) const {
 		source_rect_.bounds.width > 0.f &&
 		source_rect_.bounds.height > 0.f
 	) {
-		raylib::draw_texture(
+		rl::draw_texture(
 			*texture_,
 			source_rect_,
 			cur_offsets_,

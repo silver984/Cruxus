@@ -1,4 +1,4 @@
-#include "raylib.hpp"
+#include "rl.hpp"
 #include <slv/engine/math.hpp>
 #ifdef _WIN32
 #include "platforms/windows.hpp"
@@ -67,7 +67,7 @@ void rl_push_mult_matrix(slv::mat3 const& matrix) {
 
 }
 
-namespace slv::raylib {
+namespace slv::rl {
 
 bool init_window(size<int> const& bounds, int fps, char const* title) {
 	InitWindow(bounds.width, bounds.height, title);
