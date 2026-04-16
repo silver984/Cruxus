@@ -20,7 +20,7 @@ slv is a simple and lightweight 2D game engine.
 
 * Scene management
 * Sprites
-* Animated sprites using spritehseets with XML data
+* Animated sprites using spritesheets with XML data
 
 ### License
 
