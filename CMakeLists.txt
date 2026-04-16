@@ -19,10 +19,9 @@ add_library(slv SHARED)
 add_library(slv::slv ALIAS slv)
 
 target_link_libraries(slv
-    PRIVATE
+    PUBLIC
         raylib
         glfw
-    PUBLIC
         fmt::fmt
         tinyxml2::tinyxml2
         nlohmann_json::nlohmann_json
@@ -38,7 +37,7 @@ set(slv_engine_src
 
 set(slv_internal_src
     src/internal/*.cpp
-    src/internal/platforms/*.cpp
+    src/internal/platforms/*.cpp # TODO: change this of course
 )
 
 set(slv_types_src
@@ -74,10 +73,6 @@ target_compile_definitions(slv
         $<$<CONFIG:Debug>:SLV_DEBUG>
         $<$<CONFIG:RelWithDebInfo>:SLV_RELWITHDEBINFO>
 )
-
-# expose functions from `slv_project.cmake` to projects that
-# add SLV as a subdir
-include(cmake/slv_project.cmake)
 
 include(CMakePackageConfigHelpers)
 
