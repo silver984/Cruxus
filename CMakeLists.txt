@@ -35,26 +35,27 @@ set(slv_engine_src
     src/engine/game/objects/abstract/*.cpp
 )
 
-set(slv_internal_src
-    src/internal/*.cpp
-    src/internal/platforms/*.cpp # TODO: change this of course
-)
-
 set(slv_types_src
     src/types/*.cpp
 )
 
 file(GLOB_RECURSE engine_src CONFIGURE_DEPENDS ${slv_engine_src})
-file(GLOB_RECURSE internal_src CONFIGURE_DEPENDS ${slv_internal_src})
 file(GLOB_RECURSE types_src CONFIGURE_DEPENDS ${slv_types_src})
 
 target_sources(slv
     PRIVATE
         src/miniaudio.cpp
+        src/internal/rl.cpp
         ${engine_src}
-        ${internal_src}
         ${types_src}
 )
+
+if(WIN32)
+    target_sources(slv
+        PRIVATE
+            src/internal/platforms/windows.cpp
+    )
+endif()
 
 target_include_directories(slv
     PUBLIC
