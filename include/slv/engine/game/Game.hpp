@@ -1,11 +1,18 @@
 #pragma once
 #include <slv/config.hpp>
-#include <slv/engine/game/managers/all.hpp>
+#include <slv/engine/game/managers/WindowManager.hpp>
 #include <slv/types/context.hpp>
 #include <slv/types/size.hpp>
 #include <string_view>
 
 namespace slv {
+
+class AudioManager; // forward declare
+class CrashManager; // forward declare
+class DebugManager; // forward declare
+class InputManager; // forward declare
+class ResourceManager; // forward declare
+class SceneManager; // forward declare
 
 class SLV_DLL Game final {
 public:
@@ -26,12 +33,13 @@ public:
 	[[nodiscard]] context get_ctx();
 
 private:
-	WindowManager window_;
-	CrashManager crash_;
 	AudioManager audio_;
+	CrashManager crash_;
+	DebugManager debug_;
 	InputManager input_;
-	SceneManager scene_;
 	ResourceManager resource_;
+	SceneManager scene_;
+	WindowManager window_;
 	bool is_initialized_;
 	bool is_window_minimized_;
 };

@@ -3,26 +3,29 @@
 
 namespace slv {
 
-class WindowManager; // forward declare
-class SceneManager; // forward declare
-class InputManager; // forward declare
 class AudioManager; // forward declare
+class DebugManager; // forward declare
+class InputManager; // forward declare
 class ResourceManager; // forward declare
+class SceneManager; // forward declare
+class WindowManager; // forward declare
 
 struct SLV_DLL context final {
 	explicit context(
-		WindowManager* window_manager,
-		SceneManager* scene_manager,
-		InputManager* input_manager,
 		AudioManager* audio_manager,
-		ResourceManager* resource_manager
+		DebugManager* debug_manager,
+		InputManager* input_manager,
+		ResourceManager* resource_manager,
+		SceneManager* scene_manager,
+		WindowManager* window_manager
 	);
 
-	WindowManager* const window;
-	SceneManager* const scene;
-	InputManager* const input;
 	AudioManager* const audio;
+	DebugManager* const debug;
+	InputManager* const input;
 	ResourceManager* const resource;
+	SceneManager* const scene;
+	WindowManager* const window;
 };
 
 }

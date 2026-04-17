@@ -1,6 +1,6 @@
 #pragma once
 #include <slv/config.hpp>
-#include <slv/types/numeric.hpp>
+#include <slv/types/numeric_t.hpp>
 #include <cstdint>
 #include <algorithm>
 

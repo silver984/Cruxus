@@ -1,6 +1,8 @@
 #include <slv/engine/game/Game.hpp>
+#include <slv/engine/game/managers/all.hpp>
 #include <slv/engine/log.hpp>
 #include <fmt/format.h>
+#include <chrono>
 
 namespace slv {
 
@@ -56,16 +58,32 @@ void Game::run() {
 
 	while (window_.is_open()) {
 		// update
-		float dt = window_.delta_time();
-		window_.update(ctx, dt);
-		input_.update(dt);
-		resource_.update(dt);
-		scene_.update(ctx, dt);
+		{
+			auto start = std::chrono::high_resolution_clock::now();
+			
+			float dt = window_.delta_time();
+			window_.update(ctx, dt);
+			input_.update(dt);
+			resource_.update(dt);
+			scene_.update(ctx, dt);
+
+			auto end = std::chrono::high_resolution_clock::now();
+			auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+			debug_.push_update_cpu_time(elapsed.count());
+		}
 
 		// draw
-		window_.start_draw();
-		scene_.draw(ctx);
-		window_.end_draw();
+		{
+			auto start = std::chrono::high_resolution_clock::now();
+
+			window_.start_draw();
+			scene_.draw(ctx);
+			window_.end_draw();
+			
+			auto end = std::chrono::high_resolution_clock::now();
+			std::chrono::duration<float> elapsed = end - start;
+			debug_.push_draw_cpu_time(elapsed.count());
+		}
 	}
 
 	scene_.safely_destroy_scene();
@@ -76,11 +94,12 @@ void Game::run() {
 
 context Game::get_ctx() {
 	return context(
-		&window_,
-		&scene_,
-		&input_,
 		&audio_,
-		&resource_
+		&debug_,
+		&input_,
+		&resource_,
+		&scene_,
+		&window_
 	);
 }
 

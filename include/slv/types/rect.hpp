@@ -1,11 +1,11 @@
 #pragma once
-#include <slv/types/numeric.hpp>
+#include <slv/types/numeric_t.hpp>
 #include <slv/types/vec2.hpp>
 #include <slv/types/size.hpp>
 
 namespace slv {
 
-template<numeric T>
+template<numeric_t T>
 struct rect final {
 	constexpr rect() = default;
 	constexpr explicit rect(vec2<T> pos_val, size<T> dimensions_val) :

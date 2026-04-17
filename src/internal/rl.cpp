@@ -133,7 +133,7 @@ std::optional<texture> load_texture_stb(char const* file_path) {
 
 		log::error(
 			fmt::format(
-				"Failed to load \"{}\" | what: {}",
+				"stbi failed to load \"{}\" | what: {}",
 				file_path,
 				reason ? reason : "unknown error"
 			)
@@ -143,8 +143,11 @@ std::optional<texture> load_texture_stb(char const* file_path) {
 	} else {
 		log::trace(
 			fmt::format(
-				"stbi successfully loaded \"{}\"",
-				file_path
+				"stbi loaded \"{}\" | {}x{} channels: {}",
+				file_path,
+				bounds.width,
+				bounds.height,
+				channels
 			)
 		);
 	}

@@ -5,6 +5,6 @@
 namespace slv {
 
 template<typename T>
-concept numeric = std::is_arithmetic_v<T>;
+concept numeric_t = std::integral<T> || std::floating_point<T>;
 
 }

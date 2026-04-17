@@ -1,9 +1,9 @@
 #pragma once
-#include <slv/types/numeric.hpp>
+#include <slv/types/numeric_t.hpp>
 
 namespace slv {
 
-template<numeric T>
+template<numeric_t T>
 struct vec2 {
     constexpr vec2() = default;
     constexpr explicit vec2(T x_val, T y_val) :

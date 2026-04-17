@@ -1,9 +1,9 @@
 #pragma once
-#include <slv/types/numeric.hpp>
+#include <slv/types/numeric_t.hpp>
 
 namespace slv {
 
-template<numeric T>
+template<numeric_t T>
 struct size final {
     constexpr size() = default;
     constexpr explicit size(T width_val, T height_val) :
