@@ -12,9 +12,9 @@
 
 ---
 
-Cruxus is a simple and lightweight 2D Game engine.
+Cruxus is a simple and lightweight 2D Game Engine.
 
-###### You are looking at a developing Game engine in its early stages.
+###### You are looking at a developing Game Engine in its early stages.
 
 ### Features
 
