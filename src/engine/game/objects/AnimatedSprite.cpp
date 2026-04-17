@@ -1,7 +1,7 @@
-#include <slv/engine/Game/objects/AnimatedSprite.hpp>
-#include <slv/engine/Game/managers/ResourceManager.hpp>
+#include <crx/engine/Game/objects/AnimatedSprite.hpp>
+#include <crx/engine/Game/managers/ResourceManager.hpp>
 #include "rl.hpp"
-#include <slv/engine/log.hpp>
+#include <crx/engine/log.hpp>
 #include <fmt/format.h>
 #include <algorithm>
 

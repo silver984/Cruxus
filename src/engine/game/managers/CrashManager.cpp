@@ -1,5 +1,5 @@
-#include <slv/engine/Game/managers/CrashManager.hpp>
-#include <slv/engine/log.hpp>
+#include <crx/engine/Game/managers/CrashManager.hpp>
+#include <crx/engine/log.hpp>
 #ifdef _WIN32
 #include "platforms/windows.hpp"
 #endif

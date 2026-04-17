@@ -1,7 +1,7 @@
-#include <slv/engine/log.hpp>
+#include <crx/engine/log.hpp>
 #include <fmt/format.h>
 #include <fmt/chrono.h>
-#ifdef SLV_COLORED_LOGS
+#ifdef CRX_COLORED_LOGS
 #include <fmt/color.h>
 #endif
 #include <chrono>
@@ -57,7 +57,7 @@ void print_info(
 	std::string_view level_name,
 	std::source_location const& location
 ) {
-#ifdef SLV_COLORED_LOGS
+#ifdef CRX_COLORED_LOGS
 	fmt::print(fmt::fg(fmt::color::gray), "{:<12} {} ", current_time_str(), function_name(location));
 	fmt::print(fmt::fg(*level_color), "[{}] ", level_name);
 #else
@@ -70,7 +70,7 @@ void print_info(
 #endif
 }
 
-#ifdef SLV_COLORED_LOGS
+#ifdef CRX_COLORED_LOGS
 void print(
 	fmt::color level_color,
 	std::string_view level_name,
@@ -99,7 +99,7 @@ void trace(
 	std::string_view message,
 	std::source_location const& loc
 ) {
-#ifdef SLV_COLORED_LOGS
+#ifdef CRX_COLORED_LOGS
 	print(fmt::color::dark_sea_green, "TRACE", message, loc);
 #else
 	print("TRACE", message, loc);
@@ -110,7 +110,7 @@ void info(
 	std::string_view message,
 	std::source_location const& loc
 ) {
-#ifdef SLV_COLORED_LOGS
+#ifdef CRX_COLORED_LOGS
 	print(fmt::color::green_yellow, "INFO", message, loc);
 #else
 	print("INFO", message, loc);
@@ -121,7 +121,7 @@ void warning(
 	std::string_view message,
 	std::source_location const& loc
 ) {
-#ifdef SLV_COLORED_LOGS
+#ifdef CRX_COLORED_LOGS
 	print(fmt::color::gold, "WARNING", message, loc);
 #else
 	print("WARNING", message, loc);
@@ -132,7 +132,7 @@ void error(
 	std::string_view message,
 	std::source_location const& loc
 ) {
-#ifdef SLV_COLORED_LOGS
+#ifdef CRX_COLORED_LOGS
 	print(fmt::color::crimson, "ERROR", message, loc);
 #else
 	print("ERROR", message, loc);

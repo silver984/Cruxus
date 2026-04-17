@@ -1,4 +1,4 @@
-#include <slv/engine/Game/managers/DebugManager.hpp>
+#include <crx/engine/Game/managers/DebugManager.hpp>
 
 namespace crx {
 

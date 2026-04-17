@@ -1,6 +1,6 @@
 #pragma once
-#include <slv/types/primitives.hpp>
-#include <slv/types/graphic.hpp>
+#include <crx/types/primitives.hpp>
+#include <crx/types/graphic.hpp>
 #include <optional>
 
 namespace crx::rl {

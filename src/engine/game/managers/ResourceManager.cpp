@@ -1,5 +1,5 @@
-#include <slv/engine/Game/managers/ResourceManager.hpp>
-#include <slv/engine/log.hpp>
+#include <crx/engine/Game/managers/ResourceManager.hpp>
+#include <crx/engine/log.hpp>
 #include <miniaudio.h>
 #include <fmt/format.h>
 #include <tinyxml2.h>

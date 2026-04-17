@@ -1,5 +1,5 @@
-#include <slv/engine/Game/objects/Sprite.hpp>
-#include <slv/engine/Game/managers/ResourceManager.hpp>
+#include <crx/engine/Game/objects/Sprite.hpp>
+#include <crx/engine/Game/managers/ResourceManager.hpp>
 #include "rl.hpp"
 
 namespace crx {

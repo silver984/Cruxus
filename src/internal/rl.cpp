@@ -1,5 +1,5 @@
 #include "rl.hpp"
-#include <slv/engine/math.hpp>
+#include <crx/engine/math.hpp>
 #ifdef _WIN32
 #include "platforms/windows.hpp"
 #endif
@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <numeric>
 #include <stb_image.h>
-#include <slv/engine/log.hpp>
+#include <crx/engine/log.hpp>
 #include <fmt/format.h>
 
 namespace {
