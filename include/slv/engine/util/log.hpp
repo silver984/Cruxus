@@ -1,5 +1,5 @@
 #pragma once
-#include <slv/config.hpp>
+#include <slv/config.hh>
 #include <string_view>
 #include <source_location>
 

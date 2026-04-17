@@ -1,8 +1,8 @@
 #pragma once
-#include <slv/config.hpp>
+#include <slv/config.hh>
 #include <slv/engine/game/managers/WindowManager.hpp>
 #include <slv/types/context.hpp>
-#include <slv/types/size.hpp>
+#include <slv/engine/math/size.hh>
 #include <string_view>
 
 namespace slv {

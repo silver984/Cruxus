@@ -1,5 +1,5 @@
 #pragma once
-#include <slv/config.hpp>
+#include <slv/config.hh>
 #include <slv/engine/game/objects/Sprite.hpp>
 #include <slv/types/pointers.hpp>
 #include <slv/types/primitives.hpp>

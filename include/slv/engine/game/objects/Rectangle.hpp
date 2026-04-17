@@ -1,7 +1,7 @@
 #pragma once
-#include <slv/config.hpp>
+#include <slv/config.hh>
 #include <slv/engine/game/objects/Vessel.hpp>
-#include <slv/types/size.hpp>
+#include <slv/engine/math/size.hh>
 #include <slv/types/rgb.hpp>
 #include <slv/types/context.hpp>
 #include <string_view>

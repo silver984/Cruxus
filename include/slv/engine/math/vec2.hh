@@ -1,24 +1,18 @@
 #pragma once
-#include <slv/types/numeric_t.hpp>
+#include <slv/engine/math/numeric.hh>
 
 namespace slv {
 
-template<numeric_t T>
+template<numeric T>
 struct vec2 {
-    constexpr vec2() = default;
-    constexpr explicit vec2(T x_val, T y_val) :
-        x(x_val),
-        y(y_val)
-    {}
-
     T x{};
     T y{};
 
     [[nodiscard]] constexpr vec2<T> operator+(vec2<T> const& rhs) const {
-        return vec2<T>(
-            x + rhs.x,
-            y + rhs.y
-        );
+        return {
+            .x = x - rhs.x,
+            .y = x - rhs.y
+        };
     }
 
     [[nodiscard]] constexpr vec2<T> operator-(vec2<T> const& rhs) const {

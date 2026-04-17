@@ -1,5 +1,5 @@
 #pragma once
-#include <slv/config.hpp>
+#include <slv/config.hh>
 #include <slv/types/rolling_stats.hpp>
 #include <cstdint>
 #include <array>

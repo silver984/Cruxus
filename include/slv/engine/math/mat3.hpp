@@ -1,6 +1,6 @@
 #pragma once
-#include <slv/config.hpp>
-#include <slv/types/vec2.hpp>
+#include <slv/config.hh>
+#include <slv/engine/math/vec2.hh>
 
 namespace slv {
 

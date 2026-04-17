@@ -1,12 +1,12 @@
 #pragma once
-#include <slv/types/numeric_t.hpp>
+#include <slv/engine/math/numeric.hh>
 #include <array>
 #include <type_traits>
 #include <cstdint>
 
 namespace slv {
 
-template <numeric_t T, size_t N = 60>
+template <numeric T, size_t N = 60>
 struct rolling_stats {
 private:
     using acc_t = std::conditional_t<std::is_floating_point_v<T>, double, int64_t>;

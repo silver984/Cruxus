@@ -1,5 +1,5 @@
 #pragma once
-#include <slv/config.hpp>
+#include <slv/config.hh>
 #include <slv/types/enum_array.hpp>
 #include <slv/types/keys.hpp>
 #include <bitset>

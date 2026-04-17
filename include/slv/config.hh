@@ -9,6 +9,6 @@
 #ifdef _WIN32
 #define SLV_COLORED_LOGS 1
 #else
-// SLV is yet to support other platforms
+// slv is yet to support other platforms
 #define SLV_COLORED_LOGS 0
 #endif
