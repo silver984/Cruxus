@@ -10,8 +10,8 @@ struct vec2 {
 
     [[nodiscard]] constexpr vec2<T> operator+(vec2<T> const& rhs) const {
         return {
-            .x = x - rhs.x,
-            .y = x - rhs.y
+            .x = x + rhs.x,
+            .y = y + rhs.y
         };
     }
 
