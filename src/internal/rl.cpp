@@ -10,6 +10,9 @@
 #include <cmath>
 #include <cstdint>
 #include <numeric>
+#include <stb_image.h>
+#include <slv/engine/log.hpp>
+#include <fmt/format.h>
 
 namespace {
 
@@ -109,6 +112,65 @@ void set_window_size(size<int> const& bounds) {
 	}
 
 	glfwSetWindowAspectRatio(glfw_window, aspect_w, aspect_h);
+}
+
+void set_texture_antialiasing(texture const& texture, bool val) {
+	SetTextureFilter(
+		rl_texture(texture),
+		val
+		? TEXTURE_FILTER_BILINEAR
+		: TEXTURE_FILTER_POINT
+	);
+}
+
+std::optional<texture> load_texture_stb(char const* file_path) {
+	size<int> bounds;
+	int channels;
+	stbi_uc* data = stbi_load(file_path, &bounds.width, &bounds.height, &channels, STBI_rgb_alpha);
+
+	if (!data) {
+		const char* reason = stbi_failure_reason();
+
+		log::error(
+			fmt::format(
+				"Failed to load \"{}\" | what: {}",
+				file_path,
+				reason ? reason : "unknown error"
+			)
+		);
+
+		return std::nullopt;
+	} else {
+		log::trace(
+			fmt::format(
+				"stbi successfully loaded \"{}\"",
+				file_path
+			)
+		);
+	}
+
+	Image img = {
+		.data = data,
+		.width = bounds.width,
+		.height = bounds.height,
+		.mipmaps = 1,
+		.format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8
+	};
+
+	Texture tex = LoadTextureFromImage(img);
+	stbi_image_free(data);
+
+	if (tex.id == 0) {
+		log::error(fmt::format("GPU upload failed for \"{}\"", file_path));
+		return std::nullopt;
+	}
+
+	return texture(
+		tex.id,
+		size<int>(tex.width, tex.height),
+		tex.mipmaps,
+		tex.format
+	);
 }
 
 void draw_rectangle(
@@ -212,12 +274,5 @@ void draw_circle(
 	rlPopMatrix();
 }
 
-void set_texture_antialiasing(texture const& texture, bool val) {
-	SetTextureFilter(
-		rl_texture(texture), val
-		? TEXTURE_FILTER_BILINEAR
-		: TEXTURE_FILTER_POINT
-	);
-}
 
 }

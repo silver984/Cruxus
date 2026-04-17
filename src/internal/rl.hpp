@@ -1,11 +1,14 @@
 #pragma once
 #include <slv/types/primitives.hpp>
 #include <slv/types/graphic.hpp>
+#include <optional>
 
 namespace slv::rl {
 
 bool init_window(size<int> const& bounds, int fps, char const* title);
 void set_window_size(size<int> const& bounds);
+void set_texture_antialiasing(texture const& texture, bool val);
+std::optional<texture> load_texture_stb(char const* file_path);
 
 void draw_rectangle(
 	mat3 const& matrix,
@@ -47,7 +50,5 @@ void draw_circle(
 	float alpha,
 	float radius
 );
-
-void set_texture_antialiasing(texture const& texture, bool val);
 
 }

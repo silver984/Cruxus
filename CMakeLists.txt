@@ -27,6 +27,16 @@ target_link_libraries(slv
         nlohmann_json::nlohmann_json
 )
 
+set(slv_internal_src
+    src/internal/rl.cpp
+    src/internal/parsed_path.cpp
+)
+
+set(slv_external_src
+    src/miniaudio.cpp
+    src/stb_image.cpp
+)
+
 set(slv_engine_src
     src/engine/*.cpp
     src/engine/game/*.cpp
@@ -39,13 +49,15 @@ set(slv_types_src
     src/types/*.cpp
 )
 
+file(GLOB internal_src CONFIGURE_DEPENDS ${slv_internal_src})
+file(GLOB external_src CONFIGURE_DEPENDS ${slv_external_src})
 file(GLOB_RECURSE engine_src CONFIGURE_DEPENDS ${slv_engine_src})
 file(GLOB_RECURSE types_src CONFIGURE_DEPENDS ${slv_types_src})
 
 target_sources(slv
     PRIVATE
-        src/miniaudio.cpp
-        src/internal/rl.cpp
+        ${internal_src}
+        ${external_src}
         ${engine_src}
         ${types_src}
 )

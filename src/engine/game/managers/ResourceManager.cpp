@@ -8,28 +8,10 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
+#include "parsed_path.hpp"
+#include "rl.hpp"
 
 namespace slv {
-
-ResourceManager::parsed_path ResourceManager::parsed_path::parse(std::string_view file) {
-    std::filesystem::path abs = std::filesystem::absolute(file);
-    std::string ext = abs.extension().string();
-
-    if (!ext.empty() && ext[0] == '.') {
-        // remove the dot from the extension
-        ext.erase(0, 1);
-    }
-
-    // make extension lowercase
-    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-
-    return {
-        abs.string(),
-        abs.parent_path().string(),
-        abs.stem().string(),
-        ext
-    };
-}
 
 // private
 ResourceManager::ResourceManager() :
@@ -61,22 +43,13 @@ sptr<texture> ResourceManager::load_texture(std::string_view path) {
         return nullptr;
     }
 
-    auto texture_rl = LoadTexture(abs_path.c_str());
-    if (texture_rl.id == 0) {
+    auto tex = rl::load_texture_stb(abs_path.c_str());
+    if (!tex) {
         log_fail(abs_path);
         return nullptr;
     }
 
-    auto [it, _] = cached_textures_.emplace(
-        abs_path,
-        shared<texture>(
-            texture_rl.id,
-            size<int>(texture_rl.width, texture_rl.height),
-            texture_rl.mipmaps,
-            texture_rl.format
-        )
-    );
-
+    auto [it, _] = cached_textures_.emplace(abs_path, shared<texture>(*tex));
     return it->second;
 }
 

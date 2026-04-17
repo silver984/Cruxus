@@ -20,14 +20,6 @@ private:
 	ResourceManager();
 	~ResourceManager();
 
-	struct parsed_path final {
-		static parsed_path parse(std::string_view file);
-		std::string stitched;
-		std::string directory;
-		std::string file_name;
-		std::string extension;
-	};
-
 	enum class format_type : int {
 		IMAGE,
 		AUDIO,
