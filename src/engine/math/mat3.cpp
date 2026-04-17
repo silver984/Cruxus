@@ -1,4 +1,4 @@
-#include <slv/types/mat3.hpp>
+#include <slv/engine/math/mat3.hh>
 #include <cmath>
 #include <cstddef>
 
@@ -51,17 +51,17 @@ mat3 mat3::scale(vec2<float> const& s) {
 }
 
 vec2<float> mat3::translation() const {
-    return vec2<float>(
-        m[0][2],
-        m[1][2]
-    );
+    return {
+        .x = m[0][2],
+        .y = m[1][2]
+    };
 }
 
 vec2<float> mat3::transform_point(vec2<float> const& p) const {
-    return vec2<float>(
-        p.x * m[0][0] + p.y * m[0][1] + m[0][2],
-        p.x * m[1][0] + p.y * m[1][1] + m[1][2]
-    );
+    return {
+        .x = p.x * m[0][0] + p.y * m[0][1] + m[0][2],
+        .y = p.x * m[1][0] + p.y * m[1][1] + m[1][2]
+    };
 }
 
 }
