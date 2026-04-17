@@ -1,9 +1,9 @@
-#include <slv/engine/game/objects/abstract/Sound.hpp>
-#include <slv/engine/game/managers/ResourceManager.hpp>
-#include <slv/engine/game/managers/AudioManager.hpp>
+#include <slv/engine/Game/objects/abstract/Sound.hpp>
+#include <slv/engine/Game/managers/ResourceManager.hpp>
+#include <slv/engine/Game/managers/AudioManager.hpp>
 #include <algorithm>
 
-namespace slv {
+namespace crx {
 
 // private
 Sound::Sound(sptr<std::vector<float>> pcm) :

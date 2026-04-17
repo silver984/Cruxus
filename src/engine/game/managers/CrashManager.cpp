@@ -1,10 +1,10 @@
-#include <slv/engine/game/managers/CrashManager.hpp>
+#include <slv/engine/Game/managers/CrashManager.hpp>
 #include <slv/engine/log.hpp>
 #ifdef _WIN32
 #include "platforms/windows.hpp"
 #endif
 
-namespace slv {
+namespace crx {
 
 // private
 CrashManager::CrashManager() :

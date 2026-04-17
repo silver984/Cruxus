@@ -1,10 +1,10 @@
-#include <slv/engine/game/objects/Vessel.hpp>
-#include <slv/engine/game/managers/WindowManager.hpp>
+#include <slv/engine/Game/objects/Vessel.hpp>
+#include <slv/engine/Game/managers/Window.hpp>
 #include <slv/engine/math.hpp>
 #include <algorithm>
 #include <cmath>
 
-namespace slv {
+namespace crx {
 
 Vessel::Vessel() :
 	color(255, 255, 255),
@@ -213,7 +213,7 @@ void Vessel::base_update(context const& ctx, float dt) {
 	}
 
 	alpha = std::clamp(alpha, 0.f, 1.f);
-	bool window_was_resized = ctx.window ? ctx.window->was_resized() : false;
+	bool window_was_resized = ctx.Window ? ctx.Window->was_resized() : false;
 
 	if (
 		window_was_resized ||
@@ -260,7 +260,7 @@ void Vessel::base_update(context const& ctx, float dt) {
 			world_transform_ = p->world_transform_ * local_transform_;
 			world_alpha_ = std::clamp(alpha * p->world_alpha_, 0.f, 1.f);
 		} else {
-			float ui_scale = ctx.window ? ctx.window->ui_scale() : 1.f;
+			float ui_scale = ctx.Window ? ctx.Window->ui_scale() : 1.f;
 			mat3 UI = mat3::scale(vec2<float>(ui_scale, ui_scale));
 			world_transform_ = UI * local_transform_;
 			world_alpha_ = alpha;
@@ -330,4 +330,4 @@ void Vessel::mark_dirty() {
 	}
 }
 
-} // namespace slv
+} // namespace crx

@@ -2,7 +2,7 @@
 #include <cmath>
 #include <cstddef>
 
-namespace slv {
+namespace crx {
 
 mat3 mat3::rotation(float radians) {
     float c = std::cos(radians);

@@ -1,36 +1,36 @@
 #pragma once
-#include <slv/engine/game/managers/SceneManager.hpp>
+#include <slv/engine/Game/managers/Harbor.hpp>
 #include <slv/engine/log.hpp>
 
-namespace slv {
+namespace crx {
 
 // private
-SceneManager::SceneManager() :
+Harbor::Harbor() :
 	is_destroying_current_scene_(false)
 {};
 
 // private
-SceneManager::~SceneManager() = default;
+Harbor::~Harbor() = default;
 
-void SceneManager::change_scene(sptr<Vessel>&& new_scene) {
+void Harbor::change_scene(sptr<Vessel>&& new_scene) {
 	if (!new_scene) {
-		log::error("The scene the game tried to change into is nullptr");
+		log::error("The scene the Game tried to change into is nullptr");
 		return;
 	}
 
 	pending_scene_ = std::move(new_scene);
 }
 
-void SceneManager::destroy_current_scene() {
+void Harbor::destroy_current_scene() {
 	is_destroying_current_scene_ = true;
 }
 
-wptr<Vessel> SceneManager::current_scene() {
+wptr<Vessel> Harbor::current_scene() {
 	return current_scene_;
 }
 
 // private
-void SceneManager::update(context const& ctx, float dt) {
+void Harbor::update(context const& ctx, float dt) {
 	if (pending_scene_) {
 		current_scene_ = std::move(pending_scene_);
 	}
@@ -46,14 +46,14 @@ void SceneManager::update(context const& ctx, float dt) {
 }
 
 // private
-void SceneManager::draw(context const& ctx) {
+void Harbor::draw(context const& ctx) {
 	if (current_scene_) {
 		current_scene_->base_draw(ctx);
 	}
 }
 
 // private
-void SceneManager::safely_destroy_scene() {
+void Harbor::safely_destroy_scene() {
 	if (current_scene_) {
 		current_scene_->destroy();
 		current_scene_.reset();

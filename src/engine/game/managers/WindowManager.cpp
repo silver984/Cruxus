@@ -1,5 +1,5 @@
-#include <slv/engine/game/managers/WindowManager.hpp>
-#include <slv/engine/game/managers/AudioManager.hpp>
+#include <slv/engine/Game/managers/Window.hpp>
+#include <slv/engine/Game/managers/AudioManager.hpp>
 #include <fmt/format.h>
 #include <slv/engine/log.hpp>
 #include "rl.hpp"
@@ -13,7 +13,7 @@
 
 // this whole namespace is here just so raylib has
 // its own distinct messenger in the logs instead of
-// "slv::WindowManager::init"
+// "slv::Window::init"
 namespace raylib {
 
 void log(int level, char const* msg, va_list args) {
@@ -39,10 +39,10 @@ void log(int level, char const* msg, va_list args) {
 
 }
 
-namespace slv {
+namespace crx {
 
 // private
-WindowManager::WindowManager() :
+Window::Window() :
 	target_fps_(0),
 	running_fps_(0),
 	frame_count_(0),
@@ -55,10 +55,10 @@ WindowManager::WindowManager() :
 {}
 
 // private
-WindowManager::~WindowManager() = default;
+Window::~Window() = default;
 
 // private
-bool WindowManager::init(
+bool Window::init(
 	std::string_view title,
 	size<int> const& size,
 	int fps,
@@ -69,7 +69,7 @@ bool WindowManager::init(
 		return true;
 	}
 
-#if (defined(SLV_DEBUG) || defined(SLV_RELWITHDEBINFO))
+#if (defined(CRX_DEBUG) || defined(CRX_RELWITHDEBINFO))
 	if (!win32::enable_console_colors()) {
 		log::warning("Couldn't enable console colors");
 	}
@@ -95,18 +95,18 @@ bool WindowManager::init(
 }
 
 // private
-void WindowManager::uninit() {
+void Window::uninit() {
 	if (!is_initialized_) {
 		return;
 	}
 
 	is_initialized_ = false;
-	log::info("Destroying window...");
+	log::info("Destroying Window...");
 	CloseWindow();
 }
 
 // private
-void WindowManager::update(context const& ctx, float dt) {
+void Window::update(context const& ctx, float dt) {
 	if (!is_initialized_) {
 		return;
 	}
@@ -127,8 +127,8 @@ void WindowManager::update(context const& ctx, float dt) {
 
 #ifdef _WIN32
 	// it seems that on windows,
-	// a window automatically fullscreens the window when the size is the same as the monitor's and if the window position is (0, 0)
-	// this disables that in case if the window is not supposed to be fullscreen
+	// a Window automatically fullscreens the Window when the size is the same as the monitor's and if the Window position is (0, 0)
+	// this disables that in case if the Window is not supposed to be fullscreen
 	if (
 		!is_fullscreen() &&
 		pos_ == vec2<int>(0, 0) &&
@@ -152,14 +152,14 @@ void WindowManager::update(context const& ctx, float dt) {
 		elapsed_second_ -= 1.f;
 	}
 
-#if (defined(SLV_DEBUG) || defined(SLV_RELWITHDEBINFO)) && _WIN32
+#if (defined(CRX_DEBUG) || defined(CRX_RELWITHDEBINFO)) && _WIN32
 	memory_usage_ = win32::proc_memory_mb();
 	max_memory_usage_ = std::max(memory_usage_, max_memory_usage_);
 #endif
 }
 
 // private
-void WindowManager::start_draw() const {
+void Window::start_draw() const {
 	if (!is_initialized_) {
 		return;
 	}
@@ -176,12 +176,12 @@ void WindowManager::start_draw() const {
 }
 
 // private
-void WindowManager::end_draw() const {
+void Window::end_draw() const {
 	if (!is_initialized_) {
 		return;
 	}
 
-#if defined(SLV_DEBUG) || defined(SLV_RELWITHDEBINFO)
+#if defined(CRX_DEBUG) || defined(CRX_RELWITHDEBINFO)
 	std::string debug_text = fmt::format("FPS: {}", running_fps());
 
 	if (memory_usage_ != 0.f) {
@@ -207,7 +207,7 @@ void WindowManager::end_draw() const {
 	EndDrawing();
 }
 
-bool WindowManager::is_open() const {
+bool Window::is_open() const {
 	if (is_initialized_) {
 		return !WindowShouldClose();
 	}
@@ -215,7 +215,7 @@ bool WindowManager::is_open() const {
 	return false;
 }
 
-vec2<float> WindowManager::screen_center() const {
+vec2<float> Window::screen_center() const {
 	float ui_scale_val = ui_scale();
 	return vec2<float>(
 		(draw_size_.width / 2.f) / ui_scale_val,
@@ -223,7 +223,7 @@ vec2<float> WindowManager::screen_center() const {
 	);
 }
 
-size<float> WindowManager::screen_size() const {
+size<float> Window::screen_size() const {
 	float ui_scale_val = ui_scale();
 	return size<float>(
 		draw_size_.width / ui_scale_val,
@@ -231,14 +231,14 @@ size<float> WindowManager::screen_size() const {
 	);
 }
 
-// TODO: fix window sizing
+// TODO: fix Window sizing
 
-void WindowManager::set_size(size<int> const& size, bool set_as_default) {
+void Window::set_size(size<int> const& size, bool set_as_default) {
 	set_width(size.width, set_as_default);
 	set_height(size.height, set_as_default);
 }
 
-void WindowManager::set_width(int width, bool set_as_default) {
+void Window::set_width(int width, bool set_as_default) {
 	if (!is_initialized_) {
 		return;
 	}
@@ -251,7 +251,7 @@ void WindowManager::set_width(int width, bool set_as_default) {
 	was_resized_ = true;
 }
 
-void WindowManager::set_height(int height, bool set_as_default) {
+void Window::set_height(int height, bool set_as_default) {
 	if (!is_initialized_) {
 		return;
 	}
@@ -264,21 +264,21 @@ void WindowManager::set_height(int height, bool set_as_default) {
 	was_resized_ = true;
 }
 
-void WindowManager::set_title(std::string_view title) {
+void Window::set_title(std::string_view title) {
 	if (is_initialized_) {
 		title_ = title;
 		SetWindowTitle(title_.c_str());
 	}
 }
 
-void WindowManager::set_fps(int fps) {
+void Window::set_fps(int fps) {
 	if (is_initialized_) {
 		target_fps_ = std::max(1, fps);
 		SetTargetFPS(target_fps_);
 	}
 }
 
-size<int> WindowManager::monitor_size() const {
+size<int> Window::monitor_size() const {
 	if (is_initialized_) {
 		int monitor = GetCurrentMonitor();
 		return size<int>(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
@@ -287,7 +287,7 @@ size<int> WindowManager::monitor_size() const {
 	return {};
 }
 
-float WindowManager::delta_time() const {
+float Window::delta_time() const {
 	if (!is_initialized_) {
 		return 0.f;
 	}
@@ -301,7 +301,7 @@ float WindowManager::delta_time() const {
 	return dt;
 }
 
-vec2<float> WindowManager::mouse_pos() const {
+vec2<float> Window::mouse_pos() const {
 	if (is_initialized_) {
 		Vector2 pos = GetMousePosition();
 		float ui_scale_val = ui_scale();
@@ -313,7 +313,7 @@ vec2<float> WindowManager::mouse_pos() const {
 	return {};
 }
 
-vec2<float> WindowManager::mouse_delta() const {
+vec2<float> Window::mouse_delta() const {
 	if (is_initialized_) {
 		Vector2 dt = GetMouseDelta();
 		return vec2<float>(dt.x, dt.y);
@@ -322,7 +322,7 @@ vec2<float> WindowManager::mouse_delta() const {
 	return {};
 }
 
-float WindowManager::ui_scale() const {
+float Window::ui_scale() const {
 	float w = default_screen_size_.width > 0
 		? static_cast<float>(draw_size_.width) / default_screen_size_.width
 		: 1.f;
@@ -334,22 +334,22 @@ float WindowManager::ui_scale() const {
 	return std::min(w, h);
 }
 
-void WindowManager::set_pos(const vec2<int>& pos) {
+void Window::set_pos(const vec2<int>& pos) {
 	if (is_initialized_ && !IsWindowFullscreen()) {
 		pos_ = pos;
 		SetWindowPosition(pos_.x, pos_.y);
 	}
 }
 
-void WindowManager::set_pos_x(int x) {
+void Window::set_pos_x(int x) {
 	set_pos(vec2<int>(x, pos_.y));
 }
 
-void WindowManager::set_pos_y(int y) {
+void Window::set_pos_y(int y) {
 	set_pos(vec2<int>(pos_.x, y));
 }
 
-void WindowManager::toggle_fullscreen(bool val) {
+void Window::toggle_fullscreen(bool val) {
 	if (is_transparent()) {
 		return;
 	}
@@ -366,7 +366,7 @@ void WindowManager::toggle_fullscreen(bool val) {
 	ToggleFullscreen();
 }
 
-bool WindowManager::is_fullscreen() const {
+bool Window::is_fullscreen() const {
 	if (is_initialized_) {
 		return IsWindowFullscreen();
 	}
@@ -374,7 +374,7 @@ bool WindowManager::is_fullscreen() const {
 	return false;
 }
 
-bool WindowManager::is_transparent() const {
+bool Window::is_transparent() const {
 	if (is_initialized_) {
 		return IsWindowState(FLAG_WINDOW_TRANSPARENT);
 	}
@@ -382,7 +382,7 @@ bool WindowManager::is_transparent() const {
 	return false;
 }
 
-bool WindowManager::is_resizable() const {
+bool Window::is_resizable() const {
 	if (is_initialized_) {
 		return IsWindowState(FLAG_WINDOW_RESIZABLE);
 	}
@@ -390,7 +390,7 @@ bool WindowManager::is_resizable() const {
 	return false;
 }
 
-bool WindowManager::is_borderless() const {
+bool Window::is_borderless() const {
 	if (is_initialized_) {
 		return IsWindowState(FLAG_WINDOW_UNDECORATED);
 	}
@@ -398,7 +398,7 @@ bool WindowManager::is_borderless() const {
 	return false;
 }
 
-bool WindowManager::is_minimized() const {
+bool Window::is_minimized() const {
 	if (is_initialized_) {
 		return IsWindowMinimized();
 	}
@@ -406,7 +406,7 @@ bool WindowManager::is_minimized() const {
 	return false;
 }
 
-bool WindowManager::has_vsync() const {
+bool Window::has_vsync() const {
 	if (is_initialized_) {
 		return IsWindowState(FLAG_VSYNC_HINT);
 	}
@@ -414,36 +414,36 @@ bool WindowManager::has_vsync() const {
 	return false;
 }
 
-bool WindowManager::was_resized() const {
+bool Window::was_resized() const {
 	return was_resized_;
 }
 
-int WindowManager::running_fps() const {
+int Window::running_fps() const {
 	return running_fps_;
 }
 
-size<int> WindowManager::draw_size() const {
+size<int> Window::draw_size() const {
 	return draw_size_;
 }
 
-size<int> WindowManager::default_screen_size() const {
+size<int> Window::default_screen_size() const {
 	return default_screen_size_;
 }
 
-std::string_view WindowManager::title() const {
+std::string_view Window::title() const {
 	return title_;
 }
 
-int WindowManager::target_fps() const {
+int Window::target_fps() const {
 	return target_fps_;
 }
 
-vec2<int> WindowManager::pos() const {
+vec2<int> Window::pos() const {
 	return pos_;
 }
 
 // private
-void WindowManager::configure_settings(window_settings settings) {
+void Window::configure_settings(window_settings settings) {
 	using enum window_settings;
 	bool is_vsync = (settings & VSYNC) != NONE;
 	bool is_unresizable = (settings & UNRESIZABLE) != NONE;
@@ -479,4 +479,4 @@ void WindowManager::configure_settings(window_settings settings) {
 	SetConfigFlags(flags);
 }
 
-} // namespace slv
+} // namespace crx

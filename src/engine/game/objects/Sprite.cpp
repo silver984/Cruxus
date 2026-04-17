@@ -1,8 +1,8 @@
-#include <slv/engine/game/objects/Sprite.hpp>
-#include <slv/engine/game/managers/ResourceManager.hpp>
+#include <slv/engine/Game/objects/Sprite.hpp>
+#include <slv/engine/Game/managers/ResourceManager.hpp>
 #include "rl.hpp"
 
-namespace slv {
+namespace crx {
 
 Sprite::Sprite(std::string_view texture_file_path) :
 	texture_file_path_(texture_file_path),

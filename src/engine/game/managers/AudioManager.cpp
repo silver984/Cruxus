@@ -1,5 +1,5 @@
-#include <slv/engine/game/managers/AudioManager.hpp>
-#include <slv/engine/game/managers/WindowManager.hpp>
+#include <slv/engine/Game/managers/AudioManager.hpp>
+#include <slv/engine/Game/managers/Window.hpp>
 #include <slv/engine/log.hpp>
 #include <fmt/format.h>
 #include <miniaudio.h>
@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <cmath>
 
-namespace slv {
+namespace crx {
 
 struct audio_hnd final {
     explicit audio_hnd(sptr<std::vector<float>>& pcm_val, float volume_val) :
@@ -39,26 +39,26 @@ struct audio_user_data final {
     std::mutex pending_mutex;
     std::atomic<bool> is_initialized;
     float global_volume;
-    WindowManager* window_ptr;
+    Window* window_ptr;
 };
 
 struct AudioManager::impl final {
-    bool init(WindowManager* window) {
+    bool init(Window* Window) {
         if (user_data.is_initialized.load()) {
             return true;
         }
 
-        if (!window) {
+        if (!Window) {
             log::error("Window pointer is nullptr");
             return false;
         }
 
-        user_data.window_ptr = window;
+        user_data.window_ptr = Window;
 
         ma_device_config config = ma_device_config_init(ma_device_type_playback);
         config.playback.format = ma_format_f32;
-        config.playback.channels = SLV_AUDIO_CHANNELS;
-        config.sampleRate = SLV_AUDIO_SAMPLE_RATE;
+        config.playback.channels = CRX_AUDIO_CHANNELS;
+        config.sampleRate = CRX_AUDIO_SAMPLE_RATE;
         config.dataCallback = update;
         config.pUserData = &user_data;
 
@@ -124,7 +124,7 @@ struct AudioManager::impl final {
         if (
            !user_data.is_initialized.load() ||
            !pcm || pcm->empty() ||
-           (pcm->size() % SLV_AUDIO_CHANNELS) != 0
+           (pcm->size() % CRX_AUDIO_CHANNELS) != 0
         ) {
             return;
         }
@@ -235,8 +235,8 @@ void AudioManager::push_audio(sptr<std::vector<float>> pcm, float volume) const 
 }
 
 // private
-bool AudioManager::init(WindowManager* window) {
-    return impl_->init(window);
+bool AudioManager::init(Window* Window) {
+    return impl_->init(Window);
 }
 
 // private

@@ -1,10 +1,10 @@
-#include <slv/engine/game/Game.hpp>
-#include <slv/engine/game/managers/all.hpp>
+#include <slv/engine/Game/Game.hpp>
+#include <slv/engine/Game/managers/all.hpp>
 #include <slv/engine/log.hpp>
 #include <fmt/format.h>
 #include <chrono>
 
-namespace slv {
+namespace crx {
 
 Game::Game() :
 	is_initialized_(false),
@@ -32,7 +32,7 @@ bool Game::init(
 			get_ctx()
 		)
 	) {
-		log::error("Failed to initialize window");
+		log::error("Failed to initialize Window");
 		return false;
 	}
 

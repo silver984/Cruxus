@@ -70,7 +70,7 @@ void rl_push_mult_matrix(slv::mat3 const& matrix) {
 
 }
 
-namespace slv::rl {
+namespace crx::rl {
 
 bool init_window(size<int> const& bounds, int fps, char const* title) {
 	InitWindow(bounds.width, bounds.height, title);

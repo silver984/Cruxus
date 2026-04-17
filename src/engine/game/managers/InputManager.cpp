@@ -1,8 +1,8 @@
-#include <slv/engine/game/managers/InputManager.hpp>
+#include <slv/engine/Game/managers/InputManager.hpp>
 #include <slv/engine/log.hpp>
 #include <raylib.h>
 
-namespace slv {
+namespace crx {
 
 // private
 InputManager::InputManager() :

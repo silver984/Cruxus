@@ -1,6 +1,6 @@
-#include <slv/engine/game/managers/DebugManager.hpp>
+#include <slv/engine/Game/managers/DebugManager.hpp>
 
-namespace slv {
+namespace crx {
 
 // private
 DebugManager::DebugManager() = default;

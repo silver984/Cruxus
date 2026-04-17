@@ -1,7 +1,7 @@
 #include "parsed_path.hpp"
 #include <filesystem>
 
-namespace slv {
+namespace crx {
 
 parsed_path::parsed_path(
     std::string_view stitched_val,

@@ -93,7 +93,7 @@ void print(
 
 }
 
-namespace slv::log {
+namespace crx::log {
 
 void trace(
 	std::string_view message,

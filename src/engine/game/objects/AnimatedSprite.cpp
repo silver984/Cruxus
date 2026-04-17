@@ -1,11 +1,11 @@
-#include <slv/engine/game/objects/AnimatedSprite.hpp>
-#include <slv/engine/game/managers/ResourceManager.hpp>
+#include <slv/engine/Game/objects/AnimatedSprite.hpp>
+#include <slv/engine/Game/managers/ResourceManager.hpp>
 #include "rl.hpp"
 #include <slv/engine/log.hpp>
 #include <fmt/format.h>
 #include <algorithm>
 
-namespace slv {
+namespace crx {
 
 AnimatedSprite::AnimatedSprite(std::string_view texture_file_path, std::string_view data_file_path, float fps) :
 	Sprite(texture_file_path),

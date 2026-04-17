@@ -1,4 +1,4 @@
-#include <slv/engine/game/managers/ResourceManager.hpp>
+#include <slv/engine/Game/managers/ResourceManager.hpp>
 #include <slv/engine/log.hpp>
 #include <miniaudio.h>
 #include <fmt/format.h>
@@ -11,7 +11,7 @@
 #include "parsed_path.hpp"
 #include "rl.hpp"
 
-namespace slv {
+namespace crx {
 
 // private
 ResourceManager::ResourceManager() :
@@ -198,8 +198,8 @@ sptr<std::vector<float>> ResourceManager::load_pcm_data(std::string_view path) {
     ma_decoder decoder;
     ma_decoder_config config = ma_decoder_config_init(
         ma_format_f32,
-        SLV_AUDIO_CHANNELS,
-        SLV_AUDIO_SAMPLE_RATE
+        CRX_AUDIO_CHANNELS,
+        CRX_AUDIO_SAMPLE_RATE
     );
     ma_result result = ma_decoder_init_file(abs_path.c_str(), &config, &decoder);
 
@@ -217,14 +217,14 @@ sptr<std::vector<float>> ResourceManager::load_pcm_data(std::string_view path) {
     ma_uint64 total_frames = 0;
     ma_decoder_get_length_in_pcm_frames(&decoder, &total_frames);
     auto pcm = shared<std::vector<float>>();
-    pcm->resize(static_cast<size_t>(total_frames * SLV_AUDIO_CHANNELS));
+    pcm->resize(static_cast<size_t>(total_frames * CRX_AUDIO_CHANNELS));
 
     ma_uint64 total_read = 0;
     while (total_read < total_frames) {
         ma_uint64 frames_read = 0;
         ma_result r = ma_decoder_read_pcm_frames(
             &decoder,
-            pcm->data() + total_read * SLV_AUDIO_CHANNELS,
+            pcm->data() + total_read * CRX_AUDIO_CHANNELS,
             total_frames - total_read,
             &frames_read
         );
@@ -245,7 +245,7 @@ sptr<std::vector<float>> ResourceManager::load_pcm_data(std::string_view path) {
     ma_decoder_uninit(&decoder);
 
     // shrink if decoder returned fewer frames than expected
-    pcm->resize(static_cast<size_t>(total_read * SLV_AUDIO_CHANNELS));
+    pcm->resize(static_cast<size_t>(total_read * CRX_AUDIO_CHANNELS));
     auto [it, _] = cached_pcm_datas_.emplace(abs_path, pcm);
     return it->second;
 }

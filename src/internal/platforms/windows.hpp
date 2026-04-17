@@ -1,6 +1,6 @@
 #pragma once
 
-namespace slv::win32 {
+namespace crx::win32 {
 
 bool enable_console_colors();
 void init_mem_dump();

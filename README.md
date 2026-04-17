@@ -12,9 +12,9 @@
 
 ---
 
-slv is a simple and lightweight 2D game engine.
+slv is a simple and lightweight 2D Game engine.
 
-###### You are looking at a developing game engine in its early stages.
+###### You are looking at a developing Game engine in its early stages.
 
 ### Features
 

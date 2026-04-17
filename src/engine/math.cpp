@@ -1,7 +1,7 @@
 #pragma once
 #include <slv/engine/math.hpp>
 
-namespace slv::math {
+namespace crx::math {
 
 float deg2rad(float deg) {
     return deg * (pi / 180.f);

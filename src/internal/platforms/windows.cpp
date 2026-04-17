@@ -41,7 +41,7 @@ float proc_memory(float divisor) {
 
 }
 
-namespace slv::win32 {
+namespace crx::win32 {
 
 bool enable_console_colors() {
     HANDLE h_out = GetStdHandle(STD_OUTPUT_HANDLE);

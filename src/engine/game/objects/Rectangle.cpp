@@ -1,7 +1,7 @@
-#include <slv/engine/game/objects/rectangle.hpp>
+#include <slv/engine/Game/objects/rectangle.hpp>
 #include "rl.hpp"
 
-namespace slv {
+namespace crx {
 
 Rectangle::Rectangle(size<float> const& bounds, rgb const& color_val) {
 	bounds_ = bounds;

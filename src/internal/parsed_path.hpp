@@ -2,7 +2,7 @@
 #include <string>
 #include <string_view>
 
-namespace slv {
+namespace crx {
 
 struct parsed_path final {
 	parsed_path() = default;

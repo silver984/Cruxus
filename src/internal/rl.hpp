@@ -3,7 +3,7 @@
 #include <slv/types/graphic.hpp>
 #include <optional>
 
-namespace slv::rl {
+namespace crx::rl {
 
 bool init_window(size<int> const& bounds, int fps, char const* title);
 void set_window_size(size<int> const& bounds);
