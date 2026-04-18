@@ -7,16 +7,16 @@
 namespace crx {
 class Game;
 class Window;
-class CRX_DLL AudioManager final {
+class CRX_DLL AudioSys final {
 	friend class Game;
 private:
-	AudioManager();
-	~AudioManager();
+	AudioSys();
+	~AudioSys();
 public:
-	AudioManager(AudioManager const&) = delete;
-	AudioManager(AudioManager&&) = delete;
-	AudioManager& operator =(AudioManager const&) = delete;
-	AudioManager& operator =(AudioManager&&) = delete;
+	AudioSys(AudioSys const&) = delete;
+	AudioSys(AudioSys&&) = delete;
+	AudioSys& operator =(AudioSys const&) = delete;
+	AudioSys& operator =(AudioSys&&) = delete;
 
 	void push_audio(sptr<std::vector<float>> pcm, float volume) const;
 private:

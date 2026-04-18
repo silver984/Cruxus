@@ -1,5 +1,5 @@
-#include <crx/engine/Game/objects/rectangle.hpp>
-#include "rl.hpp"
+#include <crx/engine/Game/objects/rectangle.hh>
+#include "rl.hh"
 
 namespace crx {
 

@@ -1,10 +1,10 @@
 #pragma once
 #include <crx/config.hh>
-#include <crx/engine/Game/objects/Sprite.hpp>
+#include <crx/engine/Game/objects/Sprite.hh>
 #include <crx/engine/util/pointers.hh>
-#include <crx/types/primitives.hpp>
-#include <crx/types/graphic.hpp>
-#include <crx/types/string_map.hpp>
+#include <crx/types/primitives.hh>
+#include <crx/types/graphic.hh>
+#include <crx/types/string_map.hh>
 #include <cstddef>
 #include <string>
 #include <string_view>

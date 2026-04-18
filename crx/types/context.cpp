@@ -1,9 +1,9 @@
-#include <crx/engine/main/context.hpp>
+#include <crx/engine/main/context.hh>
 
 namespace crx {
 
 context::context(
-	AudioManager* audio_manager,
+	AudioSys* audio_manager,
 	DebugManager* debug_manager,
 	InputSys* input_manager,
 	ResourceSys* resource_manager,

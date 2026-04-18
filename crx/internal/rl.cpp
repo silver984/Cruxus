@@ -1,7 +1,7 @@
-#include "rl.hpp"
-#include <crx/engine/math.hpp>
+#include "rl.hh"
+#include <crx/engine/math.hh>
 #ifdef _WIN32
-#include "platforms/windows.hpp"
+#include "platforms/windows.hh"
 #endif
 #include <raylib.h>
 #include <rlgl.h>
@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <numeric>
 #include <stb_image.h>
-#include <crx/engine/log.hpp>
+#include <crx/engine/log.hh>
 #include <fmt/format.h>
 
 namespace {

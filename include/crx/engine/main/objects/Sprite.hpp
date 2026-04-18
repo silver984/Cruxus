@@ -2,8 +2,8 @@
 #include <crx/config.hh>
 #include <crx/engine/main/objects/Node.hh>
 #include <crx/engine/util/pointers.hh>
-#include <crx/types/rect.hpp>
-#include <crx/types/graphic.hpp>
+#include <crx/types/rect.hh>
+#include <crx/types/graphic.hh>
 #include <crx/engine/main/context.hh>
 #include <string>
 #include <string_view>

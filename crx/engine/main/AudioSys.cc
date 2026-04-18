@@ -1,4 +1,4 @@
-#include <crx/engine/main/AudioManager.cc>
+#include <crx/engine/main/AudioSys.hh>
 #include <crx/engine/main/Window.hh>
 #include <crx/engine/debug/log.hh>
 #include <fmt/format.h>
@@ -42,7 +42,7 @@ struct audio_user_data final {
     Window* window_ptr;
 };
 
-struct AudioManager::impl final {
+struct AudioSys::impl final {
     bool init(Window* window) {
         if (user_data.is_initialized.load()) {
             return true;
@@ -226,24 +226,24 @@ struct AudioManager::impl final {
 };
 
 // private
-AudioManager::AudioManager() :
+AudioSys::AudioSys() :
     impl_(unique<impl>())
 {}
 
 // private
-AudioManager::~AudioManager() = default;
+AudioSys::~AudioSys() = default;
 
-void AudioManager::push_audio(sptr<std::vector<float>> pcm, float volume) const {
+void AudioSys::push_audio(sptr<std::vector<float>> pcm, float volume) const {
     impl_->push_audio(pcm, volume);
 }
 
 // private
-bool AudioManager::init(Window* Window) {
+bool AudioSys::init(Window* Window) {
     return impl_->init(Window);
 }
 
 // private
-void AudioManager::uninit() const {
+void AudioSys::uninit() const {
     impl_->uninit();
 }
 

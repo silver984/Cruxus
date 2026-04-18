@@ -8,8 +8,8 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
-#include "parsed_path.hpp"
-#include "rl.hpp"
+#include "parsed_path.hh"
+#include "rl.hh"
 
 namespace crx {
 // private

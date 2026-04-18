@@ -1,10 +1,10 @@
 #include <crx/engine/main/Window.hh>
-#include <crx/engine/main/backend/AudioManager.hpp>
+#include <crx/engine/main/backend/AudioSys.hh>
 #include <fmt/format.h>
-#include <crx/engine/log.hpp>
-#include "rl.hpp"
+#include <crx/engine/log.hh>
+#include "rl.hh"
 #ifdef _WIN32
-#include "platforms/windows.hpp"
+#include "platforms/windows.hh"
 #endif
 #include <raylib.h>
 #include <algorithm>

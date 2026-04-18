@@ -1,6 +1,6 @@
-#include <crx/engine/Game/objects/Sprite.hpp>
-#include <crx/engine/main/backend/ResourceSys.hpp>
-#include "rl.hpp"
+#include <crx/engine/Game/objects/Sprite.hh>
+#include <crx/engine/main/backend/ResourceSys.hh>
+#include "rl.hh"
 
 namespace crx {
 

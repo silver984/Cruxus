@@ -7,6 +7,7 @@ target_sources(cruxus
         Context.cc
         Director.cc
         Game.cc
+        InputSys.cc
         ResourceSys.cc
         Window.cc
 )

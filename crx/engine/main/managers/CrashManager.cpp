@@ -1,7 +1,7 @@
-#include <crx/engine/main/backend/CrashManager.hpp>
-#include <crx/engine/log.hpp>
+#include <crx/engine/main/backend/CrashManager.hh>
+#include <crx/engine/log.hh>
 #ifdef _WIN32
-#include "platforms/windows.hpp"
+#include "platforms/windows.hh"
 #endif
 
 namespace crx {

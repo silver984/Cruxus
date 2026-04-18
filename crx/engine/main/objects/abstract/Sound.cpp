@@ -1,6 +1,6 @@
-#include <crx/engine/Game/objects/abstract/Sound.hpp>
-#include <crx/engine/main/backend/ResourceSys.hpp>
-#include <crx/engine/main/backend/AudioManager.hpp>
+#include <crx/engine/Game/objects/abstract/Sound.hh>
+#include <crx/engine/main/backend/ResourceSys.hh>
+#include <crx/engine/main/backend/AudioSys.hh>
 #include <algorithm>
 
 namespace crx {

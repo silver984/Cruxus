@@ -1,7 +1,7 @@
-#include <crx/engine/Game/objects/AnimatedSprite.hpp>
-#include <crx/engine/main/backend/ResourceSys.hpp>
-#include "rl.hpp"
-#include <crx/engine/log.hpp>
+#include <crx/engine/Game/objects/AnimatedSprite.hh>
+#include <crx/engine/main/backend/ResourceSys.hh>
+#include "rl.hh"
+#include <crx/engine/log.hh>
 #include <fmt/format.h>
 #include <algorithm>
 

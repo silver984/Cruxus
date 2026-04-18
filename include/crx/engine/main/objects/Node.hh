@@ -1,6 +1,6 @@
 #pragma once
 #include <crx/config.hh>
-#include <crx/types/primitives.hpp>
+#include <crx/types/primitives.hh>
 #include <crx/engine/util/pointers.hh>
 #include <crx/engine/main/context.hh>
 #include <vector>

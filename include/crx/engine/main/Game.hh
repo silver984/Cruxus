@@ -6,7 +6,7 @@
 #include <string_view>
 
 namespace crx {
-class AudioManager;
+class AudioSys;
 class CrashManager;
 class DebugManager;
 class InputSys;
@@ -32,7 +32,7 @@ public:
 	[[nodiscard]] context ctx();
 
 private:
-	AudioManager audio_;
+	AudioSys audio_;
 	CrashManager crash_;
 	DebugManager debug_;
 	InputSys input_;
