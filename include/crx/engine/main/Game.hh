@@ -1,12 +1,11 @@
 #pragma once
 #include <crx/config.hh>
-#include <crx/engine/main/backend/window.hpp>
+#include <crx/engine/main/backend/Window.hh>
 #include <crx/engine/main/context.hh>
 #include <crx/engine/math/size.hh>
 #include <string_view>
 
 namespace crx {
-
 class AudioManager;
 class CrashManager;
 class DebugManager;
@@ -30,8 +29,7 @@ public:
 		window_settings win_settings
 	);
 	void run();
-	
-	[[nodiscard]] context get_ctx();
+	[[nodiscard]] context ctx();
 
 private:
 	AudioManager audio_;
@@ -40,9 +38,8 @@ private:
 	InputManager input_;
 	ResourceManager resource_;
 	Director scene_;
-	window window_;
+	Window window_;
 	bool is_initialized_;
 	bool is_window_minimized_;
 };
-
 }

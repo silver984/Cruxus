@@ -4,17 +4,33 @@
 namespace crx {
 class AudioManager;
 class DebugManager;
+class Game;
 class InputManager;
 class ResourceManager;
 class Director;
 class Window;
 
 struct CRX_DLL context final {
-	AudioManager const* const audio;
-	DebugManager const* const debug;
-	InputManager const* const input;
-	ResourceManager const* const resource;
-	Director const* const director;
-	Window const* const window;
+	friend class Game;
+private:
+	context();
+	explicit context(
+		AudioManager* audio,
+		DebugManager* debug,
+		InputManager* input,
+		ResourceManager* resource,
+		Director* director,
+		Window* window
+	);
+public:
+	[[nodiscard]] Director* const& director();
+	[[nodiscard]] Window* const& window();
+private:
+	AudioManager* audio_;
+	DebugManager* debug_;
+	InputManager* input_;
+	ResourceManager* resource_;
+	Director* director_;
+	Window* window_;
 };
 }
