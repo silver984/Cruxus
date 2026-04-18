@@ -1,5 +1,5 @@
 #include <crx/engine/main/objects/Node.hh>
-#include <crx/engine/main/backend/Window.hh>
+#include <crx/engine/main/Window.hh>
 #include <crx/engine/math/math.hh>
 #include <algorithm>
 #include <cmath>
@@ -212,7 +212,7 @@ void Node::base_update(context const& ctx, float dt) {
 	}
 
 	alpha = std::clamp(alpha, 0.f, 1.f);
-	bool window_was_resized = ctx.Window ? ctx.Window->was_resized() : false;
+	bool window_was_resized = ctx.window() ? ctx.window()->was_resized() : false;
 
 	if (
 		window_was_resized ||
@@ -241,11 +241,11 @@ void Node::base_update(context const& ctx, float dt) {
 		);
 		
 		auto skew_rad = vec2<float>(
-			slv::math::deg2rad(skew.x),
-			slv::math::deg2rad(skew.y)
+			math::deg2rad(skew.x),
+			math::deg2rad(skew.y)
 		);
 		
-		float rotation_rad = slv::math::deg2rad(rotation);
+		float rotation_rad = math::deg2rad(rotation);
 
 		mat3 T = mat3::translation(pos);
 		mat3 R = mat3::rotation(rotation_rad);
@@ -259,7 +259,7 @@ void Node::base_update(context const& ctx, float dt) {
 			world_transform_ = p->world_transform_ * local_transform_;
 			world_alpha_ = std::clamp(alpha * p->world_alpha_, 0.f, 1.f);
 		} else {
-			float ui_scale = ctx.Window ? ctx.Window->ui_scale() : 1.f;
+			float ui_scale = ctx.window() ? ctx.window()->ui_scale() : 1.f;
 			mat3 UI = mat3::scale(vec2<float>(ui_scale, ui_scale));
 			world_transform_ = UI * local_transform_;
 			world_alpha_ = alpha;

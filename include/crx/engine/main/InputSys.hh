@@ -5,9 +5,11 @@
 #include <bitset>
 
 namespace crx {
+
 class Game;
 class CRX_DLL InputSys final {
 	friend class Game;
+
 private:
 	InputSys();
 	~InputSys();
@@ -17,6 +19,7 @@ private:
 		previous,
 		count
 	};
+
 public:
 	InputSys(InputSys const&) = delete;
 	InputSys(InputSys&&) = delete;
@@ -28,6 +31,7 @@ public:
 	[[nodiscard]] bool is_key_released(keys key) const;
 	void invoke_key(keys key);
 	[[nodiscard]] keys cur_key_pressed() const;
+
 private:
 	void update(float dt);
 

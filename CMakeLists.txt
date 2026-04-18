@@ -22,19 +22,11 @@ add_library(cruxus::cruxus ALIAS cruxus)
 
 target_sources(cruxus
     PRIVATE
-        crx/miniaudio.cc
-        crx/stb_image.cc
         crx/engine/debug/log.cc
 )
 
-# platform specific sources
-if(WIN32)
-    target_sources(cruxus
-        PRIVATE
-            crx/internal/platforms/windows.cc
-    )
-endif()
-
+add_subdirectory(crx/external)
+add_subdirectory(crx/internal)
 add_subdirectory(crx/engine/main)
 
 target_include_directories(cruxus

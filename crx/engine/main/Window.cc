@@ -1,7 +1,7 @@
 #include <crx/engine/main/Window.hh>
-#include <crx/engine/main/backend/AudioSys.hh>
+#include <crx/engine/main/AudioSys.hh>
 #include <fmt/format.h>
-#include <crx/engine/log.hh>
+#include <crx/engine/debug/log.hh>
 #include "rl.hh"
 #ifdef _WIN32
 #include "platforms/windows.hh"
@@ -25,10 +25,10 @@ void log(int level, char const* msg, va_list args) {
 
 	switch (level) {
 	case LOG_WARNING:
-		slv::log::warning(buffer);
+		crx::log::warning(buffer);
 		break;
 	case LOG_ERROR:
-		slv::log::error(buffer);
+		crx::log::error(buffer);
 		break;
 	default: break;
 	}
@@ -36,6 +36,7 @@ void log(int level, char const* msg, va_list args) {
 }
 
 namespace crx {
+
 // private
 Window::Window() :
 	target_fps_(0),
@@ -50,14 +51,11 @@ Window::Window() :
 {}
 
 // private
-Window::~Window() = default;
-
-// private
 bool Window::init(
 	std::string_view title,
 	size<int> const& size,
 	int fps,
-	window_settings settings,
+	config& cnfg,
 	context const& ctx
 ) {
 	if (is_initialized_) {
@@ -71,7 +69,7 @@ bool Window::init(
 #endif
 
 	SetTraceLogCallback(::raylib::log);
-	configure_settings(settings);
+	configure_configurations(cnfg);
 
 	title_ = std::string(title);
 	default_screen_size_.width = std::max(1, size.width);
@@ -174,16 +172,16 @@ void Window::start_draw() const {
 }
 
 // private
-void Window::end_draw() const {
+void Window::end_draw() {
 	if (!is_initialized_) {
 		return;
 	}
 
 #if defined(CRX_DEBUG) || defined(CRX_RELWITHDEBINFO)
-	std::string debug_text = fmt::format("FPS: {}", running_fps());
+	debug_text_ = fmt::format("FPS: {}", running_fps());
 
 	if (memory_usage_ != 0.f) {
-		debug_text += fmt::format(
+		debug_text_ += fmt::format(
 			"\nMEM: {:.2f}MB / {:.2f}MB",
 			memory_usage_,
 			max_memory_usage_
@@ -193,7 +191,7 @@ void Window::end_draw() const {
 	int text_size = 10;
 	int text_border_padding = 5;
 	DrawText(
-		debug_text.c_str(),
+		debug_text_.c_str(),
 		text_border_padding,
 		text_border_padding,
 		text_size,
@@ -449,39 +447,62 @@ vec2<int> Window::pos() const {
 }
 
 // private
-void Window::configure_settings(window_settings settings) {
-	using enum window_settings;
-	bool is_vsync = (settings & VSYNC) != NONE;
-	bool is_unresizable = (settings & UNRESIZABLE) != NONE;
-	bool is_start_fullscreen = (settings & START_FULLSCREEN) != NONE; // TODO: fix startup with this setting on
-	bool is_borderless = (settings & BORDERLESS) != NONE;
-	bool is_transparent = (settings & TRANSPARENT) != NONE;
+void Window::configure_configurations(config& specs) {
+	// TODO: fix startup with this setting on
+
 	int flags = 0;
 
-	if (is_transparent) {
+	if (specs.transparent) {
 		flags |= FLAG_WINDOW_TRANSPARENT;
-		is_start_fullscreen = false;
-		is_borderless = true;
+		specs.start_fullscreen = false;
+		specs.borderless = true;
 	}
 
-	if (is_vsync) {
+	if (specs.vsync) {
 		flags |= FLAG_VSYNC_HINT;
 	}
 
-	if (is_borderless) {
-		is_unresizable = true;
+	if (specs.borderless) {
 		flags |= FLAG_WINDOW_UNDECORATED;
+		specs.unresizable = true;
 	}
 
-	bool resizable = !is_unresizable; // just for clarity
-	if (resizable) {
+	if (
+		bool resizable = !specs.unresizable; // just for clarity
+		resizable
+	) {
 		flags |= FLAG_WINDOW_RESIZABLE;
 	}
 
-	if (is_start_fullscreen) {
+	if (specs.start_fullscreen) {
 		flags |= FLAG_FULLSCREEN_MODE;
 	}
 
-	SetConfigFlags(flags);
+	if (flags != 0) {
+		SetConfigFlags(flags);
+	}
 }
+
+Window::config::config() :
+	vsync(true),
+	unresizable(false),
+	start_fullscreen(false),
+	borderless(false),
+	transparent(false)
+{}
+
+Window::config::config(
+	bool vsync_val,
+	bool unresizable_val,
+	bool start_fullscreen_val,
+	bool borderless_val,
+	bool transparent_val
+) :
+	vsync(vsync_val),
+	unresizable(unresizable_val),
+	start_fullscreen(start_fullscreen_val),
+	borderless(borderless_val),
+	transparent(transparent_val)
+{}
+
 }

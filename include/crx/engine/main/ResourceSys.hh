@@ -10,6 +10,7 @@
 #include <source_location>
 
 namespace crx {
+
 class Game;
 class CRX_DLL ResourceSys final {
 	friend class Game;
@@ -31,7 +32,7 @@ public:
 
 	[[nodiscard]] sptr<texture> load_texture(std::string_view file);
 	// TODO: change this
-	[[nodiscard]] sptr<atlas_data> load_atlas_data(std::string_view file);
+	// [[nodiscard]] sptr<atlas_data> load_atlas_data(std::string_view file);
 	[[nodiscard]] sptr<std::vector<float>> load_pcm_data(std::string_view file);
 private:
 	void update(float dt);
@@ -53,4 +54,5 @@ private:
 	string_map<sptr<std::vector<float>>> cached_pcm_datas_;
 	float since_cleanup_;
 };
+
 }

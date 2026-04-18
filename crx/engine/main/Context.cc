@@ -1,50 +1,39 @@
-#include <crx/engine/main/Context.hh>
+#include <crx/engine/main/context.hh>
 
 namespace crx {
-// private
-Context::Context() :
-	audio_sys_(nullptr),
-	input_sys_(nullptr),
-	resource_sys_(nullptr),
-	window_(nullptr),
-	director_(nullptr)
-{}
 
-// private
-Context::Context(
-	AudioSys* audio_sys,
-	InputSys* input_sys,
-	ResourceSys* resource_sys,
-	Director* director,
-	Window* window
+context::context(
+	AudioSys* a,
+	InputSys* i,
+	ResourceSys* r,
+	Director* d,
+	Window* w
 ) :
-	audio_sys_(audio_sys),
-	input_sys_(input_sys),
-	resource_sys_(resource_sys),
-	window_(window),
-	director_(director)
+	audio_sys_(a),
+	input_sys_(i),
+	resource_sys_(r),
+	director_(d),
+	window_(w)
 {}
 
-// private
-Context::~Context() = default;
-
-InputSys* const& Context::input_sys() {
+InputSys const* context::input_sys() const {
 	return input_sys_;
 }
 
-AudioSys* const& Context::audio_sys() {
+AudioSys const* context::audio_sys() const {
 	return audio_sys_;
 }
 
-ResourceSys* const& Context::resource_sys() {
+ResourceSys const* context::resource_sys() const {
 	return resource_sys_;
 }
 
-Director* const& Context::director() {
+Director const* context::director() const {
 	return director_;
 }
 
-Window* const& Context::window() {
+Window const* context::window() const {
 	return window_;
 }
+
 }

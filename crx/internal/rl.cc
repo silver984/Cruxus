@@ -1,5 +1,5 @@
 #include "rl.hh"
-#include <crx/engine/math.hh>
+#include <crx/engine/math/math.hh>
 #ifdef _WIN32
 #include "platforms/windows.hh"
 #endif

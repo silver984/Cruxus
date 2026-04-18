@@ -12,6 +12,7 @@
 #include "rl.hh"
 
 namespace crx {
+
 // private
 ResourceSys::ResourceSys() :
     since_cleanup_(0.f),
@@ -52,6 +53,7 @@ sptr<texture> ResourceSys::load_texture(std::string_view path) {
     return it->second;
 }
 
+/*
 sptr<atlas_data> ResourceSys::load_atlas_data(std::string_view path) {
     auto parsed = parsed_path::parse(path);
     const auto& abs_path = parsed.stitched;
@@ -171,6 +173,7 @@ sptr<atlas_data> ResourceSys::load_atlas_data(std::string_view path) {
     auto [it, _] = cached_atlas_datas_.emplace(abs_path, data);
     return it->second;
 }
+*/
 
 sptr<std::vector<float>> ResourceSys::load_pcm_data(std::string_view path) {
     auto parsed = parsed_path::parse(path);
@@ -296,4 +299,5 @@ void ResourceSys::log_fail(
 ) {
     log::error(fmt::format("Failed to load: \"{}\"", path), loc);
 }
+
 }

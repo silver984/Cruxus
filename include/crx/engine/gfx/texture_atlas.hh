@@ -7,6 +7,7 @@
 #include <vector>
 
 namespace crx {
+
 struct CRX_DLL texture_atlas final {
 	struct CRX_DLL element final {
 		rect<int> rect; // pixel bounds in atlas
@@ -16,4 +17,5 @@ struct CRX_DLL texture_atlas final {
 	string_map<element> elements;
 	texture base_texture;
 };
+
 }

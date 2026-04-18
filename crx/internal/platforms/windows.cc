@@ -7,6 +7,7 @@
 #pragma comment(lib, "Dbghelp.lib")
 
 namespace {
+
 LONG WINAPI HandleException(EXCEPTION_POINTERS* exception_info) {
     SYSTEMTIME time;
     GetLocalTime(&time);
@@ -37,9 +38,11 @@ float proc_memory(float divisor) {
 
     return 0.f;
 }
+
 }
 
 namespace crx::win32 {
+
 bool enable_console_colors() {
     HANDLE h_out = GetStdHandle(STD_OUTPUT_HANDLE);
     if (h_out == INVALID_HANDLE_VALUE) {
@@ -71,4 +74,5 @@ float proc_memory_mb() {
 float proc_memory_gb() {
     return proc_memory(1024.f * 1024.f * 1024.f);
 }
+
 }

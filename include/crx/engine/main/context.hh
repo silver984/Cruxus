@@ -2,36 +2,38 @@
 #include <crx/config.hh>
 
 namespace crx {
+
 class AudioSys;
-class Game;
 class InputSys;
 class ResourceSys;
 class Director;
 class Window;
+class Game;
 
-class CRX_DLL Context final {
+struct CRX_DLL context final {
 	friend class Game;
 private:
-	Context();
-	explicit Context(
-		AudioSys* audio_sys,
-		InputSys* input_sys,
-		ResourceSys* resource_sys,
-		Director* director,
-		Window* window
+	context();
+	explicit context(
+		AudioSys* a,
+		InputSys* i,
+		ResourceSys* r,
+		Director* d,
+		Window* w
 	);
-	~Context();
-public:
-	Context(Context const&) = delete;
-	Context(Context&&) = delete;
-	Context& operator =(Context const&) = delete;
-	Context& operator =(Context&&) = delete;
 
-	[[nodiscard]] InputSys* const& input_sys();
-	[[nodiscard]] AudioSys* const& audio_sys();
-	[[nodiscard]] ResourceSys* const& resource_sys();
-	[[nodiscard]] Director* const& director();
-	[[nodiscard]] Window* const& window();
+public:
+	context(context const&) = delete;
+	context(context&&) = delete;
+	context& operator =(context const&) = delete;
+	context& operator =(context&&) = delete;
+
+	[[nodiscard]] InputSys const* input_sys() const;
+	[[nodiscard]] AudioSys const* audio_sys() const;
+	[[nodiscard]] ResourceSys const* resource_sys() const;
+	[[nodiscard]] Director const* director() const;
+	[[nodiscard]] Window const* window() const;
+
 private:
 	AudioSys* audio_sys_;
 	InputSys* input_sys_;
@@ -39,4 +41,5 @@ private:
 	Director* director_;
 	Window* window_;
 };
+
 }
