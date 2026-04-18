@@ -103,6 +103,17 @@ void trace(
 #endif
 }
 
+void debug(
+	std::string_view message,
+	std::source_location const& loc
+) {
+#ifdef CRX_COLORED_LOGS
+	print(fmt::color::medium_violet_red, "DEBUG", message, loc);
+#else
+	print("DEBUG", message, loc);
+#endif
+}
+
 void info(
 	std::string_view message,
 	std::source_location const& loc

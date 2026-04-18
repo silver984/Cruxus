@@ -1,6 +1,6 @@
-#include <crx/engine/main/backend/AudioManager.hpp>
-#include <crx/engine/main/backend/Window.hpp>
-#include <crx/engine/log.hpp>
+#include <crx/engine/main/AudioManager.cc>
+#include <crx/engine/main/Window.hh>
+#include <crx/engine/debug/log.hh>
 #include <fmt/format.h>
 #include <miniaudio.h>
 #include <mutex>
@@ -43,17 +43,17 @@ struct audio_user_data final {
 };
 
 struct AudioManager::impl final {
-    bool init(Window* Window) {
+    bool init(Window* window) {
         if (user_data.is_initialized.load()) {
             return true;
         }
 
-        if (!Window) {
-            log::error("Window pointer is nullptr");
+        if (!window) {
+            log::error("Failed to initialize | assed window pointer is nullptr");
             return false;
         }
 
-        user_data.window_ptr = Window;
+        user_data.window_ptr = window;
 
         ma_device_config config = ma_device_config_init(ma_device_type_playback);
         config.playback.format = ma_format_f32;
@@ -66,13 +66,7 @@ struct AudioManager::impl final {
             ma_result result = ma_device_init(nullptr, &config, &user_data.device);
             result != MA_SUCCESS
         ) {
-            log::error(
-                fmt::format(
-                    "ma_device_init -> ma_result: {}",
-                    static_cast<int>(result)
-                )
-            );
-
+            log::error(fmt::format("Failed to initialize | ma_device_init -> ma_result: {}", (int)result));
             return false;
         }
 
@@ -80,21 +74,14 @@ struct AudioManager::impl final {
             ma_result result = ma_device_start(&user_data.device);
             result != MA_SUCCESS
         ) {
-            log::error(
-                fmt::format(
-                    "ma_device_start -> ma_result: {}",
-                    static_cast<int>(result)
-                )
-            );
-
+            log::error(fmt::format("Failed to initialize | ma_device_start -> ma_result: {}", (int)result));
             ma_device_uninit(&user_data.device);
-
             return false;
         }
 
         user_data.is_initialized.store(true);
 
-        log::info("Sound initialized");
+        log::info("Initialized");
 
         return true;
     }
@@ -104,9 +91,14 @@ struct AudioManager::impl final {
             return;
         }
 
-        log::info("Sound exiting...");
+        log::info("Exiting...");
 
-        ma_device_stop(&user_data.device);
+        if (
+            auto res = ma_device_stop(&user_data.device);
+            res != MA_SUCCESS
+        ) {
+            log::warning(fmt::format("Failed to stop device | ma_device_stop -> {}", res));
+        }
         
         // clear sounds
         {
@@ -121,11 +113,22 @@ struct AudioManager::impl final {
     }
 
     void push_audio(sptr<std::vector<float>> pcm, float volume) {
-        if (
-           !user_data.is_initialized.load() ||
-           !pcm || pcm->empty() ||
-           (pcm->size() % CRX_AUDIO_CHANNELS) != 0
-        ) {
+        if (!user_data.is_initialized.load()) {
+            return;
+        }
+
+        if (!pcm) {
+            log::error("Attempted to push audio with nullptr pcm");
+            return;
+        }
+
+        if (pcm->empty()) {
+            log::error("Attempted to push audio with empty pcm");
+            return;
+        }
+
+        if ((pcm->size() % CRX_AUDIO_CHANNELS) != 0) {
+            log::error("Attempted to push audio with invalid pcm");
             return;
         }
 

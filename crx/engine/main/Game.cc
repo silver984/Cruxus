@@ -45,6 +45,8 @@ bool Game::init(
 
 	is_initialized_ = true;
 
+	log::info("Game initialized");
+
 	return true;
 }
 
@@ -85,10 +87,17 @@ void Game::run() {
 		}
 	}
 
+	log::debug("Cleaning up...");
+	auto start = std::chrono::high_resolution_clock::now();
+
 	scene_.safely_destroy_scene();
 	resource_.clean_cache();
 	audio_.uninit();
 	window_.uninit();
+
+	auto end = std::chrono::high_resolution_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+	log::debug(fmt::format("Took {}ms", elapsed.count()));
 }
 
 context Game::get_ctx() {

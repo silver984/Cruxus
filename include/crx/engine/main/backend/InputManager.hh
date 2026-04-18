@@ -7,12 +7,12 @@
 namespace crx {
 
 class Game; // forward declare
-class CRX_DLL InputManager final {
+class CRX_DLL InputSys final {
 	friend class Game;
 
 private:
-	InputManager();
-	~InputManager();
+	InputSys();
+	~InputSys();
 
 	enum class key_down_state : int {
 		CURRENT,
@@ -21,10 +21,10 @@ private:
 	};
 
 public:
-	InputManager(InputManager const&) = delete;
-	InputManager(InputManager&&) = delete;
-	InputManager& operator=(InputManager const&) = delete;
-	InputManager& operator=(InputManager&&) = delete;
+	InputSys(InputSys const&) = delete;
+	InputSys(InputSys&&) = delete;
+	InputSys& operator=(InputSys const&) = delete;
+	InputSys& operator=(InputSys&&) = delete;
 
 	[[nodiscard]] bool is_key_down(key key_val) const;
 	[[nodiscard]] bool is_key_pressed(key key_val) const;

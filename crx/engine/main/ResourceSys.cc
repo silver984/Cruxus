@@ -1,5 +1,5 @@
-#include <crx/engine/main/backend/ResourceManager.hpp>
-#include <crx/engine/log.hpp>
+#include <crx/engine/main/ResourceSys.hh>
+#include <crx/engine/debug/log.hh>
 #include <miniaudio.h>
 #include <fmt/format.h>
 #include <tinyxml2.h>
@@ -12,9 +12,8 @@
 #include "rl.hpp"
 
 namespace crx {
-
 // private
-ResourceManager::ResourceManager() :
+ResourceSys::ResourceSys() :
     since_cleanup_(0.f),
     supported_formats_({
             std::vector<std::string>{ "png", "jpg", "jpeg" }, // image
@@ -24,9 +23,9 @@ ResourceManager::ResourceManager() :
 {}
 
 // private
-ResourceManager::~ResourceManager() = default;
+ResourceSys::~ResourceSys() = default;
 
-sptr<texture> ResourceManager::load_texture(std::string_view path) {
+sptr<texture> ResourceSys::load_texture(std::string_view path) {
     auto parsed = parsed_path::parse(path);
     const auto& abs_path = parsed.stitched;
 
@@ -53,7 +52,7 @@ sptr<texture> ResourceManager::load_texture(std::string_view path) {
     return it->second;
 }
 
-sptr<atlas_data> ResourceManager::load_atlas_data(std::string_view path) {
+sptr<atlas_data> ResourceSys::load_atlas_data(std::string_view path) {
     auto parsed = parsed_path::parse(path);
     const auto& abs_path = parsed.stitched;
 
@@ -94,12 +93,7 @@ sptr<atlas_data> ResourceManager::load_atlas_data(std::string_view path) {
     if (strcmp(root->Name(), "TextureAtlas") == 0) {
         data->format = atlas_format::FLASH_XML;
     } else {
-        log::error(
-            fmt::format(
-                "Can't load atlas data with unsupported data. | path: \"{}\"",
-                abs_path
-            )
-        );
+        log::error(fmt::format("Can't load atlas data with unsupported data. | path: \"{}\"", abs_path));
         return nullptr;
     }
 
@@ -178,7 +172,7 @@ sptr<atlas_data> ResourceManager::load_atlas_data(std::string_view path) {
     return it->second;
 }
 
-sptr<std::vector<float>> ResourceManager::load_pcm_data(std::string_view path) {
+sptr<std::vector<float>> ResourceSys::load_pcm_data(std::string_view path) {
     auto parsed = parsed_path::parse(path);
     const auto& abs_path = parsed.stitched;
 
@@ -205,12 +199,7 @@ sptr<std::vector<float>> ResourceManager::load_pcm_data(std::string_view path) {
 
     if (result != MA_SUCCESS) {
         log_fail(abs_path);
-        log::error(
-            fmt::format(
-                "ma_decoder_init_file -> ma_result: {}",
-                static_cast<int>(result)
-            )
-        );
+        log::error(fmt::format("ma_decoder_init_file -> ma_result: {}", (int)result));
         return nullptr;
     }
 
@@ -230,12 +219,7 @@ sptr<std::vector<float>> ResourceManager::load_pcm_data(std::string_view path) {
         );
 
         if (r != MA_SUCCESS || frames_read == 0) {
-            log::warning(
-                fmt::format(
-                    "ma_decoder_read_pcm_frames -> ma_result: {}",
-                    static_cast<int>(r)
-                )
-            );
+            log::warning(fmt::format("ma_decoder_read_pcm_frames -> ma_result: {}", (int)r));
             break;
         }
 
@@ -251,7 +235,7 @@ sptr<std::vector<float>> ResourceManager::load_pcm_data(std::string_view path) {
 }
 
 // private
-void ResourceManager::update(float dt) {
+void ResourceSys::update(float dt) {
     since_cleanup_ += dt;
     static float cleanup_interval = 60.f;
     while (since_cleanup_ >= cleanup_interval) {
@@ -261,7 +245,7 @@ void ResourceManager::update(float dt) {
 }
 
 // private
-void ResourceManager::clean_cache() {
+void ResourceSys::clean_cache() {
     auto clean = [](auto& map) {
         for (auto it = map.begin(); it != map.end();) {
             if (it->second.use_count() <= 1) {
@@ -278,7 +262,7 @@ void ResourceManager::clean_cache() {
 }
 
 // private
-bool ResourceManager::is_format_supported(format_type type, std::string_view format) {
+bool ResourceSys::is_format_supported(format_type type, std::string_view format) {
     auto& vec = supported_formats_[type];
     return std::any_of(
         vec.begin(),
@@ -290,7 +274,7 @@ bool ResourceManager::is_format_supported(format_type type, std::string_view for
 }
 
 // private
-void ResourceManager::log_unsupported_format(
+void ResourceSys::log_unsupported_format(
     std::string_view format,
     std::string_view path,
     std::source_location const& loc
@@ -306,11 +290,10 @@ void ResourceManager::log_unsupported_format(
 }
 
 // private
-void ResourceManager::log_fail(
+void ResourceSys::log_fail(
     std::string_view path,
     std::source_location const& loc
 ) {
     log::error(fmt::format("Failed to load: \"{}\"", path), loc);
 }
-
 }

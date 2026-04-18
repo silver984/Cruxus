@@ -5,8 +5,8 @@ namespace crx {
 context::context(
 	AudioManager* audio_manager,
 	DebugManager* debug_manager,
-	InputManager* input_manager,
-	ResourceManager* resource_manager,
+	InputSys* input_manager,
+	ResourceSys* resource_manager,
 	Director* scene_manager,
 	Window* window_manager
 ) :

@@ -1,22 +1,22 @@
-#include <crx/engine/main/backend/InputManager.hpp>
+#include <crx/engine/main/backend/InputSys.hpp>
 #include <crx/engine/log.hpp>
 #include <raylib.h>
 
 namespace crx {
 
 // private
-InputManager::InputManager() :
+InputSys::InputSys() :
 	cur_key_pressed_(key::NULL_KEY)
 {}
 
 // private
-InputManager::~InputManager() = default;
+InputSys::~InputSys() = default;
 
-bool InputManager::is_key_down(key key_val) const {
+bool InputSys::is_key_down(key key_val) const {
 	return down_keys_[key_down_state::CURRENT].test(static_cast<size_t>(key_val));
 }
 
-bool InputManager::is_key_pressed(key key_val) const {
+bool InputSys::is_key_pressed(key key_val) const {
 	size_t idx = static_cast<size_t>(key_val);
 
 	return
@@ -24,7 +24,7 @@ bool InputManager::is_key_pressed(key key_val) const {
 		!down_keys_[key_down_state::PREVIOUS].test(idx);
 }
 
-bool InputManager::is_key_released(key key_val) const {
+bool InputSys::is_key_released(key key_val) const {
 	size_t idx = static_cast<size_t>(key_val);
 
 	return
@@ -32,16 +32,16 @@ bool InputManager::is_key_released(key key_val) const {
 		down_keys_[key_down_state::PREVIOUS].test(idx);
 }
 
-void InputManager::invoke_key(key key_val) {
+void InputSys::invoke_key(key key_val) {
 	down_keys_[key_down_state::CURRENT].set(static_cast<size_t>(key_val));
 }
 
-key InputManager::cur_key_pressed() const {
+key InputSys::cur_key_pressed() const {
 	return cur_key_pressed_;
 }
 
 // private
-void InputManager::update(float dt) {
+void InputSys::update(float dt) {
 	auto& cur_down_keys = down_keys_[key_down_state::CURRENT];
 	down_keys_[key_down_state::PREVIOUS] = cur_down_keys;
 	cur_down_keys.reset();

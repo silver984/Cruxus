@@ -9,8 +9,8 @@ namespace crx {
 class AudioManager;
 class CrashManager;
 class DebugManager;
-class InputManager;
-class ResourceManager;
+class InputSys;
+class ResourceSys;
 class Director;
 
 class CRX_DLL Game final {
@@ -35,8 +35,8 @@ private:
 	AudioManager audio_;
 	CrashManager crash_;
 	DebugManager debug_;
-	InputManager input_;
-	ResourceManager resource_;
+	InputSys input_;
+	ResourceSys resource_;
 	Director scene_;
 	Window window_;
 	bool is_initialized_;

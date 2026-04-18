@@ -9,6 +9,11 @@ CRX_DLL void trace(
 	const std::source_location& loc = std::source_location::current()
 );
 
+CRX_DLL void debug(
+	std::string_view message,
+	const std::source_location& loc = std::source_location::current()
+);
+
 CRX_DLL void info(
 	std::string_view message,
 	const std::source_location& loc = std::source_location::current()

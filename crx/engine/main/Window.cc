@@ -1,4 +1,4 @@
-#include <crx/engine/main/backend/Window.hpp>
+#include <crx/engine/main/Window.hh>
 #include <crx/engine/main/backend/AudioManager.hpp>
 #include <fmt/format.h>
 #include <crx/engine/log.hpp>
@@ -15,7 +15,6 @@
 // its own distinct messenger in the logs instead of
 // "slv::Window::init"
 namespace raylib {
-
 void log(int level, char const* msg, va_list args) {
 	if (level == LOG_TRACE || level == LOG_INFO) {
 		return;
@@ -28,19 +27,15 @@ void log(int level, char const* msg, va_list args) {
 	case LOG_WARNING:
 		slv::log::warning(buffer);
 		break;
-
 	case LOG_ERROR:
 		slv::log::error(buffer);
 		break;
-
 	default: break;
 	}
 }
-
 }
 
 namespace crx {
-
 // private
 Window::Window() :
 	target_fps_(0),
@@ -88,8 +83,9 @@ bool Window::init(
 	}
 
 	is_initialized_ = true;
-	log::info("Window initialized");
 	update(ctx, 0.f);
+
+	log::info("Window initialized");
 
 	return true;
 }
@@ -101,7 +97,9 @@ void Window::uninit() {
 	}
 
 	is_initialized_ = false;
-	log::info("Destroying Window...");
+
+	log::debug("Destroying Window...");
+	
 	CloseWindow();
 }
 
@@ -354,16 +352,24 @@ void Window::toggle_fullscreen(bool val) {
 		return;
 	}
 
-	if (val && !IsWindowFullscreen()) {
-		unmaximized_size_ = draw_size_;
-		auto monitor_size_val = monitor_size();
-		SetWindowSize(monitor_size_val.width, monitor_size_val.height);
-		ToggleFullscreen();
-		return;
-	}
+	if (val) {
+		if (!IsWindowFullscreen()) {
+			unmaximized_size_ = draw_size_;
+			auto monitor_size_val = monitor_size();
+		
+			SetWindowSize(monitor_size_val.width, monitor_size_val.height);
+			ToggleFullscreen();
+		
+			log::debug("Toggled fullscreen");
+		}
+	} else {
+		if (IsWindowFullscreen()) {
+			SetWindowSize(unmaximized_size_.width, unmaximized_size_.height);
+			ToggleFullscreen();
 
-	SetWindowSize(unmaximized_size_.width, unmaximized_size_.height);
-	ToggleFullscreen();
+			log::debug("Toggled windowed");
+		}
+	}
 }
 
 bool Window::is_fullscreen() const {
@@ -478,5 +484,4 @@ void Window::configure_settings(window_settings settings) {
 
 	SetConfigFlags(flags);
 }
-
-} // namespace crx
+}

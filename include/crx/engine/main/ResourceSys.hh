@@ -11,11 +11,11 @@
 
 namespace crx {
 class Game;
-class CRX_DLL ResourceManager final {
+class CRX_DLL ResourceSys final {
 	friend class Game;
 private:
-	ResourceManager();
-	~ResourceManager();
+	ResourceSys();
+	~ResourceSys();
 
 	enum class format_type : int {
 		IMAGE,
@@ -24,10 +24,10 @@ private:
 		count
 	};
 public:
-	ResourceManager(const ResourceManager&) = delete;
-	ResourceManager& operator=(const ResourceManager&) = delete;
-	ResourceManager(ResourceManager&&) = delete;
-	ResourceManager& operator=(ResourceManager&&) = delete;
+	ResourceSys(const ResourceSys&) = delete;
+	ResourceSys& operator=(const ResourceSys&) = delete;
+	ResourceSys(ResourceSys&&) = delete;
+	ResourceSys& operator=(ResourceSys&&) = delete;
 
 	[[nodiscard]] sptr<texture> load_texture(std::string_view file);
 	// TODO: change this
