@@ -6,7 +6,6 @@
 #include <cstddef>
 
 namespace crx {
-
 struct transparent_string_hash final {
     using is_transparent = void;
 
@@ -32,10 +31,5 @@ struct transparent_string_equal final {
 };
 
 template <typename T>
-using string_map = std::unordered_map<
-    std::string, T,
-    transparent_string_hash,
-    transparent_string_equal
->;
-
+using string_map = std::unordered_map<std::string, T, transparent_string_hash, transparent_string_equal>;
 }

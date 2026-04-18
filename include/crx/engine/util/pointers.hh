@@ -3,7 +3,6 @@
 #include <utility>
 
 namespace crx {
-
 template<typename T>
 using sptr = std::shared_ptr<T>;
 
@@ -22,5 +21,4 @@ template<typename T, typename... va_args>
 uptr<T> unique(va_args&&... args) {
 	return std::make_unique<T>(std::forward<va_args>(args)...);
 }
-
 }

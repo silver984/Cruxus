@@ -1,13 +1,13 @@
 #pragma once
 #include <crx/config.hh>
-#include <crx/types/context.hpp>
+#include <crx/engine/main/context.hpp>
 #include <crx/engine/math/vec2.hh>
 #include <crx/engine/math/size.hh>
 #include <string>
 #include <string_view>
 
 namespace crx {
-
+// TODO: make this a struct instead
 enum window_settings : int {
     none = 0,
     vsync = 1 << 0,
@@ -20,11 +20,9 @@ enum window_settings : int {
 class Game; // forward declare
 class CRX_DLL Window final {
     friend class Game;
-
 private:
     Window();
     ~Window();
-
 public:
     Window(Window const&) = delete;
     Window(Window&&) = delete;
@@ -61,7 +59,6 @@ public:
     void set_pos_x(int x);
     void set_pos_y(int y);
     void toggle_fullscreen(bool val);
-
 private:
     bool init(
         std::string_view title,
@@ -94,5 +91,4 @@ private:
     bool was_resized_;
     bool is_initialized_;
 };
-
 }

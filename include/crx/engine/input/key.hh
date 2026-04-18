@@ -1,7 +1,6 @@
 #pragma once
 
 namespace crx {
-
 enum class key : int {
     none = 0, // no key pressed
     apostrophe = 39, // '
@@ -220,5 +219,4 @@ constexpr const key all_keys[] =
     key::kp_enter,
     key::kp_equal,
 };
-
-}```
+}

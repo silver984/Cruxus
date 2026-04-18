@@ -1,7 +1,7 @@
 #pragma once
 #include <crx/config.hh>
-#include <crx/engine/Game/managers/window.hpp>
-#include <crx/types/context.hpp>
+#include <crx/engine/main/backend/window.hpp>
+#include <crx/engine/main/context.hh>
 #include <crx/engine/math/size.hh>
 #include <string_view>
 
@@ -12,7 +12,7 @@ class CrashManager;
 class DebugManager;
 class InputManager;
 class ResourceManager;
-class Harbor;
+class Director;
 
 class CRX_DLL Game final {
 public:
@@ -39,7 +39,7 @@ private:
 	DebugManager debug_;
 	InputManager input_;
 	ResourceManager resource_;
-	Harbor scene_;
+	Director scene_;
 	window window_;
 	bool is_initialized_;
 	bool is_window_minimized_;

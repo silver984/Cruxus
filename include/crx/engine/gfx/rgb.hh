@@ -5,7 +5,6 @@
 #include <algorithm>
 
 namespace crx {
-
 struct CRX_DLL rgb final {
     uint8_t r;
     uint8_t g;
@@ -13,5 +12,4 @@ struct CRX_DLL rgb final {
 
     // TODO: rework operators
 };
-
 }

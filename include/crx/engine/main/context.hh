@@ -2,21 +2,19 @@
 #include <crx/config.hh>
 
 namespace crx {
-
 class AudioManager;
 class DebugManager;
 class InputManager;
 class ResourceManager;
-class Harbor;
+class Director;
 class Window;
 
 struct CRX_DLL context final {
-	AudioManager* const audio;
-	DebugManager* const debug;
-	InputManager* const input;
-	ResourceManager* const resource;
-	Harbor* const scene;
-	Window* const window_ctx;
+	AudioManager const* const audio;
+	DebugManager const* const debug;
+	InputManager const* const input;
+	ResourceManager const* const resource;
+	Director const* const director;
+	Window const* const window;
 };
-
 }

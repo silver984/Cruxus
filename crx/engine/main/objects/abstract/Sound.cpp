@@ -1,0 +1,45 @@
+#include <crx/engine/Game/objects/abstract/Sound.hpp>
+#include <crx/engine/main/backend/ResourceManager.hpp>
+#include <crx/engine/main/backend/AudioManager.hpp>
+#include <algorithm>
+
+namespace crx {
+
+// private
+Sound::Sound(sptr<std::vector<float>> pcm) :
+	volume_(1.f),
+	pcm_(pcm)
+{}
+
+Sound::Sound() :
+	volume_(1.f),
+	pcm_(nullptr)
+{}
+
+Sound::~Sound() = default;
+
+Sound Sound::create(context const& ctx, std::string_view file_path) {
+	auto& resource = ctx.resource;
+
+	if (!resource) {
+		return {};
+	}
+
+	return Sound(resource->load_pcm_data(file_path));
+}
+
+void Sound::play(context const& ctx) const {
+	if (auto& audio = ctx.audio) {
+		audio->push_audio(pcm_, volume_);
+	}
+}
+
+void Sound::set_volume(float val) {
+	volume_ = std::clamp(val, 0.f, 2.f);
+}
+
+float Sound::volume() const {
+	return volume_;
+}
+
+}

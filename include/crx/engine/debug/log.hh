@@ -4,7 +4,6 @@
 #include <source_location>
 
 namespace crx::log {
-
 CRX_DLL void trace(
 	std::string_view message,
 	const std::source_location& loc = std::source_location::current()
@@ -24,5 +23,4 @@ CRX_DLL void error(
 	std::string_view message,
 	const std::source_location& loc = std::source_location::current()
 );
-
 }
