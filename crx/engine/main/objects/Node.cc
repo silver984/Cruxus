@@ -62,7 +62,7 @@ void Node::add(sptr<Node> vessel) {
 	}
 
 	vessel->parent_ = weak_from_this();
-	children_.push_back(vessel);
+	children_.emplace_back(vessel);
 }
 
 void Node::remove(sptr<Node> vessel) {
@@ -236,36 +236,7 @@ void Node::base_update(context const& ctx, float dt) {
 	}
 
 	if (is_dirty_) {
-		auto anchor_offset = vec2<float>(
-			anchor.x * bounds_.width,
-			anchor.y * bounds_.height
-		);
-		
-		auto skew_rad = vec2<float>(
-			math::degrees_to_radians(skew.x),
-			math::degrees_to_radians(skew.y)
-		);
-		
-		float rotation_rad = math::degrees_to_radians(rotation);
-
-		mat3 T = mat3::translation(pos);
-		mat3 R = mat3::rotation(rotation_rad);
-		mat3 S = mat3::scale(scale);
-		mat3 K = mat3::skew(skew_rad);
-		mat3 A = mat3::translation(-anchor_offset);
-
-		local_transform_ = T * R * S * K * A;
-
-		if (auto p = parent_.lock()) {
-			world_transform_ = p->world_transform_ * local_transform_;
-			world_alpha_ = std::clamp(alpha * p->world_alpha_, 0.f, 1.f);
-		} else {
-			float ui_scale = ctx.window() ? ctx.window()->ui_scale() : 1.f;
-			mat3 UI = mat3::scale(vec2<float>(ui_scale, ui_scale));
-			world_transform_ = UI * local_transform_;
-			world_alpha_ = alpha;
-		}
-
+		on_dirty(ctx);
 		is_dirty_ = false;
 	}
 
@@ -327,6 +298,38 @@ void Node::mark_dirty() {
 				child->mark_dirty();
 			}
 		}
+	}
+}
+
+void Node::on_dirty(context const& ctx) {
+	auto anchor_offset = vec2<float>(
+			anchor.x * bounds_.width,
+			anchor.y * bounds_.height
+	);
+
+	auto skew_rad = vec2<float>(
+		math::degrees_to_radians(skew.x),
+		math::degrees_to_radians(skew.y)
+	);
+
+	float rotation_rad = math::degrees_to_radians(rotation);
+
+	mat3 T = mat3::translation(pos);
+	mat3 R = mat3::rotation(rotation_rad);
+	mat3 S = mat3::scale(scale);
+	mat3 K = mat3::skew(skew_rad);
+	mat3 A = mat3::translation(-anchor_offset);
+
+	local_transform_ = T * R * S * K * A;
+
+	if (auto p = parent_.lock()) {
+		world_transform_ = p->world_transform_ * local_transform_;
+		world_alpha_ = std::clamp(alpha * p->world_alpha_, 0.f, 1.f);
+	} else {
+		float ui_scale = ctx.window() ? ctx.window()->ui_scale() : 1.f;
+		mat3 UI = mat3::scale(vec2<float>(ui_scale, ui_scale));
+		world_transform_ = UI * local_transform_;
+		world_alpha_ = alpha;
 	}
 }
 

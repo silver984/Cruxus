@@ -18,47 +18,45 @@ namespace {
 
 Rectangle rl_rect(crx::vec2<float> const& p, crx::size<float> const& s) {
 	return {
-		p.x,
-		p.y,
-		s.width,
-		s.height
+		.x = p.x,
+		.y = p.y,
+		.width = s.width,
+		.height = s.height
 	};
 }
 
 Color rl_color(crx::rgb const& color, float alpha) {
 	return {
-		color.r,
-		color.g,
-		color.b,
-		static_cast<uint8_t>(255.f * alpha)
+		.r = color.r,
+		.g = color.g,
+		.b = color.b,
+		.a = static_cast<uint8_t>(255.f * alpha)
 	};
 }
 
 Texture rl_texture(crx::texture const& texture) {
 	return {
-		texture.id,
-		texture.bounds.width,
-		texture.bounds.height,
-		texture.mipmaps,
-		texture.format
+		.id = texture.id,
+		.width = texture.bounds.width,
+		.height = texture.bounds.height,
+		.mipmaps = texture.mipmaps,
+		.format = texture.format
 	};
 }
 
 Vector2 rl_vector(crx::vec2<float> const& vec2) {
 	return {
-		vec2.x,
-		vec2.y
+		.x = vec2.x,
+		.y = vec2.y
 	};
 }
 
 Matrix rl_matrix(crx::mat3 const& matrix) {
 	return {
-		matrix.m[0][0], matrix.m[1][0],
-		0.f, 0.f,
-		matrix.m[0][1], matrix.m[1][1],
-		0.f, 0.f, 0.f, 0.f, 1.f, 0.f,
-		matrix.m[0][2], matrix.m[1][2],
-		0.f, 1.f
+		.m0 = matrix.m[0][0], .m4 = matrix.m[0][1], .m8 = 0.f, .m12 = matrix.m[0][2],
+		.m1 = matrix.m[1][0], .m5 = matrix.m[1][1], .m9 = 0.f, .m13 = matrix.m[1][2],
+		.m2 = 0.f, .m6 = 0.f, .m10 = 1.f, .m14 = 0.f,
+		.m3 = 0.f, .m7 = 0.f, .m11 = 0.f, .m15 = 1.f
 	};
 }
 
@@ -68,37 +66,7 @@ void rl_push_mult_matrix(crx::mat3 const& matrix) {
 	rlMultMatrixf(&rm.m0);
 }
 
-}
-
-namespace crx::rl {
-
-bool init_window(size<int> const& bounds, int fps, char const* title) {
-	InitWindow(bounds.width, bounds.height, title);
-
-	if (!IsWindowReady() || !GetWindowHandle()) {
-		return false;
-	}
-
-	int monitor = GetCurrentMonitor();
-	SetWindowPosition(
-		(GetMonitorWidth(monitor) / 2) - (bounds.width / 2),
-		(GetMonitorHeight(monitor) / 2) - (bounds.height / 2)
-	);
-	set_window_size(bounds);
-	SetTargetFPS(fps);
-	SetExitKey(KEY_NULL);
-	return true;
-}
-
-void set_window_size(size<int> const& bounds) {
-	GLFWwindow* glfw_window = glfwGetCurrentContext();
-
-	if (!glfw_window) {
-		return;
-	}
-
-	SetWindowSize(bounds.width, bounds.height);
-
+void set_window_aspect_ratio(GLFWwindow* const& window, crx::size<int> const& bounds) {
 	int gcd = std::gcd(bounds.width, bounds.height);
 	int aspect_w = bounds.width / gcd;
 	int aspect_h = bounds.height / gcd;
@@ -111,7 +79,37 @@ void set_window_size(size<int> const& bounds) {
 		aspect_h = 1;
 	}
 
-	glfwSetWindowAspectRatio(glfw_window, aspect_w, aspect_h);
+	glfwSetWindowAspectRatio(window, aspect_w, aspect_h);
+}
+
+}
+
+namespace crx::rl {
+
+bool init_window(size<int> const& bounds, int fps, char const* title) {
+	InitWindow(bounds.width, bounds.height, title);
+
+	if (!GetWindowHandle()) {
+		log::error("Couldn't initialize | Window handle is nullptr");
+		return false;
+	}
+
+	set_window_aspect_ratio(glfwGetCurrentContext(), bounds);
+	SetTargetFPS(fps);
+	SetExitKey(KEY_NULL);
+	
+	return true;
+}
+
+void set_window_size(size<int> const& bounds) {
+	GLFWwindow* glfw_window = glfwGetCurrentContext();
+
+	if (!glfw_window) {
+		return;
+	}
+
+	SetWindowSize(bounds.width, bounds.height);
+	set_window_aspect_ratio(glfwGetCurrentContext(), bounds);
 }
 
 void set_texture_antialiasing(texture const& texture, bool val) {
@@ -141,7 +139,7 @@ std::optional<texture> load_texture_stb(char const* file_path) {
 
 		return std::nullopt;
 	} else {
-		log::trace(
+		log::debug(
 			fmt::format(
 				"stbi loaded \"{}\" | {}x{} channels: {}",
 				file_path,

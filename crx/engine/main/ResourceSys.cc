@@ -27,7 +27,7 @@ ResourceSys::ResourceSys() :
 
     auto& audio_formats = supported_formats_[audio];
     audio_formats.reserve(2);
-    audio_formats.emplace_back("png");
+    audio_formats.emplace_back("mp3");
     audio_formats.emplace_back("wav");
 
     auto& data_formats = supported_formats_[data];

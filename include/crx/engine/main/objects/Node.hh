@@ -75,6 +75,7 @@ private:
 	void base_draw(context const& ctx) const;
 	bool has_ancestor(sptr<Node> vessel) const;
 	void mark_dirty();
+	void on_dirty(context const& ctx);
 
 	wptr<Node> parent_;
 	std::vector<sptr<Node>> children_;

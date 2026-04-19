@@ -33,7 +33,7 @@ template <numeric T>
 }
 
 template <numeric T>
-[[nodiscard]] vec2<T> clamp(const vec2<T>& val, const vec2<T>& min_val, const vec2<T>& max_val) {
+[[nodiscard]] vec2<T> clamp_vec2(const vec2<T>& val, const vec2<T>& min_val, const vec2<T>& max_val) {
     return vec2<T>(std::clamp(val.x, min_val.x, max_val.x), std::clamp(val.y, min_val.y, max_val.y));
 }
 
