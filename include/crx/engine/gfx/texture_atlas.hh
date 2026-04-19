@@ -6,6 +6,40 @@
 #include <crx/engine/util/string_map.hh>
 #include <vector>
 
+//{
+//	"texture": "resources/img.png"
+//		"run" : {
+//		"fps": 12,
+//			"loop" : true,
+//			"frames" : [
+//		{
+//			"position": [0, 0] ,
+//				"size" : [120, 120] ,
+//				"offsets" : [20, 10] ,
+//				"scale" : [1, 1] ,
+//				"pivot" : [0.5, 0.5] ,
+//				"rotation" : 0
+//		},
+//			{
+//				"position": [120, 0] ,
+//				"size" : [110, 120] ,
+//				"offsets" : [15, 10] ,
+//				"scale" : [1, 1] ,
+//				"pivot" : [0.5, 0.5] ,
+//				"rotation" : 0
+//			},
+//			{
+//				"position": [230, 0] ,
+//				"size" : [130, 110] ,
+//				"offsets" : [20, 5] ,
+//				"scale" : [1, 1] ,
+//				"pivot" : [0.5, 0.5] ,
+//				"rotation" : 0
+//			}
+//			]
+//	}
+//}
+
 namespace crx {
 
 struct CRX_DLL texture_atlas final {
