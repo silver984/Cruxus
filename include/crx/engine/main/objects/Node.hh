@@ -14,6 +14,7 @@
 #include <type_traits>
 
 namespace crx {
+
 class Director;
 class CRX_DLL Node : public std::enable_shared_from_this<Node> {
 	friend class Director;
@@ -59,6 +60,7 @@ public:
 	float time_scale;
 	bool is_visible;
 	bool is_active;
+
 protected:
 	virtual bool init(context const& ctx);
 	virtual void update(context const& ctx, float dt);
@@ -66,6 +68,7 @@ protected:
 	mat3 world_transform() const;
 
 	size<float> bounds_;
+
 private:
 	bool base_init(context const& ctx);
 	void base_update(context const& ctx, float dt);
@@ -89,4 +92,5 @@ private:
 	bool is_dirty_;
 	bool is_initialized_;
 };
+
 }

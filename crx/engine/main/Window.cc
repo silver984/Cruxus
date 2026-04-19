@@ -51,6 +51,9 @@ Window::Window() :
 {}
 
 // private
+Window::~Window() = default;
+
+// private
 bool Window::init(
 	std::string_view title,
 	size<int> const& size,

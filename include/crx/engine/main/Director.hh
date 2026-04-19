@@ -5,12 +5,14 @@
 #include <crx/engine/util/pointers.hh>
 
 namespace crx {
+
 class Game;
 class CRX_DLL Director final {
 	friend class Game;
 private:
 	Director();
 	~Director();
+
 public:
 	Director(const Director&) = delete;
 	Director(Director&&) = delete;
@@ -20,6 +22,7 @@ public:
 	void switch_scene(sptr<Node>&& new_scene);
 	void destroy_current_scene();
 	[[nodiscard]] wptr<Node> current_scene();
+
 private:
 	void update(context const& ctx, float dt);
 	void draw(context const& ctx);
@@ -29,4 +32,5 @@ private:
 	sptr<Node> pending_scene_;
 	bool is_destroying_current_scene_;
 };
+
 }

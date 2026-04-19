@@ -23,6 +23,7 @@ class CRX_DLL Window final {
     friend class Game;
 private:
     Window();
+    ~Window();
 
 public:
     Window(Window const&) = delete;

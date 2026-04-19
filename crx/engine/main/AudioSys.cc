@@ -86,7 +86,7 @@ struct AudioSys::impl final {
         return true;
     }
 
-    void uninit() {
+    void shutdown() {
         if (!user_data.is_initialized.load()) {
             return;
         }
@@ -243,8 +243,8 @@ bool AudioSys::init(Window* Window) {
 }
 
 // private
-void AudioSys::uninit() const {
-    impl_->uninit();
+void AudioSys::shutdown() const {
+    impl_->shutdown();
 }
 
 }

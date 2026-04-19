@@ -3,6 +3,7 @@
 #include <crx/engine/debug/log.hh>
 
 namespace crx {
+
 // private
 Director::Director() :
 	is_destroying_current_scene_(false)
@@ -67,4 +68,5 @@ void Director::safely_destroy_scene() {
 	current_scene_ = nullptr;
 	log::info("Scene destroyed");
 }
+
 }

@@ -1,8 +1,10 @@
 #pragma once
 #include <crx/config.hh>
 
+// TODO: remove this whole thing
+
 namespace crx {
-class Game;s
+class Game;
 class CRX_DLL CrashManager final {
 	friend class Game;
 private:

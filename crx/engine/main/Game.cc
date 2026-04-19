@@ -10,6 +10,8 @@ Game::Game() :
 	is_window_minimized_(false)
 {}
 
+Game::~Game() = default;
+
 bool Game::init(
 	std::string_view win_title,
 	size<int> const& win_size,

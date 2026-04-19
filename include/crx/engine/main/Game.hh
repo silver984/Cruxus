@@ -15,6 +15,7 @@ namespace crx {
 class CRX_DLL Game final {
 public:
 	Game();
+	~Game();
 	Game(Game const&) = delete;
 	Game(Game&&) = delete;
 	Game& operator=(Game const&) = delete;

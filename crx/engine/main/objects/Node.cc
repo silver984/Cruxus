@@ -5,6 +5,7 @@
 #include <cmath>
 
 namespace crx {
+
 Node::Node() :
 	color(255, 255, 255),
 	pos(0.f, 0.f),
@@ -241,11 +242,11 @@ void Node::base_update(context const& ctx, float dt) {
 		);
 		
 		auto skew_rad = vec2<float>(
-			math::deg2rad(skew.x),
-			math::deg2rad(skew.y)
+			math::degrees_to_radians(skew.x),
+			math::degrees_to_radians(skew.y)
 		);
 		
-		float rotation_rad = math::deg2rad(rotation);
+		float rotation_rad = math::degrees_to_radians(rotation);
 
 		mat3 T = mat3::translation(pos);
 		mat3 R = mat3::rotation(rotation_rad);
@@ -328,4 +329,5 @@ void Node::mark_dirty() {
 		}
 	}
 }
+
 }

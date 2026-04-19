@@ -5,6 +5,7 @@
 #include <vector>
 
 namespace crx {
+
 class Game;
 class Window;
 class CRX_DLL AudioSys final {
@@ -21,7 +22,7 @@ public:
 	void push_audio(sptr<std::vector<float>> pcm, float volume) const;
 private:
 	bool init(Window* Window);
-	void uninit() const;
+	void shutdown() const;
 
 	struct impl;
 	uptr<impl> impl_;

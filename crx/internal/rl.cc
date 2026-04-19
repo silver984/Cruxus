@@ -11,12 +11,12 @@
 #include <cstdint>
 #include <numeric>
 #include <stb_image.h>
-#include <crx/engine/log.hh>
+#include <crx/engine/debug/log.hh>
 #include <fmt/format.h>
 
 namespace {
 
-Rectangle rl_rect(slv::vec2<float> const& p, slv::size<float> const& s) {
+Rectangle rl_rect(crx::vec2<float> const& p, crx::size<float> const& s) {
 	return {
 		p.x,
 		p.y,
@@ -25,7 +25,7 @@ Rectangle rl_rect(slv::vec2<float> const& p, slv::size<float> const& s) {
 	};
 }
 
-Color rl_color(slv::rgb const& color, float alpha) {
+Color rl_color(crx::rgb const& color, float alpha) {
 	return {
 		color.r,
 		color.g,
@@ -34,7 +34,7 @@ Color rl_color(slv::rgb const& color, float alpha) {
 	};
 }
 
-Texture rl_texture(slv::texture const& texture) {
+Texture rl_texture(crx::texture const& texture) {
 	return {
 		texture.id,
 		texture.bounds.width,
@@ -44,14 +44,14 @@ Texture rl_texture(slv::texture const& texture) {
 	};
 }
 
-Vector2 rl_vector(slv::vec2<float> const& vec2) {
+Vector2 rl_vector(crx::vec2<float> const& vec2) {
 	return {
 		vec2.x,
 		vec2.y
 	};
 }
 
-Matrix rl_matrix(slv::mat3 const& matrix) {
+Matrix rl_matrix(crx::mat3 const& matrix) {
 	return {
 		matrix.m[0][0], matrix.m[1][0],
 		0.f, 0.f,
@@ -62,7 +62,7 @@ Matrix rl_matrix(slv::mat3 const& matrix) {
 	};
 }
 
-void rl_push_mult_matrix(slv::mat3 const& matrix) {
+void rl_push_mult_matrix(crx::mat3 const& matrix) {
 	rlPushMatrix();
 	Matrix rm = rl_matrix(matrix);
 	rlMultMatrixf(&rm.m0);

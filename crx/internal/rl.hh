@@ -1,6 +1,10 @@
 #pragma once
-#include <crx/types/primitives.hh>
-#include <crx/types/graphic.hh>
+#include <crx/engine/math/vec2.hh>
+#include <crx/engine/math/size.hh>
+#include <crx/engine/math/mat3.hh>
+#include <crx/engine/math/rect.hh>
+#include <crx/engine/gfx/texture.hh>
+#include <crx/engine/gfx/rgb.hh>
 #include <optional>
 
 namespace crx::rl {

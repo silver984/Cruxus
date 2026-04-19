@@ -23,6 +23,7 @@ add_library(cruxus::cruxus ALIAS cruxus)
 target_sources(cruxus
     PRIVATE
         crx/engine/debug/log.cc
+        crx/engine/math/mat3.cc
 )
 
 add_subdirectory(crx/external)

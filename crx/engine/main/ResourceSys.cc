@@ -15,13 +15,25 @@ namespace crx {
 
 // private
 ResourceSys::ResourceSys() :
-    since_cleanup_(0.f),
-    supported_formats_({
-            std::vector<std::string>{ "png", "jpg", "jpeg" }, // image
-            std::vector<std::string>{ "mp3", "wav" }, // audio
-            std::vector<std::string>{ "xml" } // data
-        })
-{}
+    since_cleanup_(0.f)
+{
+    using enum format_type;
+
+    auto& image_formats = supported_formats_[image];
+    image_formats.reserve(3);
+    image_formats.emplace_back("png");
+    image_formats.emplace_back("jpg");
+    image_formats.emplace_back("jpeg");
+
+    auto& audio_formats = supported_formats_[audio];
+    audio_formats.reserve(2);
+    audio_formats.emplace_back("png");
+    audio_formats.emplace_back("wav");
+
+    auto& data_formats = supported_formats_[data];
+    data_formats.reserve(1);
+    data_formats.emplace_back("xml");
+}
 
 // private
 ResourceSys::~ResourceSys() = default;
@@ -37,8 +49,9 @@ sptr<texture> ResourceSys::load_texture(std::string_view path) {
         return it->second;
     }
 
+    using enum format_type;
     const auto& ext = parsed.extension;
-    if (!is_format_supported(format_type::IMAGE, ext)) {
+    if (!is_format_supported(image, ext)) {
         log_unsupported_format(ext, abs_path);
         return nullptr;
     }
@@ -66,7 +79,7 @@ sptr<atlas_data> ResourceSys::load_atlas_data(std::string_view path) {
     }
 
     const auto& ext = parsed.extension;
-    if (!is_format_supported(format_type::DATA, ext)) {
+    if (!is_format_supported(DATA, ext)) {
         log_unsupported_format(ext, abs_path);
         return nullptr;
     }
@@ -186,8 +199,9 @@ sptr<std::vector<float>> ResourceSys::load_pcm_data(std::string_view path) {
         return it->second;
     }
 
+    using enum format_type;
     const std::string& ext = parsed.extension;
-    if (!is_format_supported(format_type::AUDIO, ext)) {
+    if (!is_format_supported(audio, ext)) {
         log_unsupported_format(ext, abs_path);
         return nullptr;
     }
@@ -260,7 +274,7 @@ void ResourceSys::clean_cache() {
         };
 
     clean(cached_textures_);
-    clean(cached_atlas_datas_);
+    // clean(cached_atlas_datas_);
     clean(cached_pcm_datas_);
 }
 
