@@ -24,7 +24,7 @@ protected:
 
 	std::string texture_file_path_;
 	rect<float> source_rect_;
-	sptr<texture> texture_;
+	sptr<texture_atlas> texture_atlas_;
 };
 
 }

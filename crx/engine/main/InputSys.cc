@@ -50,11 +50,11 @@ void InputSys::update(float dt) {
 	cur_key_pressed_ = keys::none;
 
 	for (keys key : all_keys) {
-		if (IsKeyDown((int)key)) {
+		if (IsKeyDown(static_cast<int>(key))) {
 			cur_down_keys.set(static_cast<size_t>(key));
 		}
 
-		if (IsKeyPressed((int)key)) {
+		if (IsKeyPressed(static_cast<int>(key))) {
 			cur_key_pressed_ = key;
 		}
 	}

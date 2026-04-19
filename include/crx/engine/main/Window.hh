@@ -87,7 +87,7 @@ private:
         config& cnfg,
         context const& ctx
     );
-    void uninit();
+    void shutdown();
     void update(context const& ctx, float dt);
     void start_draw() const;
     void end_draw();

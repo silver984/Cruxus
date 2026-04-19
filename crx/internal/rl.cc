@@ -170,7 +170,7 @@ std::optional<texture> load_texture_stb(char const* file_path) {
 		tex.id,
 		size<int>(tex.width, tex.height),
 		tex.mipmaps,
-		tex.format
+		static_cast<pixel_format>(tex.format)
 	);
 }
 

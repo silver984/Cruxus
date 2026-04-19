@@ -91,7 +91,7 @@ struct AudioSys::impl final {
             return;
         }
 
-        log::info("Exiting...");
+        log::info("Shutting down...");
 
         if (
             auto res = ma_device_stop(&user_data.device);

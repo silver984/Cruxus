@@ -86,20 +86,20 @@ bool Window::init(
 	is_initialized_ = true;
 	update(ctx, 0.f);
 
-	log::info("Window initialized");
+	log::info("Initialized");
 
 	return true;
 }
 
 // private
-void Window::uninit() {
+void Window::shutdown() {
 	if (!is_initialized_) {
 		return;
 	}
 
 	is_initialized_ = false;
 
-	log::debug("Destroying Window...");
+	log::info("Shutting down...");
 	
 	CloseWindow();
 }

@@ -93,7 +93,7 @@ void Game::run() {
 
 	director_.safely_destroy_scene();
 	resource_.clean_cache();
-	audio_.uninit();
+	audio_.shutdown();
 	window_.uninit();
 
 	auto end = std::chrono::high_resolution_clock::now();
