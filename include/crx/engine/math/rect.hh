@@ -9,6 +9,8 @@ template<numeric T>
 struct rect final {
 	vec2<T> pos;
 	size<T> bounds;
+
+	// TODO: operators
 };
 
 }
