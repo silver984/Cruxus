@@ -8,7 +8,7 @@
 namespace crx::math {
 
 template <numeric T>
-[[nodiscard]] T lerp(T a, T b, T t) {
+T lerp(T a, T b, T t) {
     return a + (b - a) * t;
 }
 
@@ -28,12 +28,12 @@ template <numeric T>
 }
 
 template <numeric T>
-[[nodiscard]] vec2<T> lerp(const vec2<T>& a, const vec2<T>& b, T t) {
+vec2<T> lerp(const vec2<T>& a, const vec2<T>& b, T t) {
     return vec2<T>(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t);
 }
 
 template <numeric T>
-[[nodiscard]] vec2<T> clamp_vec2(const vec2<T>& val, const vec2<T>& min_val, const vec2<T>& max_val) {
+vec2<T> clamp_vec2(const vec2<T>& val, const vec2<T>& min_val, const vec2<T>& max_val) {
     return vec2<T>(std::clamp(val.x, min_val.x, max_val.x), std::clamp(val.y, min_val.y, max_val.y));
 }
 
@@ -59,7 +59,7 @@ template <numeric T>
 }
 
 template <numeric T>
-[[nodiscard]] vec2<T> damp(const vec2<T>& current, const vec2<T>& target, T lambda, T dt) {
+vec2<T> damp(const vec2<T>& current, const vec2<T>& target, T lambda, T dt) {
     T t = T{1} - std::exp(-lambda * dt);
     return lerp(current, target, t);
 }
@@ -75,7 +75,7 @@ template <numeric T>
 }
 
 template <numeric T>
-[[nodiscard]] vec2<T> rotate_point(vec2<T> point, vec2<T> origin, T rotation_degree) {
+vec2<T> rotate_point(vec2<T> point, vec2<T> origin, T rotation_degree) {
     T rad = degrees_to_radians(rotation_degree);
 
     vec2<T> unrotated = vec2<T>(point.x - origin.x, point.y - origin.y);
