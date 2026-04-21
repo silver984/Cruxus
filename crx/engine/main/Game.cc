@@ -6,11 +6,12 @@
 namespace crx {
 
 Game::Game() :
-	is_initialized_(false),
-	is_window_minimized_(false)
+	is_initialized_(false)
 {}
 
-Game::~Game() = default;
+Game::~Game() {
+	shutdown();
+}
 
 bool Game::init(
 	std::string_view win_title,
@@ -35,7 +36,7 @@ bool Game::init(
 		return false;
 	}
 
-	if (!audio_.init(&window_)) {
+	if (!audio_sys_.init(&window_)) {
 		log::warning("Failed to initialize audio");
 	}
 
@@ -45,7 +46,7 @@ bool Game::init(
 
 	is_initialized_ = true;
 
-	log::info("Game initialized");
+	log::info("Initialized");
 
 	return true;
 }
@@ -55,61 +56,53 @@ void Game::run() {
 		return;
 	}
 
-	auto _ctx_ = ctx();
+	auto ctx_val = ctx();
 
 	while (window_.is_open()) {
-		// update
-		{
-			// auto start = std::chrono::high_resolution_clock::now();
-			
-			float dt = window_.delta_time();
-			window_.update(_ctx_, dt);
-			input_.update(dt);
-			resource_.update(dt);
-			director_.update(_ctx_, dt);
+		float dt = window_.delta_time();
+		window_.update(ctx_val, dt);
+		input_sys_.update(dt);
+		resource_sys_.update(dt);
+		director_.update(ctx_val, dt);
 
-			/*auto end = std::chrono::high_resolution_clock::now();
-			auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-			debug_.push_update_cpu_time(elapsed.count());*/
-		}
-
-		// draw
-		{
-			// auto start = std::chrono::high_resolution_clock::now();
-
-			window_.start_draw();
-			director_.draw(_ctx_);
-			window_.end_draw();
-			
-			/*auto end = std::chrono::high_resolution_clock::now();
-			std::chrono::duration<float> elapsed = end - start;
-			debug_.push_draw_cpu_time(elapsed.count());*/
-		}
+		window_.start_draw();
+		director_.draw(ctx_val);
+		window_.end_draw();
 	}
 
-	log::debug("Cleaning up...");
-	
+	shutdown();
+}
+
+context Game::ctx() {
+	return context(
+		&audio_sys_,
+		&input_sys_,
+		&resource_sys_,
+		&director_,
+		&window_
+	);
+}
+
+// private
+void Game::shutdown() {
+	if (!is_initialized_) {
+		return;
+	}
+
+	log::debug("Shutting down...");
+
 	auto start = std::chrono::high_resolution_clock::now();
 
 	director_.safely_destroy_scene();
-	resource_.clean_cache();
-	audio_.shutdown();
-	window_.uninit();
+	resource_sys_.clean_cache();
+	audio_sys_.shutdown();
+	window_.shutdown();
+	is_initialized_ = false;
 
 	auto end = std::chrono::high_resolution_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
 	log::debug(fmt::format("Took {}ms", elapsed.count()));
-}
-
-context Game::ctx() {
-	return context(
-		&audio_,
-		&input_,
-		&resource_,
-		&director_,
-		&window_
-	);
 }
 
 }

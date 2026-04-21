@@ -80,6 +80,14 @@ enum class pixel_format : int {
 // Raylib's Texture (aka Texture2D) construct
 // This type is simply for dependency decoupling
 struct CRX_DLL texture final {
+    texture();
+    texture(
+        uint32_t id_val,
+        size<int> bounds_val,
+        int mipmaps_val,
+        pixel_format format_val
+    );
+
 	uint32_t id; // OpenGL texture id
 	size<int> bounds;
 	int mipmaps;

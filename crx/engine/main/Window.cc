@@ -451,8 +451,6 @@ vec2<int> Window::pos() const {
 
 // private
 void Window::configure_configurations(config& specs) {
-	// TODO: fix startup with this setting on
-
 	int flags = 0;
 
 	if (specs.transparent) {
@@ -477,6 +475,7 @@ void Window::configure_configurations(config& specs) {
 		flags |= FLAG_WINDOW_RESIZABLE;
 	}
 
+	// TODO: fix startup with this setting on
 	if (specs.start_fullscreen) {
 		flags |= FLAG_FULLSCREEN_MODE;
 	}

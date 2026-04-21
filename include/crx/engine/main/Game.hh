@@ -31,14 +31,15 @@ public:
 	[[nodiscard]] context ctx();
 
 private:
-	AudioSys audio_;
+	void shutdown();
+
+	AudioSys audio_sys_;
 	// CrashManager crash_;
-	InputSys input_;
-	ResourceSys resource_;
+	InputSys input_sys_;
+	ResourceSys resource_sys_;
 	Director director_;
 	Window window_;
 	bool is_initialized_;
-	bool is_window_minimized_;
 };
 
 }

@@ -2,6 +2,14 @@
 
 namespace crx {
 
+context::context() :
+	audio_sys_(nullptr),
+	input_sys_(nullptr),
+	resource_sys_(nullptr),
+	director_(nullptr),
+	window_(nullptr)
+{}
+
 context::context(
 	AudioSys* a,
 	InputSys* i,
