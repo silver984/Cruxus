@@ -7,9 +7,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(cruxus VERSION 1.0.0 LANGUAGES CXX)
 
-set(crx_audio_channels 2 CACHE STRING "Number of audio channels")
-set_property(CACHE crx_audio_channels PROPERTY STRINGS 1 2)
-set(crx_audio_sample_rate 48000 CACHE STRING "Sound sample rate")
+# TODO: options
+# set(crx_audio_channels 2 CACHE STRING "Number of audio channels")
+# set_property(CACHE crx_audio_channels PROPERTY STRINGS 1 2)
+# set(crx_audio_sample_rate 48000 CACHE STRING "Sound sample rate")
 
 find_package(raylib CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
@@ -20,32 +21,24 @@ find_package(nlohmann_json CONFIG REQUIRED)
 add_library(cruxus SHARED)
 add_library(cruxus::cruxus ALIAS cruxus)
 
-target_sources(cruxus
-    PRIVATE
-        crx/engine/debug/log.cc
-        crx/engine/math/mat3.cc
-)
-
-add_subdirectory(crx/external)
-add_subdirectory(crx/internal)
-add_subdirectory(crx/engine/main)
+add_subdirectory(cruxus)
 
 target_include_directories(cruxus
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
     PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/crx/internal
+        ${CMAKE_CURRENT_SOURCE_DIR}/cruxus/internal
 )
 
 target_compile_definitions(cruxus
     PRIVATE
-        CRX_EXPORTS
+        CRUXUS_EXPORTS
     PUBLIC
-        CRX_AUDIO_CHANNELS=${crx_audio_channels}
-        CRX_AUDIO_SAMPLE_RATE=${crx_audio_sample_rate}
-        $<$<CONFIG:Debug>:CRX_DEBUG>
-        $<$<CONFIG:RelWithDebInfo>:CRX_RELWITHDEBINFO>
+        CRUXUS_AUDIO_CHANNELS=2
+        CRUXUS_AUDIO_SAMPLE_RATE=48000
+        $<$<CONFIG:Debug>:CRUXUS_DEBUG>
+        $<$<CONFIG:RelWithDebInfo>:CRUXUS_RELWITHDEBINFO>
 )
 
 target_link_libraries(cruxus
